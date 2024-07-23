@@ -86,6 +86,7 @@
                 </ul>
             </div>
         </nav>
+        <!-- start modal -->
         <div class="modal" id="modal" action="new" tabindex="-1">
         <div class="modal-dialog ">
             <div class="modal-content">
@@ -122,6 +123,7 @@
             </div>
         </div>
     </div>
+    <!-- close modal -->
     <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
             <div class="room-content p-2">

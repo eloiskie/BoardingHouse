@@ -88,7 +88,7 @@
         </nav>
         <main class="content px-2 py-2 h-100">
         <div class="container-fluid">
-                    <div class="row" id="houseCardsContainer">
+                    <div class="row" id="roomContainer">
                         
                     </div>
                 </div>
