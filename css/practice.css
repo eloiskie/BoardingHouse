@@ -1,0 +1,10 @@
+.side1{
+    border: 2px solid blue;
+}
+.side2{
+    border: 2px solid red;
+    width: 230px;
+}
+.main-container{
+    display: none;
+}
