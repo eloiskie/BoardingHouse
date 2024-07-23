@@ -87,93 +87,130 @@
             </div>
         </nav>
         <!-- start modal -->
+         <!-- modal-step-1 -->
         <div class="modal" id="modal-1" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-            <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                <h5 class="modal-title" style="color: white">Add Tenant</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="progress m-2" style="height: 2px;">
-            <div class="progress-bar" role="progressbar" style="width: 33.33%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            <form>
-            <div class="modal-content p-4">
-            <div class="mb-3">
-                <label for="tenantName" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="inpt-name" >
-            </div>
-            <div class="mb-3">
-                <label for="contactNumber" class="form-label">Contact Number</label>
-                <input type="number" class="form-control" id="inpt-number">
-            </div>
-            <div class="mb-3">
-                <label for="homeAddress" class="form-label">Address</label>
-                <input type="text" class="form-control" id="inpt-address">
-            </div>
-            <div class="row mb-3">
-            <div class="col">
-                <label for="province-input" class="form-label">Province</label>
-                <input type="text" id="inpt-province" class="form-control" placeholder="Province">
-            </div>
-            <div class="col">
-                <label for="city-input" class="form-label">City/Municipality</label>
-                <input type="text" id="inpt-city" class="form-control" placeholder="City">
-            </div>
-            <div class="col">
-                <label for="zip-input" class="form-label">Zip Code</label>
-                <input type="text" id="inpt-zipCode" class="form-control" placeholder="Zip Code">
-            </div>
-            </div>
-            </form>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="btn-nextInfo">Next</button>
-            </div>
-            </div>
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="progress m-2" style="height: 2px;">
+                <div class="progress-bar" role="progressbar" style="width: 33.33%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <form>
+                <div class="modal-content p-4">
+                <div class="mb-2">
+                    <h4 class="mb-2">Tenant Info</h4>
+                    <label for="tenantName" class="form-label" style="font-size: 14px">Full Name</label>
+                    <input type="text" class="form-control" id="inpt-name" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                    <input type="number" class="form-control" id="inpt-number" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="homeAddress" class="form-label" style="font-size: 14px">Address</label>
+                    <input type="text" class="form-control" id="inpt-address" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="row mb-2">
+                <div class="col">
+                    <label for="province-input" class="form-label" style="font-size: 14px">Province</label>
+                    <input type="text" id="inpt-province" class="form-control" placeholder="Province" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="col">
+                    <label for="city-input" class="form-label" style="font-size: 14px">City/Municipality</label>
+                    <input type="text" id="inpt-city" class="form-control" placeholder="City" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="col">
+                    <label for="zip-input" class="form-label" style="font-size: 14px">Zip Code</label>
+                    <input type="number" id="inpt-zipCode" class="form-control" placeholder="Zip Code" style="font-size: 15px; height: 30px">
+                </div>
+                </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-nextStep">Next</button>
+                </div>
+                </div>
+                </div>
             </div>
         </div>
+        <!-- modal-step-2 -->
+        <div class="modal" id="modal-2" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="progress m-2" style="height: 2px;">
+                <div class="progress-bar" role="progressbar" style="width: 66.66%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <form>
+                <div class="modal-content p-4">
+                <div class="mb-2">
+                    <h4 class="mb-2">Other Information</h4>
+                    <label for="fatherName" class="form-label" style="font-size: 14px">Father's Full Name</label>
+                    <input type="text" class="form-control" id="inpt-fatherName" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                    <input type="number" class="form-control" id="inpt-fatherNumber" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="motherName" class="form-label" style="font-size: 14px">Mother's Full Name</label>
+                    <input type="text" class="form-control" id="inpt-motherName" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                    <input type="number" class="form-control" id="inpt-fatherNumber" style="font-size: 15px; height: 30px">
+                </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-nextInfo">Next</button>
+                </div>
+                </div>
+                </div>
+            </div>
         </div>
         <!-- end Modal -->
         <main class="content px-4 py-4">
         <div class="container-fluid bg-white">
-            <div class="room-content p-2">
-                <div class="row">
-                    <h1>Tenant</h1>
-                    <div class="d-flex align-items-center py-2" style="height: 50px;">
-                        <div class="d-flex align-items-center">
-                            <label for="sel-roomType" class="form-label m-2">Search</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Name" aria-label="Recipient's username" aria-describedby="button-addon2">
-                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+                <div class="room-content p-2">
+                    <div class="row">
+                        <div class="d-md-flex" id="house-location-container"></div>
+                        <div class="d-flex align-items-center py-2" style="height: 50px;">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="sel-roomType" class="form-label me-2">Search</label>
+                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
+                            </div>
+                            <div class="ms-auto mb-2">
+                                <button class="btn btn-primary btn-sm p-2" type="button" id="btn-add" style="font-size: 12px;">Add Tenant</button>
                             </div>
                         </div>
-                        <div class="ms-auto">
-                            <button class="btn btn-primary btn-sm p-2" type="button" id="btn-add" style="font-size: 12px;">Add Tenant</button>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-                        <div class="table-wrapper">
-                            <table class="table table-hover">
-                                <thead class="table-dark    ">
-                                    <tr>
-                                        <th scope="col">Tenant Name</th>
-                                        <th scope="col">House Location</th>
-                                        <th scope="col">Room Number</th>
-                                        <th scope="col">Data Started</th>
-                                        <th scope="col">Room Fee</th>
-                                        <th scope="col">Balance</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody" >
-                                    <!-- Table rows go here -->
-                                </tbody>
-                            </table>
+                        <div class="table-responsive">
+                            <div class="table-wrapper">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr style="font-size: 15px">
+                                            <th scope="col">Name</th>
+                                            <th scope="col">House Rented</th>
+                                            <th scope="col">Room Number</th>
+                                            <th scope="col">Monthly Rate</th>
+                                            <th scope="col">Outstanding Balance</th>
+                                            <th scope="col">Last Payment</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody" style="font-size: 15px;" >
+                                        <!-- Table rows go here -->
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </main>
         </div>
     </div>
@@ -193,23 +230,38 @@
     BindEvents: function() {
         const $this = this.config;
             $this.$btn_add.on('click', this.modalShow.bind(this));
-            $this.$btn_next.on('click', this.nextModal.bind(this));
+            $this.$btn_nextStep.on('click', this.step_1_Modal.bind(this));
             
     },
     modalShow: function(){
         const $self = this.config;
             $self.$modal_1.modal('show');
     },
-    nextModal: function(){
+    step_1_Modal: function(){
         const $self = this.config;
-            const modalContent = 
+
+        if($self.$inpt_name.val().trim()==="" || $self.$inpt_number.val().trim()==="" || $self.$inpt_address.val().trim()==="" ||
+        $self.$inpt_province.val().trim()==="" || $self.$inpt_city.val().trim()==="" || $self.$inpt_zipCode.val().trim()===""){
+            alert("ok");
+        }else{
+            $self.$modal_1.modal("hide");
+            $self.$modal_2.modal("show");
+        }
 
     }
     }
     housePage.Init({
-        $btn_add                    : $('#btn-add'),
-        $modal_1                    : $('#modal-1'),
-        $btn_next                   : $('#btn-nextInfo'),
+        $btn_add                            : $('#btn-add'),
+        $btn_nextStep                       : $('#btn-nextStep'),
+        $modal_1                            : $('#modal-1'),
+        $modal_2                            : $('#modal-2'),
+        $inpt_name                          : $('#inpt-name'),
+        $inpt_number                        : $('#inpt-number'),
+        $inpt_address                       : $('#inpt-address'),
+        $inpt_province                      : $('#inpt-province'),
+        $inpt_city                          : $('#inpt-city'),
+        $inpt_zipCode                       : $('#inpt-zipCode')
+      
         
     });
 

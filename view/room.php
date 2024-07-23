@@ -97,23 +97,23 @@
             <form id="roomForm" method="post">
             <div class="form-content p-4">
                 <div class="mb-3">
-                    <label for="input-roomNumber" class="form-label">Room Number</label>
-                    <input type="text" name="input-roomNumber" class="form-control" id="input-roomNumber">
+                    <label for="input-roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
+                    <input type="text" name="input-roomNumber" class="form-control" id="input-roomNumber" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-3">
-                    <label for="input-roomType" class="form-label">Room Type</label>
-                    <input type="text" name="input-roomType" class="form-control text-capitalize" id="input-roomType">
+                    <label for="input-roomType" class="form-label" style="font-size: 14px">Room Type</label>
+                    <input type="text" name="input-roomType" class="form-control text-capitalize" id="input-roomType" style="font-size: 15px; height: 30px"> 
                 </div>
                 <div class="mb-3">
-                    <label for="input-capacity" class="form-label">Capacity</label>
-                    <input type="number" name="input-capacity" class="form-control" id="input-capacity">
+                    <label for="input-capacity" class="form-label" style="font-size: 14px">Capacity</label>
+                    <input type="number" name="input-capacity" class="form-control" id="input-capacity" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-3">
-                    <label for="input-roomFee" class="form-label">Room Fee</label>
-                    <input type="number" name="input-roomFee" class="form-control" id="input-roomFee">
+                    <label for="input-roomFee" class="form-label" style="font-size: 14px">Room Fee</label>
+                    <input type="number" name="input-roomFee" class="form-control" id="input-roomFee" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-3" id="input-houseName">
-                    <label for="input-houseLocation" class="form-label text-capitalize">House Location</label>
+                    <label for="input-houseLocation" class="form-label text-capitalize" style="font-size: 14px">House Location</label>
                 </div>
             </div>
             </form>
@@ -129,17 +129,17 @@
             <div class="room-content p-2">
                 <div class="row">
                     <div class="d-md-flex" id="house-location-container"></div>
-                    <div class="d-flex align-items-center py-2" style="height: 50px;">
-                        <div class="d-flex align-items-center">
-                            <label for="sel-roomType" class="form-label me-2">Room Type</label>
-                            <select id="sel-roomType" class="form-select" style="width: 200px;">
-                                <option>Select Room Type</option>
-                            </select>
-                        </div>
-                        <div class="ms-auto">
-                            <button class="btn btn-primary btn-sm p-2" type="button" id="btnAdd-Room" style="font-size: 12px;">Add Room</button>
-                        </div>
-                    </div>
+                        <div class="d-flex align-items-center py-2" style="height: 50px;">
+                            <div class="d-flex">
+                                <label for="sel-roomType" >Room Type</label>
+                                <select id="sel-roomType" class="form-select" style="height: 40px">
+                                    <option>Select Room Type</option>
+                                </select>
+                            </div>
+                            <div class="ms-auto">
+                                <button class="btn btn-primary btn-sm p-2" type="button" id="btnAdd-Room" style="font-size: 12px;">Add Room</button>
+                            </div>
+                </div>
                     <div class="table-responsive">
                         <div class="table-wrapper">
                             <table class="table table-hover">
@@ -208,7 +208,7 @@
             const houseID = localStorage.getItem("houseID");
 
             if (houseName) {
-                const input = `<input type="text" id="house-name" data-houseID="${houseID}" value="${houseName}" class="form-control text-capitalize" disabled>`;
+                const input = `<input type="text" id="house-name" data-houseID="${houseID}" value="${houseName}" class="form-control text-capitalize" style="font-size: 15px; height: 30px" disabled>`;
                 const label = `<h1 id="house-locationName" data-houselocationID="${houseID}" class="text-uppercase">${houseName}</h1>`;
                 $self.$house_location.append(label); // Assuming $house_location is the container for the label
                 $self.$input_houseName.append(input);
