@@ -86,22 +86,135 @@
                 </ul>
             </div>
         </nav>
-        <main class="content px-2 py-2 h-100">
-        <div class="container-fluid">
-                    <div class="row" id="roomContainer">
-                        
+        <!-- start modal -->
+        <div class="modal" id="modal-1" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+            <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="progress m-2" style="height: 2px;">
+            <div class="progress-bar" role="progressbar" style="width: 33.33%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <form>
+            <div class="modal-content p-4">
+            <div class="mb-3">
+                <label for="tenantName" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="inpt-name" >
+            </div>
+            <div class="mb-3">
+                <label for="contactNumber" class="form-label">Contact Number</label>
+                <input type="number" class="form-control" id="inpt-number">
+            </div>
+            <div class="mb-3">
+                <label for="homeAddress" class="form-label">Address</label>
+                <input type="text" class="form-control" id="inpt-address">
+            </div>
+            <div class="row mb-3">
+            <div class="col">
+                <label for="province-input" class="form-label">Province</label>
+                <input type="text" id="inpt-province" class="form-control" placeholder="Province">
+            </div>
+            <div class="col">
+                <label for="city-input" class="form-label">City/Municipality</label>
+                <input type="text" id="inpt-city" class="form-control" placeholder="City">
+            </div>
+            <div class="col">
+                <label for="zip-input" class="form-label">Zip Code</label>
+                <input type="text" id="inpt-zipCode" class="form-control" placeholder="Zip Code">
+            </div>
+            </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btn-nextInfo">Next</button>
+            </div>
+            </div>
+            </div>
+        </div>
+        </div>
+        <!-- end Modal -->
+        <main class="content px-4 py-4">
+        <div class="container-fluid bg-white">
+            <div class="room-content p-2">
+                <div class="row">
+                    <h1>Tenant</h1>
+                    <div class="d-flex align-items-center py-2" style="height: 50px;">
+                        <div class="d-flex align-items-center">
+                            <label for="sel-roomType" class="form-label m-2">Search</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" placeholder="Name" aria-label="Recipient's username" aria-describedby="button-addon2">
+                                <button class="btn btn-outline-secondary" type="button" id="button-addon2">Search</button>
+                            </div>
+                        </div>
+                        <div class="ms-auto">
+                            <button class="btn btn-primary btn-sm p-2" type="button" id="btn-add" style="font-size: 12px;">Add Tenant</button>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <div class="table-wrapper">
+                            <table class="table table-hover">
+                                <thead class="table-dark    ">
+                                    <tr>
+                                        <th scope="col">Tenant Name</th>
+                                        <th scope="col">House Location</th>
+                                        <th scope="col">Room Number</th>
+                                        <th scope="col">Data Started</th>
+                                        <th scope="col">Room Fee</th>
+                                        <th scope="col">Balance</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody" >
+                                    <!-- Table rows go here -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
-        </main>
-        <div class="p-4 align-self-end">
-            <div class="p-0 m-7">
-                <button type="button" id="add-house"  class="btn btn-dark">
-                    <i class="bi bi-plus-circle" style="font-size: 25px"></i>
-                </button>
             </div>
+        </div>
+        </main>
         </div>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+   $(document).ready(function() {
+    $("#sidebar-toggle").click(function() {
+        $("#sidebar").toggleClass("collapsed");
+    });
+    const housePage = {
+    Init: function(config) {
+        this.config = config;
+        this.BindEvents();
+    },
+    BindEvents: function() {
+        const $this = this.config;
+            $this.$btn_add.on('click', this.modalShow.bind(this));
+            $this.$btn_next.on('click', this.nextModal.bind(this));
+            
+    },
+    modalShow: function(){
+        const $self = this.config;
+            $self.$modal_1.modal('show');
+    },
+    nextModal: function(){
+        const $self = this.config;
+            const modalContent = 
+
+    }
+    }
+    housePage.Init({
+        $btn_add                    : $('#btn-add'),
+        $modal_1                    : $('#modal-1'),
+        $btn_next                   : $('#btn-nextInfo'),
+        
+    });
+
+    });
+
+</script>
 </body>
 </html>
