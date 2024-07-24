@@ -106,26 +106,20 @@
                     <input type="text" class="form-control" id="inpt-name" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
+                    <label for="birthday" class="form-label" style="font-size: 14px">Birthday</label>
+                    <input type="date" class="form-control" id="inpt-birthday" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
                     <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
                     <input type="number" class="form-control" id="inpt-number" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
-                    <label for="homeAddress" class="form-label" style="font-size: 14px">Address</label>
+                    <label for="emailAddress" class="form-label" style="font-size: 14px">Email Address</label>
+                    <input type="email" aria-describedby="emailHelp" class="form-control" id="inpt-email" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="homeAddress" class="form-label" style="font-size: 14px">Current Address</label>
                     <input type="text" class="form-control" id="inpt-address" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="row mb-2">
-                <div class="col">
-                    <label for="province-input" class="form-label" style="font-size: 14px">Province</label>
-                    <input type="text" id="inpt-province" class="form-control" placeholder="Province" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="col">
-                    <label for="city-input" class="form-label" style="font-size: 14px">City/Municipality</label>
-                    <input type="text" id="inpt-city" class="form-control" placeholder="City" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="col">
-                    <label for="zip-input" class="form-label" style="font-size: 14px">Zip Code</label>
-                    <input type="number" id="inpt-zipCode" class="form-control" placeholder="Zip Code" style="font-size: 15px; height: 30px">
-                </div>
                 </div>
                 </form>
                 <div class="modal-footer">
@@ -154,7 +148,7 @@
                     <input type="text" class="form-control" id="inpt-fatherName" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
-                    <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                    <label for="fatherNumber" class="form-label" style="font-size: 14px">Contact Number</label>
                     <input type="number" class="form-control" id="inpt-fatherNumber" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
@@ -162,12 +156,56 @@
                     <input type="text" class="form-control" id="inpt-motherName" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
-                    <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
-                    <input type="number" class="form-control" id="inpt-fatherNumber" style="font-size: 15px; height: 30px">
+                    <label for="fatherNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                    <input type="number" class="form-control" id="inpt-motherNumber" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="emergencyName" class="form-label" style="font-size: 14px">Emegency Contact Name</label>
+                    <input type="text" class="form-control" id="inpt-emergencyName" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="emergencyNumber" class="form-label" style="font-size: 14px">Emergency Contact Phone Number</label>
+                    <input type="number" class="form-control" id="inpt-emergencyNumber" style="font-size: 15px; height: 30px">
                 </div>
                 </form>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btn-nextInfo">Next</button>
+                    <button type="button" class="btn btn-primary" id="btn-step2-previous">Previous</button>
+                    <button type="button" class="btn btn-primary" id="btn-step2-next">Next</button>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- modal-step-3 -->
+        <div class="modal" id="modal-3" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="progress m-2" style="height: 2px;">
+                <div class="progress-bar" role="progressbar" style="width: 100%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <form>
+                <div class="modal-content p-4">
+                <div class="mb-2">
+                    <h4 class="mb-2">Create Tenant Account</h4>
+                    <label for="username" class="form-label" style="font-size: 14px">Username</label>
+                    <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="password" class="form-label" style="font-size: 14px">Password</label>
+                    <input type="Password" class="form-control" id="inpt-password" style="font-size: 15px; height: 30px">
+                </div>
+                <div class="mb-2">
+                    <label for="confirmPassword" class="form-label" style="font-size: 14px">Confirm Password</label>
+                    <input type="Password" class="form-control" id="inpt-confirmPassword" style="font-size: 15px; height: 30px">
+                </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-step3-previous">Previous</button>
+                    <button type="button" class="btn btn-primary" id="btn-submit">Submit</button>
                 </div>
                 </div>
                 </div>
@@ -231,7 +269,9 @@
         const $this = this.config;
             $this.$btn_add.on('click', this.modalShow.bind(this));
             $this.$btn_nextStep.on('click', this.step_1_Modal.bind(this));
-            
+            $this.$btn_step2_next.on('click', this.nextStepstep_2_Modal.bind(this));
+            $this.$btn_step2_previous.on('click', this.previousStepstep_2_Modal.bind(this));
+            $this.$btn_step3_previous.on('click', this.previousStepstep_3_Modal.bind(this));
     },
     modalShow: function(){
         const $self = this.config;
@@ -240,29 +280,77 @@
     step_1_Modal: function(){
         const $self = this.config;
 
-        if($self.$inpt_name.val().trim()==="" || $self.$inpt_number.val().trim()==="" || $self.$inpt_address.val().trim()==="" ||
-        $self.$inpt_province.val().trim()==="" || $self.$inpt_city.val().trim()==="" || $self.$inpt_zipCode.val().trim()===""){
-            alert("ok");
-        }else{
+        // if($self.$inpt_name.val().trim()==="" || $self.$inpt_number.val().trim()==="" || $self.$inpt_address.val().trim()==="" ||
+        // $self.$inpt_province.val().trim()==="" || $self.$inpt_city.val().trim()==="" || $self.$inpt_zipCode.val().trim()===""){
+        //     alert("ok");
+        // }else{
             $self.$modal_1.modal("hide");
             $self.$modal_2.modal("show");
-        }
+        // }
+
+    },
+    nextStepstep_2_Modal: function(){
+        const $self = this.config;
+            $self.$modal_2.modal("hide");
+            $self.$modal_3.modal("show");
+    },
+    previousStepstep_2_Modal: function(){
+        const $self = this.config;
+            $self.$modal_2.modal("hide");
+            $self.$modal_1.modal("show");
+    },
+    previousStepstep_3_Modal: function(){
+        const $self = this.config;
+            $self.$modal_3.modal("hide");
+            $self.$modal_2.modal("show");
+    },
+    addTenant: function(){
+        const $self = this.config;
+        const formData = {
+                        name            : $self.$inpt_name.val().trim(),
+                        birthday        : $self.$inpt_birthday.val().trim(),
+                        number          : $self.$inpt_number.val().trim(),
+                        email           : $self.$inpt_email.val().trim(),
+                        address         : $self.$inpt_address.val().trim(),
+                        fatherName      : $self.$inpt_fatherName.val().trim(),
+                        fatherNumber    : $self.$inpt_fatherNumber.val().trim(),
+                        motherName      : $self.$inpt_motherName.val().trim(),
+                        motherNumber    : $self.$inpt_motherNumber.val().trim(),
+                        emergencyName   : $self.$inpt_emergencyName.val().trim(),
+                        emergencyNumber : $self.$inpt_emergencyNumber.val().trim(),
+                    };
+        const accountData ={
+                        username        : $self.$inpt_username.val().trim(),
+                        password        : $self.$inpt_password.val().trim(),
+                        confirmPassword : $self.$inpt_confirmPassword.val().trim()
+                    };
 
     }
     }
     housePage.Init({
         $btn_add                            : $('#btn-add'),
         $btn_nextStep                       : $('#btn-nextStep'),
+        $btn_step2_next                     : $('#btn-step2-next'),
+        $btn_step2_previous                 : $('#btn-step2-previous'),
+        $btn_submit                         : $('#btn-submit'),
+        $btn_step3_previous                 : $('#btn-step3-previous'),
         $modal_1                            : $('#modal-1'),
         $modal_2                            : $('#modal-2'),
+        $modal_3                            : $('#modal-3'),
         $inpt_name                          : $('#inpt-name'),
+        $inpt_birthday                      : $('#inpt-birthday'),
         $inpt_number                        : $('#inpt-number'),
+        $inpt_email                         : $('#inpt-email'),
         $inpt_address                       : $('#inpt-address'),
-        $inpt_province                      : $('#inpt-province'),
-        $inpt_city                          : $('#inpt-city'),
-        $inpt_zipCode                       : $('#inpt-zipCode')
-      
-        
+        $inpt_fatherName                    : $('#inpt-fatherName'),
+        $inpt_fatherNumber                  : $('#inpt-fatherNumber'),
+        $inpt_motherName                    : $('#inpt-motherName'),
+        $inpt_motherNumber                  : $('#inpt-motherNumber'),
+        $inpt_emergencyName                 : $('#inpt-emergencyName'),
+        $inpt_emegencyNumber                : $('#inpt-emergencyNumber'),
+        $inpt_username                      : $('#inpt-username'),
+        $inpt_password                      : $('#inpt-password'),
+        $inpt_confirmPassword               : $('#inpt-confirmPassword')
     });
 
     });
