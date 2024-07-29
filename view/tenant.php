@@ -88,7 +88,7 @@
         </nav>
         <!-- start modal -->
          <!-- modal-step-1 -->
-        <div class="modal" id="modal-1" tabindex="-1">
+         <div class="modal" id="modal-1" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
@@ -99,6 +99,52 @@
                 <div class="progress-bar" role="progressbar" style="width: 33.33%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <form>
+                <div class="modal-content p-4">
+                <div class="mb-2">
+                    <h4 class="mb-2">Create Tenant Account</h4>
+                    <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
+                    <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>Select Room Type</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
+                    <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option style="font-size: 15px;">Select Room Type</option>
+                    </select>
+                </div>
+                <div class="mb-2">
+                    <label for="username" class="form-label" style="font-size: 14px">Username</label>
+                    <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 40px">
+                </div>
+                <div class="mb-2">
+                    <label for="password" class="form-label" style="font-size: 14px">Password</label>
+                    <input type="Password" class="form-control" id="inpt-password" style="font-size: 15px; height: 40px">
+                </div>
+                <div class="mb-2">
+                    <label for="confirmPassword" class="form-label" style="font-size: 14px">Confirm Password</label>
+                    <input type="Password" class="form-control" id="inpt-confirmPassword" style="font-size: 15px; height: 40px">
+                </div>
+                </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-nextStep">Next</button>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- modal-step-2 -->
+        <div class="modal" id="modal-2" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="progress m-2" style="height: 2px;">
+                <div class="progress-bar" role="progressbar"  style="width: 66.66%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <form >
                 <div class="modal-content p-4">
                 <div class="mb-2">
                     <h4 class="mb-2">Tenant Info</h4>
@@ -123,14 +169,15 @@
                 </div>
                 </form>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btn-nextStep">Next</button>
+                <button type="button" class="btn btn-primary" id="btn-step3-previous">Previous</button>
+                <button type="button" class="btn btn-primary" id="btn-step2-next">Next</button>
                 </div>
                 </div>
                 </div>
             </div>
         </div>
-        <!-- modal-step-2 -->
-        <div class="modal" id="modal-2" tabindex="-1">
+        <!-- modal-step-3 -->
+        <div class="modal" id="modal-3" tabindex="-1" data-userID="">
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
@@ -138,7 +185,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="progress m-2" style="height: 2px;">
-                <div class="progress-bar" role="progressbar" style="width: 66.66%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" role="progressbar" style="width: 100%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <form>
                 <div class="modal-content p-4">
@@ -170,41 +217,6 @@
                 </form>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="btn-step2-previous">Previous</button>
-                    <button type="button" class="btn btn-primary" id="btn-step2-next">Next</button>
-                </div>
-                </div>
-                </div>
-            </div>
-        </div>
-        <!-- modal-step-3 -->
-        <div class="modal" id="modal-3" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="progress m-2" style="height: 2px;">
-                <div class="progress-bar" role="progressbar" style="width: 100%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <form>
-                <div class="modal-content p-4">
-                <div class="mb-2">
-                    <h4 class="mb-2">Create Tenant Account</h4>
-                    <label for="username" class="form-label" style="font-size: 14px">Username</label>
-                    <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="mb-2">
-                    <label for="password" class="form-label" style="font-size: 14px">Password</label>
-                    <input type="Password" class="form-control" id="inpt-password" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="mb-2">
-                    <label for="confirmPassword" class="form-label" style="font-size: 14px">Confirm Password</label>
-                    <input type="Password" class="form-control" id="inpt-confirmPassword" style="font-size: 15px; height: 30px">
-                </div>
-                </form>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btn-step3-previous">Previous</button>
                     <button type="button" class="btn btn-primary" id="btn-submit">Submit</button>
                 </div>
                 </div>
@@ -256,104 +268,169 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
-   $(document).ready(function() {
+  $(document).ready(function() {
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
+
     const housePage = {
-    Init: function(config) {
-        this.config = config;
-        this.BindEvents();
-    },
-    BindEvents: function() {
-        const $this = this.config;
+        Init: function(config) {
+            this.config = config;
+            this.BindEvents();
+            this.getHouseLocation();
+        },
+        BindEvents: function() {
+            const $this = this.config;
             $this.$btn_add.on('click', this.modalShow.bind(this));
             $this.$btn_nextStep.on('click', this.step_1_Modal.bind(this));
-            $this.$btn_step2_next.on('click', this.nextStepstep_2_Modal.bind(this));
-            $this.$btn_step2_previous.on('click', this.previousStepstep_2_Modal.bind(this));
-            $this.$btn_step3_previous.on('click', this.previousStepstep_3_Modal.bind(this));
-    },
-    modalShow: function(){
-        const $self = this.config;
-            $self.$modal_1.modal('show');
-    },
-    step_1_Modal: function(){
-        const $self = this.config;
+            $this.$btn_step2_next.on('click', this.nextStep_2_Modal.bind(this));
+            $this.$btn_step2_previous.on('click', this.previousStep_2_Modal.bind(this));
+            $this.$btn_step3_previous.on('click', this.previousStep_3_Modal.bind(this));
+            $this.$btn_submit.on('click', this.addTenant.bind(this));
 
-        // if($self.$inpt_name.val().trim()==="" || $self.$inpt_number.val().trim()==="" || $self.$inpt_address.val().trim()==="" ||
-        // $self.$inpt_province.val().trim()==="" || $self.$inpt_city.val().trim()==="" || $self.$inpt_zipCode.val().trim()===""){
-        //     alert("ok");
-        // }else{
+            // Bind change event to house location dropdown
+            $this.$sel_houseLocation.on('change', this.getRoom.bind(this));
+        },
+        modalShow: function(){
+            const $self = this.config;
+            $self.$modal_1.modal('show');
+        },
+        step_1_Modal: function(){
+            const $self = this.config;
             $self.$modal_1.modal("hide");
             $self.$modal_2.modal("show");
-        // }
-
-    },
-    nextStepstep_2_Modal: function(){
-        const $self = this.config;
+        },
+        nextStep_2_Modal: function(){
+            const $self = this.config;
             $self.$modal_2.modal("hide");
             $self.$modal_3.modal("show");
-    },
-    previousStepstep_2_Modal: function(){
-        const $self = this.config;
+        },
+        previousStep_2_Modal: function(){
+            const $self = this.config;
             $self.$modal_2.modal("hide");
             $self.$modal_1.modal("show");
-    },
-    previousStepstep_3_Modal: function(){
-        const $self = this.config;
+        },
+        previousStep_3_Modal: function(){
+            const $self = this.config;
             $self.$modal_3.modal("hide");
             $self.$modal_2.modal("show");
-    },
-    addTenant: function(){
-        const $self = this.config;
-        const formData = {
-                        name            : $self.$inpt_name.val().trim(),
-                        birthday        : $self.$inpt_birthday.val().trim(),
-                        number          : $self.$inpt_number.val().trim(),
-                        email           : $self.$inpt_email.val().trim(),
-                        address         : $self.$inpt_address.val().trim(),
-                        fatherName      : $self.$inpt_fatherName.val().trim(),
-                        fatherNumber    : $self.$inpt_fatherNumber.val().trim(),
-                        motherName      : $self.$inpt_motherName.val().trim(),
-                        motherNumber    : $self.$inpt_motherNumber.val().trim(),
-                        emergencyName   : $self.$inpt_emergencyName.val().trim(),
-                        emergencyNumber : $self.$inpt_emergencyNumber.val().trim(),
-                    };
-        const accountData ={
-                        username        : $self.$inpt_username.val().trim(),
-                        password        : $self.$inpt_password.val().trim(),
-                        confirmPassword : $self.$inpt_confirmPassword.val().trim()
-                    };
+        },       
+        getHouseLocation: function(){
+            const $self = this.config;
+            $.ajax({
+                url: '../controller/tenantController.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    const selectHouse = $self.$sel_houseLocation;
+                    selectHouse.empty();
+                    selectHouse.append('<option value="" style="font-size: 15px;">Select House</option>');
+
+                    $.each(response.data, function(index, item) {
+                        selectHouse.append('<option value="' + item.houseID + '">' + item.houselocation + '</option>');
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+        getRoom: function() {
+            const $self = this.config;
+            const houseID = $self.$sel_houseLocation.val();
+            if (!houseID) {
+                $self.$sel_roomNumber.empty().append('<option value="" style="font-size: 15px;">Select Room</option>');
+                return;
+            }
+            $.ajax({
+                url: '../controller/tenantController.php',
+                type: 'POST',
+                data: { houseID: houseID },
+                dataType: 'json',
+                success: function(response) {
+                    const selectRoom = $self.$sel_roomNumber;
+                    selectRoom.empty();
+                    selectRoom.append('<option value="" style="font-size: 15px;">Select Room</option>');
+
+                    $.each(response.data, function(index, item) {
+                        selectRoom.append('<option value="' + item.roomID + '">' + item.roomNumber + '</option>');
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+        addTenant: function() {
+            const $self = this.config;
+
+            $.ajax({
+                url: '../controller/tenantController.php',
+                type: 'POST',
+                data: {
+                    tenantName: $self.$inpt_name.val().trim(),
+                    birthday: $self.$inpt_birthday.val().trim(),
+                    number: $self.$inpt_number.val().trim(),
+                    email: $self.$inpt_email.val().trim(),
+                    address: $self.$inpt_address.val().trim(),
+                    fatherName: $self.$inpt_fatherName.val().trim(),
+                    fatherNumber: $self.$inpt_fatherNumber.val().trim(),
+                    motherName: $self.$inpt_motherName.val().trim(),
+                    motherNumber: $self.$inpt_motherNumber.val().trim(),
+                    emergencyName: $self.$inpt_emergencyName.val().trim(),
+                    emergencyNumber: $self.$inpt_emergencyNumber.val().trim(),
+                    username: $self.$inpt_username.val().trim(),
+                    password: $self.$inpt_password.val().trim(),
+                    confirmPassword: $self.$inpt_confirmPassword.val().trim(),
+                    roomID: $self.$sel_roomNumber.val()
+
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === "error") {
+                        alert(response.message);
+                    } else if (response.status === "success") {
+                        alert(response.message);
+                        console.log(response.data)
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('An error occurred while submitting tenant details.');
+                }
+            });
+
+        }
 
     }
-    }
+
     housePage.Init({
-        $btn_add                            : $('#btn-add'),
-        $btn_nextStep                       : $('#btn-nextStep'),
-        $btn_step2_next                     : $('#btn-step2-next'),
-        $btn_step2_previous                 : $('#btn-step2-previous'),
-        $btn_submit                         : $('#btn-submit'),
-        $btn_step3_previous                 : $('#btn-step3-previous'),
-        $modal_1                            : $('#modal-1'),
-        $modal_2                            : $('#modal-2'),
-        $modal_3                            : $('#modal-3'),
-        $inpt_name                          : $('#inpt-name'),
-        $inpt_birthday                      : $('#inpt-birthday'),
-        $inpt_number                        : $('#inpt-number'),
-        $inpt_email                         : $('#inpt-email'),
-        $inpt_address                       : $('#inpt-address'),
-        $inpt_fatherName                    : $('#inpt-fatherName'),
-        $inpt_fatherNumber                  : $('#inpt-fatherNumber'),
-        $inpt_motherName                    : $('#inpt-motherName'),
-        $inpt_motherNumber                  : $('#inpt-motherNumber'),
-        $inpt_emergencyName                 : $('#inpt-emergencyName'),
-        $inpt_emegencyNumber                : $('#inpt-emergencyNumber'),
-        $inpt_username                      : $('#inpt-username'),
-        $inpt_password                      : $('#inpt-password'),
-        $inpt_confirmPassword               : $('#inpt-confirmPassword')
+        $btn_add: $('#btn-add'),
+        $btn_nextStep: $('#btn-nextStep'),
+        $btn_step2_next: $('#btn-step2-next'),
+        $btn_step2_previous: $('#btn-step2-previous'),
+        $btn_submit: $('#btn-submit'),
+        $btn_step3_previous: $('#btn-step3-previous'),
+        $modal_1: $('#modal-1'),
+        $modal_2: $('#modal-2'),
+        $modal_3: $('#modal-3'),
+        $inpt_name: $('#inpt-name'),
+        $inpt_birthday: $('#inpt-birthday'),
+        $inpt_number: $('#inpt-number'),
+        $inpt_email: $('#inpt-email'),
+        $inpt_address: $('#inpt-address'),
+        $inpt_fatherName: $('#inpt-fatherName'),
+        $inpt_fatherNumber: $('#inpt-fatherNumber'),
+        $inpt_motherName: $('#inpt-motherName'),
+        $inpt_motherNumber: $('#inpt-motherNumber'),
+        $inpt_emergencyName: $('#inpt-emergencyName'),
+        $inpt_emergencyNumber: $('#inpt-emergencyNumber'),
+        $sel_houseLocation: $('#sel-houseLocation'),
+        $sel_roomNumber: $('#sel-roomNumber'),
+        $inpt_username: $('#inpt-username'),
+        $inpt_password: $('#inpt-password'),
+        $inpt_confirmPassword: $('#inpt-confirmPassword')
     });
-
-    });
+});
 
 </script>
 </body>
