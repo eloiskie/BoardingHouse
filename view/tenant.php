@@ -102,28 +102,40 @@
                 <div class="modal-content p-4">
                 <div class="mb-2">
                     <h4 class="mb-2">Create Tenant Account</h4>
+                    <div class="row align-items-start">
+                    <div class="col">
                     <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
                     <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
                                     <option>Select Room Type</option>
                     </select>
-                </div>
-                <div class="mb-2">
+                    </div>
+                    <div class="col">
                     <label for="roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
                     <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
                                     <option style="font-size: 15px;">Select Room Type</option>
                     </select>
+                    </div>
+                </div>
+                </div>
+                <div class="mb-2">
+                    <label for="username" class="form-label" style="font-size: 14px">Date Started</label>
+                    <input type="date" class="form-control" id="inpt-dateStarted" style="font-size: 15px; height: 40px">
                 </div>
                 <div class="mb-2">
                     <label for="username" class="form-label" style="font-size: 14px">Username</label>
                     <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 40px">
                 </div>
                 <div class="mb-2">
+                <div class="row align-items-start">
+                    <div class="col">
                     <label for="password" class="form-label" style="font-size: 14px">Password</label>
                     <input type="Password" class="form-control" id="inpt-password" style="font-size: 15px; height: 40px">
-                </div>
-                <div class="mb-2">
+                    </div>
+                    <div class="col">
                     <label for="confirmPassword" class="form-label" style="font-size: 14px">Confirm Password</label>
                     <input type="Password" class="form-control" id="inpt-confirmPassword" style="font-size: 15px; height: 40px">
+                    </div>
+                </div>
                 </div>
                 </form>
                 <div class="modal-footer">
@@ -152,16 +164,28 @@
                     <input type="text" class="form-control" id="inpt-name" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
-                    <label for="birthday" class="form-label" style="font-size: 14px">Birthday</label>
-                    <input type="date" class="form-control" id="inpt-birthday" style="font-size: 15px; height: 30px">
+                <div class="row align-items-start">
+                    <div class="col">
+                        <label for="birthday" class="form-label" style="font-size: 14px">Birthday</label>
+                        <input type="date" class="form-control" id="inpt-birthday" style="font-size: 15px; height: 30px">
+                    </div>
+                    <div class="col">
+                        <label for="contactNumber" class="form-label" style="font-size: 14px">Gender</label>
+                        <input type="text" class="form-control" id="inpt-gender" style="font-size: 15px; height: 30px">
+                    </div>
+                </div>
                 </div>
                 <div class="mb-2">
-                    <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
-                    <input type="number" class="form-control" id="inpt-number" style="font-size: 15px; height: 30px">
+                <div class="row align-items-start">
+                    <div class="col">
+                        <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                        <input type="number" class="form-control" id="inpt-number" style="font-size: 15px; height: 30px">
+                    </div>
+                    <div class="col">
+                        <label for="emailAddress" class="form-label" style="font-size: 14px">Email Address</label>
+                        <input type="email" aria-describedby="emailHelp" class="form-control" id="inpt-email" style="font-size: 15px; height: 30px">
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label for="emailAddress" class="form-label" style="font-size: 14px">Email Address</label>
-                    <input type="email" aria-describedby="emailHelp" class="form-control" id="inpt-email" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
                     <label for="homeAddress" class="form-label" style="font-size: 14px">Current Address</label>
@@ -169,7 +193,7 @@
                 </div>
                 </form>
                 <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="btn-step3-previous">Previous</button>
+                <button type="button" class="btn btn-primary" id="btn-step2-previous">Previous</button>
                 <button type="button" class="btn btn-primary" id="btn-step2-next">Next</button>
                 </div>
                 </div>
@@ -191,32 +215,44 @@
                 <div class="modal-content p-4">
                 <div class="mb-2">
                     <h4 class="mb-2">Other Information</h4>
-                    <label for="fatherName" class="form-label" style="font-size: 14px">Father's Full Name</label>
-                    <input type="text" class="form-control" id="inpt-fatherName" style="font-size: 15px; height: 30px">
+                    <div class="row align-items-start">
+                    <div class="col">
+                        <label for="fatherName" class="form-label" style="font-size: 14px">Father's Full Name</label>
+                        <input type="text" class="form-control" id="inpt-fatherName" style="font-size: 15px; height: 30px">
+                    </div>
+                    <div class="col">
+                        <label for="fatherNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                        <input type="number" class="form-control" id="inpt-fatherNumber" style="font-size: 15px; height: 30px">
+                    </div>
+                </div>
                 </div>
                 <div class="mb-2">
-                    <label for="fatherNumber" class="form-label" style="font-size: 14px">Contact Number</label>
-                    <input type="number" class="form-control" id="inpt-fatherNumber" style="font-size: 15px; height: 30px">
+                    <div class="row align-items-start">
+                    <div class="col">
+                        <label for="motherName" class="form-label" style="font-size: 14px">Mother's Full Name</label>
+                        <input type="text" class="form-control" id="inpt-motherName" style="font-size: 15px; height: 30px">
+                    </div>
+                    <div class="col">
+                        <label for="fatherNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                        <input type="number" class="form-control" id="inpt-motherNumber" style="font-size: 15px; height: 30px">
+                    </div>
+                </div>
                 </div>
                 <div class="mb-2">
-                    <label for="motherName" class="form-label" style="font-size: 14px">Mother's Full Name</label>
-                    <input type="text" class="form-control" id="inpt-motherName" style="font-size: 15px; height: 30px">
+                    <div class="row align-items-start">
+                    <div class="col">
+                        <label for="emergencyName" class="form-label" style="font-size: 14px">Emegency Contact Name</label>
+                        <input type="text" class="form-control" id="inpt-emergencyName" style="font-size: 15px; height: 30px">
+                    </div>
+                    <div class="col">
+                        <label for="emergencyNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                        <input type="number" class="form-control" id="inpt-emergencyNumber" style="font-size: 15px; height: 30px">
+                    </div>
                 </div>
-                <div class="mb-2">
-                    <label for="fatherNumber" class="form-label" style="font-size: 14px">Contact Number</label>
-                    <input type="number" class="form-control" id="inpt-motherNumber" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="mb-2">
-                    <label for="emergencyName" class="form-label" style="font-size: 14px">Emegency Contact Name</label>
-                    <input type="text" class="form-control" id="inpt-emergencyName" style="font-size: 15px; height: 30px">
-                </div>
-                <div class="mb-2">
-                    <label for="emergencyNumber" class="form-label" style="font-size: 14px">Emergency Contact Phone Number</label>
-                    <input type="number" class="form-control" id="inpt-emergencyNumber" style="font-size: 15px; height: 30px">
                 </div>
                 </form>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btn-step2-previous">Previous</button>
+                    <button type="button" class="btn btn-primary" id="btn-step3-previous">Previous</button>
                     <button type="button" class="btn btn-primary" id="btn-submit">Submit</button>
                 </div>
                 </div>
@@ -363,6 +399,7 @@
         },
         addTenant: function() {
             const $self = this.config;
+            const lastPayment = "N/A";
 
             $.ajax({
                 url: '../controller/tenantController.php',
@@ -370,6 +407,7 @@
                 data: {
                     tenantName: $self.$inpt_name.val().trim(),
                     birthday: $self.$inpt_birthday.val().trim(),
+                    gender: $self.$inpt_gender.val().trim(),
                     number: $self.$inpt_number.val().trim(),
                     email: $self.$inpt_email.val().trim(),
                     address: $self.$inpt_address.val().trim(),
@@ -379,6 +417,8 @@
                     motherNumber: $self.$inpt_motherNumber.val().trim(),
                     emergencyName: $self.$inpt_emergencyName.val().trim(),
                     emergencyNumber: $self.$inpt_emergencyNumber.val().trim(),
+                    dateStarted: $self.$inpt_dateStarted.val().trim(),
+                    lastPayment : lastPayment,
                     username: $self.$inpt_username.val().trim(),
                     password: $self.$inpt_password.val().trim(),
                     confirmPassword: $self.$inpt_confirmPassword.val().trim(),
@@ -387,11 +427,31 @@
                 },
                 dataType: 'json',
                 success: function(response) {
+                    
                     if (response.status === "error") {
                         alert(response.message);
                     } else if (response.status === "success") {
                         alert(response.message);
-                        console.log(response.data)
+                            $.each(response.data, function(index, item) {
+                                const row = `
+                                    <tr class="text-capitalize" data-tenantID="${item.tenantID}">
+                                        <td>${item.tenantName}</td>
+                                        <td>${item.houselocation}</td>
+                                        <td>${item.roomNumber}</td>
+                                        <td>${item.roomFee}</td>
+                                        <td>${item.balance}</td>
+                                        <td>${item.formattedLastPayment}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary style="width: 80px, font-size: 12px" flex-fill edit-room" id="btn-edit" data-roomID="${item.tenantID}">View</button>
+                                            <button type="button" class="btn btn-secondary style="width: 80px, font-size: 12px" flex-fill delete-room" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                        </td>
+                                    </tr>`;
+                                $self.$tbody.append(row);
+                            });
+                            $self.$modal_3.modal('hide');
+                            $self.$modal_1[0].reset();
+                            $self.$modal_2[0].reset();
+                            $self.$modal_3[0].reset();
                     }
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
@@ -399,36 +459,42 @@
                 }
             });
 
+        },
+        viewData: function(){
+            
         }
 
     }
 
     housePage.Init({
-        $btn_add: $('#btn-add'),
-        $btn_nextStep: $('#btn-nextStep'),
-        $btn_step2_next: $('#btn-step2-next'),
-        $btn_step2_previous: $('#btn-step2-previous'),
-        $btn_submit: $('#btn-submit'),
-        $btn_step3_previous: $('#btn-step3-previous'),
-        $modal_1: $('#modal-1'),
-        $modal_2: $('#modal-2'),
-        $modal_3: $('#modal-3'),
-        $inpt_name: $('#inpt-name'),
-        $inpt_birthday: $('#inpt-birthday'),
-        $inpt_number: $('#inpt-number'),
-        $inpt_email: $('#inpt-email'),
-        $inpt_address: $('#inpt-address'),
-        $inpt_fatherName: $('#inpt-fatherName'),
-        $inpt_fatherNumber: $('#inpt-fatherNumber'),
-        $inpt_motherName: $('#inpt-motherName'),
-        $inpt_motherNumber: $('#inpt-motherNumber'),
-        $inpt_emergencyName: $('#inpt-emergencyName'),
-        $inpt_emergencyNumber: $('#inpt-emergencyNumber'),
-        $sel_houseLocation: $('#sel-houseLocation'),
-        $sel_roomNumber: $('#sel-roomNumber'),
-        $inpt_username: $('#inpt-username'),
-        $inpt_password: $('#inpt-password'),
-        $inpt_confirmPassword: $('#inpt-confirmPassword')
+        $btn_add                    : $('#btn-add'),
+        $btn_nextStep               : $('#btn-nextStep'),
+        $btn_step2_next             : $('#btn-step2-next'),
+        $btn_step2_previous         : $('#btn-step2-previous'),
+        $btn_submit                 : $('#btn-submit'),
+        $btn_step3_previous         : $('#btn-step3-previous'),
+        $modal_1                    : $('#modal-1'),
+        $modal_2                    : $('#modal-2'),
+        $modal_3                    : $('#modal-3'),
+        $inpt_name                  : $('#inpt-name'),
+        $inpt_birthday              : $('#inpt-birthday'),
+        $inpt_gender                : $('#inpt-gender'),
+        $inpt_number                : $('#inpt-number'),
+        $inpt_email                 : $('#inpt-email'),
+        $inpt_address               : $('#inpt-address'),
+        $inpt_fatherName            : $('#inpt-fatherName'),
+        $inpt_fatherNumber          : $('#inpt-fatherNumber'),
+        $inpt_motherName            : $('#inpt-motherName'),
+        $inpt_motherNumber          : $('#inpt-motherNumber'),
+        $inpt_emergencyName         : $('#inpt-emergencyName'),
+        $inpt_emergencyNumber       : $('#inpt-emergencyNumber'),
+        $sel_houseLocation          : $('#sel-houseLocation'),
+        $sel_roomNumber             : $('#sel-roomNumber'),
+        $inpt_dateStarted           : $('#inpt-dateStarted'),
+        $inpt_username              : $('#inpt-username'),
+        $inpt_password              : $('#inpt-password'),
+        $inpt_confirmPassword       : $('#inpt-confirmPassword'),
+        $tbody                      : $('#tbody')
     });
 });
 

@@ -87,7 +87,7 @@
             </div>
         </nav>
         <!-- start modal -->
-        <div class="modal" id="modal" action="new" tabindex="-1">
+        <div class="modal" id="modal" action="new" tabindex="-1" data-availableStatus="">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
@@ -352,9 +352,8 @@
             const roomFee = parseFloat($self.$input_roomFee.val().trim());
             const houseID = $('#house-name').data('houseid');
             const action = $self.$modal.attr('action');
-            const availableStatus = "available";
+            const availableStatus =  $self.$modal.data('availableStatus');
             const roomID = $self.$modal.data('roomid');
-
             if (roomNumber === "" || roomType === "" || isNaN(capacity) || isNaN(roomFee)) {
                 alert("Please enter complete fields");
                 return;
@@ -461,6 +460,8 @@
             const roomType = $row.find('td').eq(1).text();
             const capacity = $row.find('td').eq(2).text();
             const roomFee = $row.find('td').eq(3).text();
+            const availableStatus = $row.find('td').eq(5).text();
+            console.log(availableStatus);
 
                 // Set the modal form inputs
                 $self.$input_roomNumber.val(roomNumber);
@@ -473,6 +474,7 @@
             $self.$btnSave.text("Save Update");
             $self.$btnSave.attr('id', 'btn-Update');
             $self.$modal.data('roomid', roomID); // Store roomID for later use
+            $self.$modal.data('availableStatus', availableStatus);
 
             // Show the modal
             $self.$modal.modal('show');
