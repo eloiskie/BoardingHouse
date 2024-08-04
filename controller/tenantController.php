@@ -85,8 +85,8 @@ if ($requestMethod == 'POST') {
                                         h.*
                                     FROM tblTenant t
                                     JOIN tblRoom r ON t.roomID = r.roomID
-                                    JOIN tblHouse h ON r.houseID = h.houseID
-                                    WHERE r.roomID = '{$roomID}'";
+                                    JOIN tblHouse h ON r.houseID = h.houseID";
+                                    
                 
     
                     $selectResult = $conn->query($selectSql);
@@ -117,8 +117,34 @@ if ($requestMethod == 'POST') {
 
 else if ($requestMethod == 'GET') {
     // Existing GET requests handling
-    if (!isset($_GET['houseID'])) {
-        $sql = "SELECT houseID, houselocation FROM tblhouse";
+    if (!isset($_GET['houseID']) && !isset($_GET['tenant']) && !isset($_GET['tenantID']) ) {
+        $sql = "SELECT houseID, houselocation FROM tblHouse";
+        $result = $conn->query($sql);
+
+        if ($result) {
+            $data = array();
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $data[] = $row;
+                }
+            }
+            echo json_encode(["status" => "success", "data" => $data]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+        }
+    } else if (isset($_GET['tenant'])) {
+        $sql = "SELECT t.*, 
+                       CASE 
+                           WHEN t.lastPayment = '0000-00-00' OR t.lastPayment IS NULL THEN 'N/A'
+                           ELSE t.lastPayment
+                       END AS formattedLastPayment,
+                       r.roomNumber, 
+                       r.roomFee,
+                       h.houselocation
+                FROM tblTenant t
+                JOIN tblRoom r ON t.roomID = r.roomID
+                JOIN tblHouse h ON r.houseID = h.houseID";
+
         $result = $conn->query($sql);
 
         if ($result) {
@@ -134,26 +160,120 @@ else if ($requestMethod == 'GET') {
         }
     }else if(isset($_GET['tenantID'])){
         $tenantID = intval($_GET['tenantID']);
-        
-        $sql = "SELECT * FROM tbltenant 
+        $sql = "SELECT t.*, 
+                        CASE 
+                            WHEN t.lastPayment = '0000-00-00' OR t.lastPayment IS NULL THEN 'N/A'
+                            ELSE t.lastPayment
+                        END AS formattedLastPayment,
+                        r.roomNumber, 
+                        r.roomFee,
+                        h.houselocation,
+                        h.houseID
+                FROM tblTenant t
+                JOIN tblRoom r ON t.roomID = r.roomID
+                JOIN tblHouse h ON r.houseID = h.houseID
                 WHERE tenantID = ?";
-         $stmt = $conn->prepare($sql);
-         $stmt->bind_param("i", $tenantID);
-         $stmt->execute();
-         $result = $stmt->get_result();
-    
-        if($result){
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $tenantID);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        if ($result) {
             $data = array();
-                if($result->num > 0){
-                    while($row = $result->fetch_assoc()){
-                        $data[] = $row;
-                    }
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $data[] = $row;
                 }
-                echo json_encode(["status" => "success", "data" => $data]);
-        }else {
+            }
+            echo json_encode(["status" => "success", "data" => $data]);
+        } else {
             echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
         }
     }
+}else if ($requestMethod == 'DELETE') {
+    // Read raw input data
+    parse_str(file_get_contents("php://input"), $_DELETE);
+    
+    // Retrieve and sanitize the roomID
+    if (isset($_DELETE['tenantID'])) {
+        $tenantID = intval($_DELETE['tenantID']);
+        
+        // Construct SQL DELETE query
+        $sql = "DELETE FROM tbltenant WHERE tenantID = ?";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $tenantID);
+        
+        if ($stmt->execute()) {
+            // Deletion successful
+            echo json_encode(["status" => "success", "message" => "Tenant Successfully Deleted"]);
+        } else {
+            // Error in deletion
+            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+        }
+        
+        $stmt->close();
+    } else {
+        echo json_encode(["status" => "error", "message" => "Tenant ID not provided"]);
+    }
+
+    $conn->close();
+}// Check if decoding was successful and required keys are present
+else if($requestMethod == 'PUT') {
+    $inputData = json_decode(file_get_contents("php://input"), true);
+    if (json_last_error() === JSON_ERROR_NONE &&
+        isset($inputData['tenantID'], $inputData['tenantName'], $inputData['birthdate'], 
+            $inputData['gender'], $inputData['phoneNumber'], $inputData['emailAddress'], 
+            $inputData['currentAddress'], $inputData['fatherName'], $inputData['fatherNumber'], 
+            $inputData['motherName'], $inputData['motherNumber'], 
+            $inputData['emergencyName'], $inputData['emergencyNumber'], 
+            $inputData['dateStarted'], $inputData['roomID'])) {
+
+        $tenantID = intval($inputData['tenantID']);
+        $tenantName = $inputData['tenantName'];
+        $birthdate = $inputData['birthdate'];
+        $gender = $inputData['gender'];
+        $phoneNumber = $inputData['phoneNumber'];
+        $emailAddress = $inputData['emailAddress'];
+        $currentAddress = $inputData['currentAddress'];
+        $fatherName = $inputData['fatherName'];
+        $fatherNumber = $inputData['fatherNumber'];
+        $motherName = $inputData['motherName'];
+        $motherNumber = $inputData['motherNumber'];
+        $emergencyName = $inputData['emergencyName'];
+        $emergencyNumber = $inputData['emergencyNumber'];
+        $dateStarted = $inputData['dateStarted'];
+        $roomID = $inputData['roomID'];
+
+        // Prepare SQL statement
+        $sql = "UPDATE tblTenant 
+                SET tenantName = ?, birthdate = ?, gender = ?, phoneNumber = ?, 
+                    emailAddress = ?, currentAddress = ?, fatherName = ?, 
+                    fatherNumber = ?, motherName = ?, motherNumber = ?, 
+                    emergencyName = ?, emergencyNumber = ?, dateStarted = ?, roomID = ?
+                WHERE tenantID = ?";
+
+        $stmt = $conn->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param("ssssssssssssssi", $tenantName, $birthdate, $gender, $phoneNumber, 
+                $emailAddress, $currentAddress, $fatherName, $fatherNumber, 
+                $motherName, $motherNumber, $emergencyName, $emergencyNumber, 
+                $dateStarted, $roomID, $tenantID);
+
+            if ($stmt->execute()) {
+                echo json_encode(["status" => "success", "message" => "Tenant Successfully Updated"]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+            }
+
+            $stmt->close();
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error preparing statement"]);
+        }
+    } else {
+        echo json_encode(["status" => "error", "message" => "Invalid or incomplete data"]);
+    }
+
+    $conn->close();
 }
 
-?>
+    ?>
