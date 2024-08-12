@@ -461,9 +461,8 @@
             const capacity = $row.find('td').eq(2).text();
             const roomFee = $row.find('td').eq(3).text();
             const availableStatus = $row.find('td').eq(5).text();
-            console.log(availableStatus);
 
-                // Set the modal form inputs
+            // Set the modal form inputs
                 $self.$input_roomNumber.val(roomNumber);
                 $self.$input_roomType.val(roomType);
                 $self.$input_capacity.val(capacity);

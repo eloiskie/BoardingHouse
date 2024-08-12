@@ -47,19 +47,19 @@ if ($requestMethod == 'POST') {
             $startDate = new DateTime($dateStarted);
             $currentDate = new DateTime();
             $interval = $startDate->diff($currentDate);
-            $months = $interval->m + ($interval->y * 12);
+            $months = $interval->y * 12 + $interval->m;
 
             // Get the room fee
-            $stmt = $conn->prepare("SELECT roomFee FROM tblroom WHERE roomID = ?");
-            $stmt->bind_param("i", $roomID); // Bind the roomID parameter
-            $stmt->execute(); // Execute the statement without arguments
+            $stmt = $conn->prepare("SELECT roomFee FROM tblRoom WHERE roomID = ?");
+            $stmt->bind_param("i", $roomID); 
+            $stmt->execute(); 
             $result = $stmt->get_result();
             $room = $result->fetch_assoc();
             $roomFee = $room['roomFee'];
-            
 
-        // Calculate initial balance
-        $balance = $months * $roomFee;
+            // Calculate balance based on the number of months
+            $balance = $months * $roomFee;
+
 
     
         if ($password === $confirmPassword) {
@@ -113,6 +113,7 @@ if ($requestMethod == 'POST') {
         }
     }
     
+
 }
 
 else if ($requestMethod == 'GET') {

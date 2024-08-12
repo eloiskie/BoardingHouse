@@ -68,7 +68,7 @@
         </div>
     </aside>
     <!-- start modal -->
-    <div class="modal" id="modal" tabindex="-1">
+    <div class="modal" id="modal" tabindex="-1" action="new" data-amenitiesid="">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
@@ -85,18 +85,45 @@
                 </div>
                 <div class="mb-3">
                     <label for="houseLocation" class="form-label" style="font-size: 14px">Room Number</label>
-                    <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
+                    <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
                                     <option>Select Room Number</option>
                     </select>
                 </div>
+                <div class="mb-3" id="input-tenantName">
+                    <label for="input-tenantName" class="form-label">Name</label>
+                    <select id="sel-tenantName" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>Select Name</option>
+                    </select>
+                </div>
                 <div class="mb-3">
-                    <label for="inputNumberOf-rooms" class="form-label">Name</label>
-                    <input type="number" name="inputNumberOf-rooms" class="form-control" id="inputNumberOf-rooms">
+                    <label for="input-waterBill" class="form-label">Water Bill</label>
+                    <input type="number" name="input-waterBill" class="form-control" id="input-waterBill">
+                </div>
+                <div class="mb-3">
+                    <label for="input-electricBill" class="form-label">Electric Bill</label>
+                    <input type="number" name="input-electricBill" class="form-control" id="input-electricBill">
+                </div>
+                <div class="mb-3" id="monthReading">
+                    <label for="sel-monthReading" class="form-label">Month Reading</label>
+                    <select id="sel-monthReading" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>January</option>
+                                    <option>Febuary</option>
+                                    <option>March</option>
+                                    <option>April</option>
+                                    <option>May</option>
+                                    <option>June</option>
+                                    <option>July</option>
+                                    <option>August</option>
+                                    <option>September</option>
+                                    <option>October</option>
+                                    <option>November</option>
+                                    <option>December</option>
+                    </select>
                 </div>
             </div>
             </form>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btnSave">Save</button>
+                    <button type="button" class="btn btn-primary" id="btn-submit">Save</button>
                 </div>
             </div>
         </div>
@@ -143,8 +170,7 @@
                                             <th scope="col">Name</th>
                                             <th scope="col">Water Bill</th>
                                             <th scope="col">Electric Bill</th>
-                                            <th scope="col">Other Bill Type</th>
-                                            <th scope="col">Amount</th>
+                                            <th scope="col">Month Reading</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -169,26 +195,265 @@
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
-const housePage = {
-    Init: function(config) {
-        this.config = config;
-        this.BindEvents();
- 
-    },
-    BindEvents: function() {
-        const $this = this.config;
-      
+
+    const housePage = {
+        Init: function(config) {
+            this.config = config;
+            this.BindEvents();
+            this.getHouseLocation();
+            this.viewData();
+        },
+        BindEvents: function() {
+            const $this = this.config;
+            $this.$btn_add.on('click', this.modalShow.bind(this));
+            $this.$sel_houseLocation.on('change', this.getRoom.bind(this));
+            $this.$sel_roomNumber.on('change', this.getTenantName.bind(this));
+            $this.$btn_submit.on('click', this.addAmenities.bind(this));
+            $this.$tbody.on('click', '#btn-edit', this.editButton.bind(this));
+        },
+        getHouseLocation: function() {
+            const $self = this.config;
+            $.ajax({
+                url: '../controller/tenantController.php',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                   $self.$sel_houseLocation.empty();
+                    $self.$sel_houseLocation.append('<option value="" style="font-size: 15px;">Select House</option>');
+
+                    $.each(response.data, function(index, item) {
+                        $self.$sel_houseLocation.append('<option value="' + item.houseID + '">' + item.houselocation + '</option>');
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+        getTenantName: function() {
+            const $self = this.config;
+            const roomID = $self.$sel_roomNumber.val();
         
-    },
-    
-}
+            if (!roomID) {
+                $self.$sel_tenantName.empty().append('<option value="" style="font-size: 15px;">Select Tenant</option>');
+                return;
+            }
+            $.ajax({
+                url: '../controller/amenitiesController.php',
+                type: 'POST',
+                data: { roomID: roomID },
+                dataType: 'json',
+                success: function(response) {
+                    const selectTenant = $self.$sel_tenantName;
+                    selectTenant.empty();
+                    selectTenant.append('<option value="" style="font-size: 15px;">Select Tenant</option>');
 
-housePage.Init({
+                    if (response.status === 'success') {
+                        $.each(response.data, function(index, item) {
+                            selectTenant.append('<option value="' + item.tenantID + '">' + item.tenantName + '</option>');
+                        });
+                    } else {
+                        console.error('Error: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+        getRoom: function() {
+            const $self = this.config;
+            const houseID = $self.$sel_houseLocation.val();
+            if (!houseID) {
+                $self.$sel_roomNumber.empty().append('<option value="" style="font-size: 15px;">Select Room</option>');
+                return;
+            }
+            $.ajax({
+                url: '../controller/tenantController.php',
+                type: 'POST',
+                data: { houseID: houseID },
+                dataType: 'json',
+                success: function(response) {
+                    const selectRoom = $self.$sel_roomNumber;
+                    selectRoom.empty();
+                    selectRoom.append('<option value="" style="font-size: 15px;">Select Room</option>');
 
+                    $.each(response.data, function(index, item) {
+                        selectRoom.append('<option value="' + item.roomID + '">' + item.roomNumber + '</option>');
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+        viewData: function(){
+            const $self = this.config;
+            $.ajax({
+                url: '../controller/amenitiesController.php',
+                type: 'GET',
+                data: { amenities: true },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        $self.$tbody.empty(); 
+                        if (response.data.length > 0) { 
+                            $.each(response.data, function(index, item) {
+                                const row = `
+                                    <tr class="text-capitalize" data-amenitiesid="${item.amenitiesID}">
+                                        <td>${item.tenantName}</td>
+                                        <td>${item.electricBill}</td>
+                                        <td>${item.waterBill}</td>
+                                        <td>${item.monthReading}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary style="width: 80px" flex-fill edit-room" id="btn-edit" data-amenitiesID="${item.amenitiesID}">Edit</button>
+                                            <button type="button" class="btn btn-secondary style="width: 80px" flex-fill delete-room" id="btn-delete" data-amenitiesID="${item.amenitiesID}">Delete</button>
+                                        </td>
+                                    </tr>`;
+                                $self.$tbody.append(row);
+                            });
+                        } else { 
+                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                        }
+                    } else { 
+                        console.error('Error fetching data: ' + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+        modalShow: function(){
+            const $self = this.config;
+            $self.$modal.modal('show');
+        },
+        addAmenities: function() {
+            const $self = this.config;
+
+            const houseLocation   = $self.$sel_houseLocation.val().trim();
+            const roomNumber      = $self.$sel_roomNumber.val().trim();
+            const tenantID        = $self.$sel_tenantName.val().trim();
+            const electricBill    = parseFloat($self.$inpt_electricBill.val()) || 0;
+            const waterBill       = parseFloat($self.$inpt_waterBill.val()) || 0;
+            const monthReading    = $self.$sel_monthReading.val();
+            const action = $self.$modal.attr('action');
+
+            if(action === 'new') {
+                $.ajax({
+                    url: '../controller/amenitiesController.php',
+                    type: 'POST',
+                    data: {
+                        tenantID: tenantID,
+                        electricBill: electricBill,
+                        waterBill: waterBill,
+                        monthReading: monthReading
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === "error") {
+                            alert(response.message);
+                        } else if (response.status === "success") {
+                            alert(response.message);
+                            $.each(response.data, function(index, item) {
+                                const row = `
+                                    <tr class="text-capitalize" data-amenitiesid="${item.amenitiesID}>
+                                        <td>${item.tenantName}</td>
+                                        <td>${item.electricBill}</td>
+                                        <td>${item.waterBill}</td>
+                                        <td>${item.monthReading}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary style="width: 80px" flex-fill edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                            <button type="button" class="btn btn-secondary style="width: 80px" flex-fill delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                        </td>
+                                    </tr>`;
+                                $self.$tbody.append(row);
+                            });
+                            $self.$modal.modal('hide');
+                            $('#amenitiesForm')[0].reset();
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('An error occurred while submitting amenities details: ' + errorThrown);
+                    }
+                });
+            }
+        },
+        editButton: function(event){
+            const $self = this.config;
+            const $row = $(event.currentTarget).closest('tr');
+            const amenitiesID = $row.data('amenitiesid');
+            const tenantName = $row.find('td').eq(0).text();
+            const waterBill = $row.find('td').eq(1).text();
+            const electricBill = $row.find('td').eq(2).text();
+            const monthReading = $row.find('td').eq(3).text();
+
+            $self.$modal.attr('action', 'edit');
+            $self.$btn_submit.text("Save Update");
+            $self.$modal_3.attr('data-amenitiesid', amenities);
+
+            $.ajax({
+                url: '../controller/amenitiesController.php',
+                type: 'GET',
+                data: { tenantID: tenantID },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === "success") {
+                        $.each(response.data, function(index, item) {
+                            // Ensure that room options are loaded before setting the value
+                            $self.$sel_houseLocation.val(item.houseID).trigger('change'); // Trigger change to update room options
+
+                            // Use a short delay to give time for room options to be populated
+                            setTimeout(function() {
+                                $self.$sel_roomNumber.val(item.roomID); // Set the roomID value
+
+                            }, 10); // Adjust the delay if needed
+
+                            $self.$inpt_name.val(item.tenantName);
+                            $self.$inpt_birthday.val(item.birthdate);
+                            $self.$inpt_gender.val(item.gender);
+                            $self.$inpt_number.val(item.phoneNumber);
+                            $self.$inpt_email.val(item.emailAddress);
+                            $self.$inpt_address.val(item.currentAddress);
+                            $self.$inpt_fatherName.val(item.fatherName);
+                            $self.$inpt_fatherNumber.val(item.fatherNumber);
+                            $self.$inpt_motherName.val(item.motherName);
+                            $self.$inpt_motherNumber.val(item.motherNumber);
+                            $self.$inpt_emergencyName.val(item.emergencyName);
+                            $self.$inpt_emergencyNumber.val(item.emergencyNumber);
+                            $self.$inpt_dateStarted.val(item.dateStarted);
+                            $self.$inpt_username.val(item.username);
+                            $self.$inpt_password.val(item.password);
+
+                            const roomID = item.roomID;
+                            $self.$modal_3.attr('data-roomID', roomID);
+
+                            // Show the edit modal
+                            $self.$modal_1.modal('show');
+                        });
+                    }   
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+            
+
+        }
+    }
+    housePage.Init({
+        $sel_houseLocation          : $('#sel-houseLocation'),
+        $sel_roomNumber             : $('#sel-roomNumber'),
+        $sel_tenantName             : $('#sel-tenantName'),
+        $sel_monthReading           : $('#sel-monthReading'),
+        $inpt_waterBill             : $('#input-waterBill'),
+        $inpt_electricBill          : $('#input-electricBill'),
+        $btn_add                    : $('#btn-add'),
+        $modal                      : $('#modal'),
+        $btn_submit                 : $('#btn-submit'),
+        $tbody                      : $('#tbody')
+    });
 });
-
-});
-
 </script>
 </body>
 </html>

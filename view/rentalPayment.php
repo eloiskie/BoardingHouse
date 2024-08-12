@@ -24,9 +24,9 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="house.php">
+                    <a class="sidebar-link" href="house.php" id="btnMenu-house">
                         <i class="bi bi-house"></i>
-                        House
+                            House
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -42,7 +42,7 @@
                     </a>
                     <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="rentalFee.php" class="sidebar-link">Rental Fee</a>
+                            <a href="amenities.php" class="sidebar-link">Amenities</a>
                         </li>
                         <li class="sidebar-item">
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
@@ -67,6 +67,68 @@
             </ul>
         </div>
     </aside>
+    <!-- start modal -->
+    <div class="modal" id="modal" tabindex="-1" action="new">
+        <div class="modal-dialog ">
+            <div class="modal-content">
+                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                    <h5 class="modal-title" style="color: white">Add Amenities</h5>
+                    <button type="button" id="btn-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            <form id="amenitiesForm" method="post">
+            <div class="form-content p-4">
+                <div class="mb-3">
+                    <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
+                    <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>Select House</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="houseLocation" class="form-label" style="font-size: 14px">Room Number</label>
+                    <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>Select Room Number</option>
+                    </select>
+                </div>
+                <div class="mb-3" id="input-tenantName">
+                    <label for="input-tenantName" class="form-label">Name</label>
+                    <select id="sel-tenantName" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>Select Name</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="input-waterBill" class="form-label">Water Bill</label>
+                    <input type="number" name="input-waterBill" class="form-control" id="input-waterBill">
+                </div>
+                <div class="mb-3">
+                    <label for="input-electricBill" class="form-label">Electric Bill</label>
+                    <input type="number" name="input-electricBill" class="form-control" id="input-electricBill">
+                </div>
+                <div class="mb-3" id="monthReading">
+                    <label for="sel-monthReading" class="form-label">Month Reading</label>
+                    <select id="sel-monthReading" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>January</option>
+                                    <option>Febuary</option>
+                                    <option>March</option>
+                                    <option>April</option>
+                                    <option>May</option>
+                                    <option>June</option>
+                                    <option>July</option>
+                                    <option>August</option>
+                                    <option>September</option>
+                                    <option>October</option>
+                                    <option>November</option>
+                                    <option>December</option>
+                    </select>
+                </div>
+            </div>
+            </form>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-submit">Save</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- end modal -->
     <div class="main">
         <nav class="navbar navbar-expand px-3 border-bottom">
             <button class="btn" id="sidebar-toggle" type="button">
@@ -80,14 +142,76 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-end">
                             <a href="account.php" class="dropdown-item">Profile</a>
-                            <a href="#" class="dropdown-item">Logout</a>
+                            <a href="#"  class="dropdown-item" data-houseID="he">Logout</a>
                         </div>
                     </li>
                 </ul>
             </div>
         </nav>
+        <main class="content px-4 py-4">
+        <div class="container-fluid bg-white">
+                <div class="room-content p-2">
+                    <div class="row">
+                        <div class="d-md-flex" id="house-location-container"></div>
+                        <div class="d-flex align-items-center py-2" style="height: 50px;">
+                            <div class="d-flex align-items-center mb-2">
+                                <label for="sel-roomType" class="form-label me-2">Search</label>
+                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
+                            </div>
+                            <div class="ms-auto mb-2">
+                                <button class="btn btn-primary btn-sm p-2" type="button" id="btn-add" style="font-size: 12px;">Add Amenities</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <div class="table-wrapper">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr style="font-size: 15px">
+                                            <th scope="col">Name</th>
+                                            <th scope="col"></th>
+                                            <th scope="col">Electric Bill</th>
+                                            <th scope="col">Month Reading</th>
+                                            <th scope="col">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tbody" style="font-size: 15px;" >
+                                        <!-- Table rows go here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+   $(document).ready(function() {
+    $("#sidebar-toggle").click(function() {
+        $("#sidebar").toggleClass("collapsed");
+    });
+
+    const housePage = {
+        Init: function(config) {
+            this.config = config;
+            this.BindEvents();
+        
+        },
+        BindEvents: function() {
+            const $this = this.config;
+
+        },
+        
+    }
+    housePage.Init({
+    
+    });
+});
+</script>
 </body>
 </html>
