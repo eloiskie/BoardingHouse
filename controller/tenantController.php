@@ -24,7 +24,6 @@ if ($requestMethod == 'POST') {
         }
     } else if (isset($_POST['tenantName'])) {
         $name = $_POST['tenantName'];
-        $birthday = $_POST['birthday'];
         $gender = $_POST['gender'];
         $number = $_POST['number'];
         $email = $_POST['email'];
@@ -36,84 +35,110 @@ if ($requestMethod == 'POST') {
         $emergencyName = $_POST['emergencyName'];
         $emergencyNumber = $_POST['emergencyNumber'];
         $dateStarted = $_POST['dateStarted'];
-        
-        $lastPayment = $_POST['lastPayment'];
         $username = $_POST['username'];
         $password = $_POST['password'];
-        $confirmPassword = $_POST['confirmPassword'];
         $roomID = $_POST['roomID'];
 
-         // Calculate the number of months since the start date
-            $startDate = new DateTime($dateStarted);
-            $currentDate = new DateTime();
-            $interval = $startDate->diff($currentDate);
-            $months = $interval->y * 12 + $interval->m;
+        $sql = "INSERT INTO tbltenant(tenantName, gender, phoneNumber, emailAddress, currentAddress, fatherName, fatherNumber, motherName, motherNumber, emergencyName, emergencyNumber, dateStarted, username, userPassword, roomID) 
+                VALUES ('{$name}', '{$gender}', '{$number}', '{$email}', '{$address}', '{$fatherName}', '{$fatherNumber}', '{$motherName}', '{$motherNumber}', '{$emergencyName}', '{$emergencyNumber}', '{$dateStarted}', '{$username}', '{$password}', '{$roomID}')";
 
-            // Get the room fee
-            $stmt = $conn->prepare("SELECT roomFee FROM tblRoom WHERE roomID = ?");
-            $stmt->bind_param("i", $roomID); 
-            $stmt->execute(); 
-            $result = $stmt->get_result();
-            $room = $result->fetch_assoc();
-            $roomFee = $room['roomFee'];
+        if($conn->query($sql)){
+            $updateRoom = $conn->prepare("UPDATE tblRoom SET availableStatus = ? WHERE roomID = ?");
+            $status = 'Occupied'; // Example status
+            $updateRoom->bind_param('si', $status, $roomID);
 
-            // Calculate balance based on the number of months
-            $balance = $months * $roomFee;
-
-
-    
-        if ($password === $confirmPassword) {
-            // Hash the password
-            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-    
-            $sql = "INSERT INTO tbltenant(tenantName, birthdate, gender, phoneNumber, emailAddress, currentAddress, fatherName, fatherNumber, motherName, motherNumber, emergencyName, emergencyNumber, dateStarted, balance, lastPayment, username, userPassword, roomID) 
-                VALUES ('{$name}', '{$birthday}', '{$gender}', '{$number}', '{$email}', '{$address}', '{$fatherName}', '{$fatherNumber}', '{$motherName}', '{$motherNumber}', '{$emergencyName}', '{$emergencyNumber}', '{$dateStarted}','{$balance}','{$lastPayment}', '{$username}', '{$hashedPassword}', '{$roomID}')";
-    
-            if ($conn->query($sql)) {
-                $updateRoom = $conn->prepare("UPDATE tblRoom SET availableStatus = ? WHERE roomID = ?");
-                $status = 'Occupied'; // Example status
-                $updateRoom->bind_param('si', $status, $roomID);
-    
-                if ($updateRoom->execute()) {
-                    // Perform the SELECT query
-                    $selectSql = "SELECT t.*, 
-                                        CASE 
-                                            WHEN t.lastPayment = '0000-00-00' OR t.lastPayment IS NULL THEN 'N/A'
-                                            ELSE t.lastPayment
-                                        END AS formattedLastPayment,
-                                        r.*, 
-                                        h.*
-                                    FROM tblTenant t
+            if($updateRoom->execute()){
+                    $selectSql = "SELECT t.*, r.*, h.*
+                                    FROM tblTenant t  
                                     JOIN tblRoom r ON t.roomID = r.roomID
-                                    JOIN tblHouse h ON r.houseID = h.houseID";
+                                    JOIN tblHouse h ON r.houseID = h.houseID;
+                                    ";
+                $selectResult = $conn->query($selectSql);
+                if ($selectResult) {
+                                $data = array();
+                                if ($selectResult->num_rows > 0) {
+                                    while ($row = $selectResult->fetch_assoc()) {
+                                        $data[] = $row;
+                                    }
+                                }
+                                echo json_encode(["status" => "success", "message" => "Tenant Successfully Added", "data" => $data]);
+                            } else {
+                                echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+                            }
+            }else {
+                    echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+                    }
+        }
+        //  // Calculate the number of months since the start date
+        //     $startDate = new DateTime($dateStarted);
+        //     $currentDate = new DateTime();
+        //     $interval = $startDate->diff($currentDate);
+        //     $months = $interval->y * 12 + $interval->m;
+
+        //     // Get the room fee
+        //     $stmt = $conn->prepare("SELECT roomFee FROM tblRoom WHERE roomID = ?");
+        //     $stmt->bind_param("i", $roomID); 
+        //     $stmt->execute(); 
+        //     $result = $stmt->get_result();
+        //     $room = $result->fetch_assoc();
+        //     $roomFee = $room['roomFee'];
+
+        //     // Calculate balance based on the number of months
+        //     $balance = $months * $roomFee;
+       
+            // $sql = "INSERT INTO tbltenant(tenantName, gender, phoneNumber, emailAddress, currentAddress, fatherName, fatherNumber, motherName, motherNumber, emergencyName, emergencyNumber, dateStarted, balance, lastPayment, username, userPassword, roomID) 
+            //     VALUES ('{$name}', '{$gender}', '{$number}', '{$email}', '{$address}', '{$fatherName}', '{$fatherNumber}', '{$motherName}', '{$motherNumber}', '{$emergencyName}', '{$emergencyNumber}', '{$dateStarted}','{$balance}','{$lastPayment}', '{$username}', '{$password}', '{$roomID}')";
+    
+            // if ($conn->query($sql)) {
+            //     $updateRoom = $conn->prepare("UPDATE tblRoom SET availableStatus = ? WHERE roomID = ?");
+            //     $status = 'Occupied'; // Example status
+            //     $updateRoom->bind_param('si', $status, $roomID);
+    
+            //     if ($updateRoom->execute()) {
+            //         // Perform the SELECT query
+            //         $selectSql = "SELECT t.*, 
+            //                             CASE 
+            //                                 WHEN t.lastPayment = '0000-00-00' OR t.lastPayment IS NULL THEN 'N/A'
+            //                                 ELSE t.lastPayment
+            //                             END AS formattedLastPayment,
+            //                             r.*, 
+            //                             h.*
+            //                         FROM tblTenant t
+            //                         JOIN tblRoom r ON t.roomID = r.roomID
+            //                         JOIN tblHouse h ON r.houseID = h.houseID";
                                     
                 
     
-                    $selectResult = $conn->query($selectSql);
+            //         $selectResult = $conn->query($selectSql);
     
-                    if ($selectResult) {
-                        $data = array();
-                        if ($selectResult->num_rows > 0) {
-                            while ($row = $selectResult->fetch_assoc()) {
-                                $data[] = $row;
-                            }
-                        }
-                        echo json_encode(["status" => "success", "message" => "Tenant Successfully Added", "data" => $data]);
-                    } else {
-                        echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
-                    }
-                } else {
-                    echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
-                }
-            } else {
-                echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
-            }
-        } else {
-            echo json_encode(["status" => "error", "message" => "Passwords do not match"]);
+            //         if ($selectResult) {
+            //             $data = array();
+            //             if ($selectResult->num_rows > 0) {
+            //                 while ($row = $selectResult->fetch_assoc()) {
+            //                     $data[] = $row;
+            //                 }
+            //             }
+            //             echo json_encode(["status" => "success", "message" => "Tenant Successfully Added", "data" => $data]);
+            //         } else {
+            //             echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+            //         }
+            //     } else {
+            //         echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+            //     }
+            // // } else {
+            // //     echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+            // // }
+    }else if (isset($_POST['generatePass'])){
+        $length = 8 ; // Length of the password
+        $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        $charactersLength = strlen($characters);
+        $randomPassword = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomPassword .= $characters[rand(0, $charactersLength - 1)];
         }
-    }
+        echo json_encode(['password' => $randomPassword]);
     
-
+    }
 }
 
 else if ($requestMethod == 'GET') {
@@ -134,17 +159,10 @@ else if ($requestMethod == 'GET') {
             echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
         }
     } else if (isset($_GET['tenant'])) {
-        $sql = "SELECT t.*, 
-                       CASE 
-                           WHEN t.lastPayment = '0000-00-00' OR t.lastPayment IS NULL THEN 'N/A'
-                           ELSE t.lastPayment
-                       END AS formattedLastPayment,
-                       r.roomNumber, 
-                       r.roomFee,
-                       h.houselocation
-                FROM tblTenant t
-                JOIN tblRoom r ON t.roomID = r.roomID
-                JOIN tblHouse h ON r.houseID = h.houseID";
+        $sql = "SELECT t.*, r.*, h.*
+                    FROM tblTenant t  
+                    JOIN tblRoom r ON t.roomID = r.roomID
+                    JOIN tblHouse h ON r.houseID = h.houseID;";
 
         $result = $conn->query($sql);
 
@@ -161,18 +179,10 @@ else if ($requestMethod == 'GET') {
         }
     }else if(isset($_GET['tenantID'])){
         $tenantID = intval($_GET['tenantID']);
-        $sql = "SELECT t.*, 
-                        CASE 
-                            WHEN t.lastPayment = '0000-00-00' OR t.lastPayment IS NULL THEN 'N/A'
-                            ELSE t.lastPayment
-                        END AS formattedLastPayment,
-                        r.roomNumber, 
-                        r.roomFee,
-                        h.houselocation,
-                        h.houseID
-                FROM tblTenant t
-                JOIN tblRoom r ON t.roomID = r.roomID
-                JOIN tblHouse h ON r.houseID = h.houseID
+        $sql = "SELECT t.*, r.*, h.*
+                    FROM tblTenant t  
+                    JOIN tblRoom r ON t.roomID = r.roomID
+                    JOIN tblHouse h ON r.houseID = h.houseID
                 WHERE tenantID = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $tenantID);
@@ -222,7 +232,7 @@ else if ($requestMethod == 'GET') {
 else if($requestMethod == 'PUT') {
     $inputData = json_decode(file_get_contents("php://input"), true);
     if (json_last_error() === JSON_ERROR_NONE &&
-        isset($inputData['tenantID'], $inputData['tenantName'], $inputData['birthdate'], 
+        isset($inputData['tenantID'], $inputData['tenantName'], 
             $inputData['gender'], $inputData['phoneNumber'], $inputData['emailAddress'], 
             $inputData['currentAddress'], $inputData['fatherName'], $inputData['fatherNumber'], 
             $inputData['motherName'], $inputData['motherNumber'], 
@@ -231,7 +241,6 @@ else if($requestMethod == 'PUT') {
 
         $tenantID = intval($inputData['tenantID']);
         $tenantName = $inputData['tenantName'];
-        $birthdate = $inputData['birthdate'];
         $gender = $inputData['gender'];
         $phoneNumber = $inputData['phoneNumber'];
         $emailAddress = $inputData['emailAddress'];
@@ -243,32 +252,30 @@ else if($requestMethod == 'PUT') {
         $emergencyName = $inputData['emergencyName'];
         $emergencyNumber = $inputData['emergencyNumber'];
         $dateStarted = $inputData['dateStarted'];
-        $roomID = $inputData['roomID'];
+        $roomID = intval($inputData['roomID']);
 
-        // Prepare SQL statement
         $sql = "UPDATE tblTenant 
-                SET tenantName = ?, birthdate = ?, gender = ?, phoneNumber = ?, 
+                SET tenantName = ?, gender = ?, phoneNumber = ?, 
                     emailAddress = ?, currentAddress = ?, fatherName = ?, 
                     fatherNumber = ?, motherName = ?, motherNumber = ?, 
                     emergencyName = ?, emergencyNumber = ?, dateStarted = ?, roomID = ?
                 WHERE tenantID = ?";
 
-        $stmt = $conn->prepare($sql);
-        if ($stmt) {
-            $stmt->bind_param("ssssssssssssssi", $tenantName, $birthdate, $gender, $phoneNumber, 
+        $stmtUpdate = $conn->prepare($sql);
+        if ($stmtUpdate) {
+            $stmtUpdate->bind_param("sssssssssssiis", $tenantName, $gender, $phoneNumber, 
                 $emailAddress, $currentAddress, $fatherName, $fatherNumber, 
                 $motherName, $motherNumber, $emergencyName, $emergencyNumber, 
                 $dateStarted, $roomID, $tenantID);
 
-            if ($stmt->execute()) {
+            if ($stmtUpdate->execute()) {
                 echo json_encode(["status" => "success", "message" => "Tenant Successfully Updated"]);
             } else {
                 echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
             }
-
-            $stmt->close();
+            $stmtUpdate->close();
         } else {
-            echo json_encode(["status" => "error", "message" => "Error preparing statement"]);
+            echo json_encode(["status" => "error", "message" => "Error preparing update statement: " . $conn->error]);
         }
     } else {
         echo json_encode(["status" => "error", "message" => "Invalid or incomplete data"]);
@@ -276,5 +283,7 @@ else if($requestMethod == 'PUT') {
 
     $conn->close();
 }
+
+
 
     ?>

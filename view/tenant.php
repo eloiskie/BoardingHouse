@@ -42,9 +42,6 @@
                     </a>
                     <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="amenities.php" class="sidebar-link">Amenities</a>
-                        </li>
-                        <li class="sidebar-item">
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
@@ -96,65 +93,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="progress m-2" style="height: 2px;">
-                <div class="progress-bar" role="progressbar" style="width: 33.33%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                <form id="form1">
-                <div class="modal-content p-4">
-                <div class="mb-2">
-                    <h4 class="mb-2">Create Tenant Account</h4>
-                    <div class="row align-items-start">
-                    <div class="col">
-                    <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
-                    <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
-                                    <option>Select House</option>
-                    </select>
-                    </div>
-                    <div class="col">
-                    <label for="roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
-                    <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
-                                    <option style="font-size: 15px;">Select Room Number</option>
-                    </select>
-                    </div>
-                </div>
-                </div>
-                <div class="mb-2">
-                    <label for="username" class="form-label" style="font-size: 14px">Date Started</label>
-                    <input type="date" class="form-control" id="inpt-dateStarted" style="font-size: 15px; height: 40px">
-                </div>
-                <div class="mb-2">
-                    <label for="username" class="form-label" style="font-size: 14px">Username</label>
-                    <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 40px">
-                </div>
-                <div class="mb-2">
-                <div class="row align-items-start">
-                    <div class="col">
-                    <label for="password" class="form-label" style="font-size: 14px">Password</label>
-                    <input type="Password" class="form-control" id="inpt-password" style="font-size: 15px; height: 40px">
-                    </div>
-                    <div class="col">
-                    <label for="confirmPassword" class="form-label" style="font-size: 14px">Confirm Password</label>
-                    <input type="Password" class="form-control" id="inpt-confirmPassword" style="font-size: 15px; height: 40px">
-                    </div>
-                </div>
-                </div>
-                </form>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btn-nextStep">Next</button>
-                </div>
-                </div>
-                </div>
-            </div>
-        </div>
-        <!-- modal-step-2 -->
-        <div class="modal" id="modal-2" tabindex="-1" action="new">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="progress m-2" style="height: 2px;">
-                <div class="progress-bar" role="progressbar"  style="width: 66.66%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" role="progressbar"  style="width: 33.33%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <form id="form2" >
                 <div class="modal-content p-4">
@@ -166,8 +105,8 @@
                 <div class="mb-2">
                 <div class="row align-items-start">
                     <div class="col">
-                        <label for="birthday" class="form-label" style="font-size: 14px">Birthday</label>
-                        <input type="date" class="form-control" id="inpt-birthday" style="font-size: 15px; height: 30px">
+                        <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
+                        <input type="number" class="form-control" id="inpt-number" style="font-size: 15px; height: 30px">
                     </div>
                     <div class="col">
                         <label for="contactNumber" class="form-label" style="font-size: 14px">Gender</label>
@@ -176,32 +115,23 @@
                 </div>
                 </div>
                 <div class="mb-2">
-                <div class="row align-items-start">
-                    <div class="col">
-                        <label for="contactNumber" class="form-label" style="font-size: 14px">Contact Number</label>
-                        <input type="number" class="form-control" id="inpt-number" style="font-size: 15px; height: 30px">
-                    </div>
-                    <div class="col">
-                        <label for="emailAddress" class="form-label" style="font-size: 14px">Email Address</label>
-                        <input type="email" aria-describedby="emailHelp" class="form-control" id="inpt-email" style="font-size: 15px; height: 30px">
-                    </div>
-                </div>
+                <label for="emailAddress" class="form-label" style="font-size: 14px">Email Address</label>
+                <input type="email" aria-describedby="emailHelp" class="form-control" id="inpt-email" style="font-size: 15px; height: 30px">
                 </div>
                 <div class="mb-2">
-                    <label for="homeAddress" class="form-label" style="font-size: 14px">Current Address</label>
+                    <label for="homeAddress" class="form-label" style="font-size: 14px">Home Address</label>
                     <input type="text" class="form-control" id="inpt-address" style="font-size: 15px; height: 30px">
                 </div>
                 </form>
                 <div class="modal-footer">
-                <button type="button" class="btn btn-primary" id="btn-step2-previous">Previous</button>
-                <button type="button" class="btn btn-primary" id="btn-step2-next">Next</button>
+                    <button type="button" class="btn btn-primary" id="btn-nextStep">Next</button>
                 </div>
                 </div>
                 </div>
             </div>
         </div>
-        <!-- modal-step-3 -->
-        <div class="modal" id="modal-3" tabindex="-1" action="new" data-tenantID="" data-roomID="">
+        <!-- modal-step-2 -->
+        <div class="modal" id="modal-2" tabindex="-1" action="new" data-tenantID="" data-roomID="">
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
@@ -209,7 +139,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="progress m-2" style="height: 2px;">
-                <div class="progress-bar" role="progressbar" style="width: 100%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar" role="progressbar" style="width: 66.66%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
                 <form id="form3">
                 <div class="modal-content p-4">
@@ -252,6 +182,58 @@
                 </div>
                 </form>
                 <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btn-step2-previous">Previous</button>
+                    <button type="button" class="btn btn-primary" id="btn-step2-next">Next</button>
+                </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        <!-- modal-step-3 -->
+        <div class="modal" id="modal-3" tabindex="-1" action="new">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="progress m-2" style="height: 2px;">
+                <div class="progress-bar" role="progressbar" style="width: 100%; color: black" aria-valuenow="33.33" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                <form id="form1">
+                <div class="modal-content p-4">
+                <div class="mb-2">
+                    <h4 class="mb-2">Create Tenant Account</h4>
+                    <div class="row align-items-start">
+                    <div class="col">
+                    <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
+                    <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option>Select House</option>
+                    </select>
+                    </div>
+                    <div class="col">
+                    <label for="roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
+                    <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
+                                    <option style="font-size: 15px;">Select Room Number</option>
+                    </select>
+                    </div>
+                </div>
+                </div>
+                <div class="mb-2">
+                    <label for="username" class="form-label" style="font-size: 14px">Date Started</label>
+                    <input type="date" class="form-control" id="inpt-dateStarted" style="font-size: 15px; height: 40px">
+                </div>
+                <div class="mb-2">
+                    <label for="username" class="form-label" style="font-size: 14px">Username</label>
+                    <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 40px">
+                </div>
+                <div class="mb-2">
+                    <label for="password" class="form-label" style="font-size: 14px">Password</label>
+                    <input type="text" class="form-control" id="inpt-password" style="font-size: 15px; height: 40px" disabled>
+                    <button type="button" class="btn btn-primary mt-2" id="generatePass">Generate Password</button>
+                </div>
+                </form>
+                <div class="modal-footer">
                     <button type="button" class="btn btn-primary" id="btn-step3-previous">Previous</button>
                     <button type="button" class="btn btn-primary" id="btn-submit">Submit</button>
                 </div>
@@ -268,19 +250,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-            <div class="row">
                 <div class="col-md-6">
                 <h6>Details</h6>
-                </div>
-                <div class="col-md-6">
-                <h6>Account Details</h6>
                 </div>
                 <div class="container" style="font-size: 12px;">
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="mb-3">
-                            <label for="birthday" id="lbl-birthday" class="form-label font-weight-bold">Birthday:</label>
-                        </div>
                         <div class="mb-3">
                             <label for="phone-number" id="lbl-tenantNumber" class="form-label">Phone Number:</label>
                         </div>
@@ -322,18 +297,8 @@
                             <div class="mb-3">
                                 <label for="emergency-phone-number" id="lbl-emergencynumber" class="form-label">Phone Number:</label>
                             </div>
-                            <div class="mb-3">
-                                <label for="balance-skie" id="lbl-balanceskie" class="form-label">Balance:</label>
-                            </div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="mb-3">
-                            <label for="fathers-phone-number" id="lbl-tenantUsername" class="form-label">Username:</label>
-                        </div>
                     </div>
                 </div>
-            </div>
-
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -363,11 +328,9 @@
                                     <thead class="table-dark">
                                         <tr style="font-size: 15px">
                                             <th scope="col">Name</th>
+                                            <th scope="col">Phone Number</th>
                                             <th scope="col">House Rented</th>
                                             <th scope="col">Room Number</th>
-                                            <th scope="col">Monthly Rate</th>
-                                            <th scope="col">Outstanding Balance</th>
-                                            <th scope="col">Last Payment</th>
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
@@ -411,6 +374,7 @@
             $this.$tbody.on('click', '#btn-delete', this.deleteData.bind(this));
             $this.$tbody.on('click', '#btn-edit', this.editButton.bind(this));
             $this.$modal_3.on('click', '#btn-Update', this.update.bind(this));
+            $this.$btn_generatePass.on('click', this.generate.bind(this));
             
 
             // Bind change event to house location dropdown
@@ -486,9 +450,20 @@
                 }
             });
         },
+        generate: function(){
+            const $self = this.config;
+            $.ajax({
+                    url: '../controller/tenantController.php',
+                    type: 'POST',
+                    data:{generatePass: true},
+                    dataType: 'json',
+                    success: function(response) {
+                       $self.$inpt_password.val(response.password);
+                    }
+                });
+        },
         addTenant: function() {
             const $self = this.config;
-            const lastPayment = "N/A";
             const action = $self.$modal_3.attr('action');
             if(action === "new")
             $.ajax({
@@ -496,7 +471,6 @@
                 type: 'POST',
                 data: {
                     tenantName: $self.$inpt_name.val().trim(),
-                    birthday: $self.$inpt_birthday.val().trim(),
                     gender: $self.$inpt_gender.val().trim(),
                     number: $self.$inpt_number.val().trim(),
                     email: $self.$inpt_email.val().trim(),
@@ -508,29 +482,26 @@
                     emergencyName: $self.$inpt_emergencyName.val().trim(),
                     emergencyNumber: $self.$inpt_emergencyNumber.val().trim(),
                     dateStarted: $self.$inpt_dateStarted.val().trim(),
-                    lastPayment : lastPayment,
                     username: $self.$inpt_username.val().trim(),
                     password: $self.$inpt_password.val().trim(),
-                    confirmPassword: $self.$inpt_confirmPassword.val().trim(),
                     roomID: $self.$sel_roomNumber.val()
 
                 },
+                dataType: 'json',
                 success: function(response){
-                        const data = JSON.parse(response);
+                       
                         $self.$tbody.empty();
-                        if (data.status === "error"){
-                            alert(data.messsage);
-                        }else if(data.status ==="success"){
-                                    alert(data.message);
-                                $.each(data.data, function(index, item) {
+                        if (response.status === "error"){
+                            alert(response.messsage);
+                        }else if(response.status ==="success"){
+                                    alert(response.message);
+                                $.each(response.data, function(index, item) {
                                     const row = `
                                     <tr class="text-capitalize" data-tenantid="${item.tenantID}">
                                             <td>${item.tenantName}</td>
+                                            <td>${item.phoneNumber}</td>
                                             <td>${item.houselocation}</td>
                                             <td>${item.roomNumber}</td>
-                                            <td>${item.roomFee}</td>
-                                            <td>${item.balance}</td>
-                                            <td>${item.formattedLastPayment}</td>
                                             <td>
                                                 <button type="button" class="btn btn-secondary style="width: 80px, font-size: 12px" flex-fill edit-room" id="btn-view" data-roomID="${item.tenantID}">View</button>
                                                 <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
@@ -553,43 +524,41 @@
         },
         displayData: function(){
             const $self = this.config;
-            $.ajax({
-                url: '../controller/tenantController.php',
-                type: 'GET',
-                data: { tenant: true },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        $self.$tbody.empty(); 
-                        if (response.data.length > 0) { 
-                            $.each(response.data, function(index, item) {
-                                const row = `
-                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}">
-                                        <td>${item.tenantName}</td>
-                                        <td>${item.houselocation}</td>
-                                        <td>${item.roomNumber}</td>
-                                        <td>${item.roomFee}</td>
-                                        <td>${item.balance}</td>
-                                        <td>${item.formattedLastPayment}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
-                                        </td>
-                                    </tr>`;
-                                $self.$tbody.append(row);
-                            });
+                $.ajax({
+                    url: '../controller/tenantController.php',
+                    type: 'GET',
+                    data: { tenant: true },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $self.$tbody.empty(); 
+                            if (response.data.length > 0) { 
+                                $.each(response.data, function(index, item) {
+                                    const row = `
+                                        <tr class="text-capitalize" data-tenantid="${item.tenantID}">
+                                            <td>${item.tenantName}</td>
+                                            <td>${item.phoneNumber}</td>
+                                            <td>${item.houselocation}</td>
+                                            <td>${item.roomNumber}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                            </td>
+                                        </tr>`;
+                                    $self.$tbody.append(row);
+                                });
+                            } else { 
+                                $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                            }
                         } else { 
-                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                            console.error('Error fetching data: ' + response.message);
                         }
-                    } else { 
-                        console.error('Error fetching data: ' + response.message);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error: ' + status + ' ' + error);
-                }
-            });
+                });
         },
         viewData: function(event) {
             const $self = this.config;
@@ -606,7 +575,6 @@
                             $.each(response.data, function(index, item) {
                                 $('#lbl-tenantName').text(`Name: ${item.tenantName}`);
                                 $('#lbl-address').text(`Current Address: ${item.currentAddress}`);
-                                $('#lbl-birthday').text(`Birthday: ${item.birthdate}`);
                                 $('#lbl-gender').text(`Gender: ${item.gender}`);
                                 $('#lbl-tenantNumber').text(`Phone Number: ${item.phoneNumber}`);
                                 $('#lbl-email').text(`Email: ${item.emailAddress}`);
@@ -682,7 +650,6 @@
                             }, 10); // Adjust the delay if needed
 
                             $self.$inpt_name.val(item.tenantName);
-                            $self.$inpt_birthday.val(item.birthdate);
                             $self.$inpt_gender.val(item.gender);
                             $self.$inpt_number.val(item.phoneNumber);
                             $self.$inpt_email.val(item.emailAddress);
@@ -695,11 +662,11 @@
                             $self.$inpt_emergencyNumber.val(item.emergencyNumber);
                             $self.$inpt_dateStarted.val(item.dateStarted);
                             $self.$inpt_username.val(item.username);
-                            $self.$inpt_password.val(item.password);
+                            $self.$inpt_password.val(item.userPassword);
 
                             const roomID = item.roomID;
                             $self.$modal_3.attr('data-roomID', roomID);
-
+                            console.log(item);
                             // Show the edit modal
                             $self.$modal_1.modal('show');
                         });
@@ -711,23 +678,22 @@
             });
         },
         update: function() {
-    const $self = this.config;
-    const tenantID = $self.$modal_3.data('tenantid');
-    const tenantName = $self.$inpt_name.val().trim();
-    const birthdate = $self.$inpt_birthday.val().trim();
-    const gender = $self.$inpt_gender.val().trim();
-    const phoneNumber = $self.$inpt_number.val().trim(); // Added phoneNumber
-    const emailAddress = $self.$inpt_email.val().trim();
-    const currentAddress = $self.$inpt_address.val().trim();
-    const fatherName = $self.$inpt_fatherName.val().trim();
-    const fatherNumber = $self.$inpt_fatherNumber.val().trim(); // Corrected assignment
-    const motherName = $self.$inpt_motherName.val().trim();
-    const motherNumber = $self.$inpt_motherNumber.val().trim();
-    const emergencyName = $self.$inpt_emergencyName.val().trim();
-    const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
-    const dateStarted = $self.$inpt_dateStarted.val().trim();
-    const roomID = $self.$modal_3.data('roomid')
-    const action = $self.$modal_3.attr('action');
+            const $self = this.config;
+            const tenantID = $self.$modal_3.data('tenantid');
+            const tenantName = $self.$inpt_name.val().trim();
+            const gender = $self.$inpt_gender.val().trim();
+            const phoneNumber = $self.$inpt_number.val().trim(); // Added phoneNumber
+            const emailAddress = $self.$inpt_email.val().trim();
+            const currentAddress = $self.$inpt_address.val().trim();
+            const fatherName = $self.$inpt_fatherName.val().trim();
+            const fatherNumber = $self.$inpt_fatherNumber.val().trim(); // Corrected assignment
+            const motherName = $self.$inpt_motherName.val().trim();
+            const motherNumber = $self.$inpt_motherNumber.val().trim();
+            const emergencyName = $self.$inpt_emergencyName.val().trim();
+            const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
+            const dateStarted = $self.$inpt_dateStarted.val().trim();
+            const roomID = $self.$modal_3.data('roomid')
+            const action = $self.$modal_3.attr('action');
 
     if (action === "edit") {
         $.ajax({
@@ -737,7 +703,6 @@
             data: JSON.stringify({
                 tenantID: tenantID,
                 tenantName: tenantName,
-                birthdate: birthdate,
                 gender: gender,
                 phoneNumber: phoneNumber, // Included in the request
                 emailAddress: emailAddress,
@@ -751,14 +716,14 @@
                 dateStarted: dateStarted,
                 roomID: roomID
             }),
+            dataType: 'json',
             success: function(response) {
                 try {
-                    const data = JSON.parse(response);
                     $self.$tbody.empty();
-                    if (data.status === "error") {
-                        alert(data.message);
-                    } else if (data.status === "success") {
-                        alert(data.message);
+                    if (response.status === "error") {
+                        alert(response.message);
+                    } else if (response.status === "success") {
+                        alert(response.message);
                         // Additional AJAX call to refresh tenant data
                         $.ajax({
                 url: '../controller/tenantController.php',
@@ -773,11 +738,10 @@
                                 const row = `
                                     <tr class="text-capitalize" data-tenantid="${item.tenantID}">
                                         <td>${item.tenantName}</td>
+                                        <td>${item.phoneNumber}</td>
                                         <td>${item.houselocation}</td>
                                         <td>${item.roomNumber}</td>
                                         <td>${item.roomFee}</td>
-                                        <td>${item.balance}</td>
-                                        <td>${item.formattedLastPayment}</td>
                                         <td>
                                             <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
                                             <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
@@ -823,7 +787,6 @@
         $modal_3                    : $('#modal-3'),
         $modalView                  : $('#modalView'),
         $inpt_name                  : $('#inpt-name'),
-        $inpt_birthday              : $('#inpt-birthday'),
         $inpt_gender                : $('#inpt-gender'),
         $inpt_number                : $('#inpt-number'),
         $inpt_email                 : $('#inpt-email'),
@@ -839,10 +802,10 @@
         $inpt_dateStarted           : $('#inpt-dateStarted'),
         $inpt_username              : $('#inpt-username'),
         $inpt_password              : $('#inpt-password'),
-        $inpt_confirmPassword       : $('#inpt-confirmPassword'),
         $tbody                      : $('#tbody'),
         $btn_view                   : $('#btn-view'),
-        $btn_delete                 : $('#btn-delete')
+        $btn_delete                 : $('#btn-delete'),
+        $btn_generatePass           : $('#generatePass')
     });
 });
 

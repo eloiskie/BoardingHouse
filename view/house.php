@@ -9,7 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
+<body >
 <div class="wrapper">
     <aside id="sidebar">
         <div class="h-100">
@@ -41,9 +41,6 @@
                         Payments
                     </a>
                     <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="amenities.php" class="sidebar-link">Amenities</a>
-                        </li>
                         <li class="sidebar-item">
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
@@ -177,7 +174,7 @@ const housePage = {
                 const container = $self.$houseCards;
                         container.empty();
                         $.each(data, function(index, item){
-                                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php">
+                                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php" >
                                 <div class="card flex-fill border-0 illustration">
                                     <div class="card-body p-0 d-flex flex-fill">
                                         <div class="card-content w-100">

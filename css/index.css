@@ -12,6 +12,7 @@ body {
     opacity: 1;
     overflow-y: scroll;
     margin: 0;
+    background: linear-gradient(to right, red, yellow);
 }
 
 a {
@@ -167,6 +168,5 @@ a.sidebar-link:hover {
     max-height: 400px; /* Adjust this value as needed */
     overflow-y: auto;
 }
-
 
 
