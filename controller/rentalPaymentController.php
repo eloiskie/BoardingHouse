@@ -4,127 +4,182 @@ include_once('../server/db.php');
 $requestMethod = $_SERVER['REQUEST_METHOD'];
 
 if ($requestMethod === "GET") {
+    // Initialize an empty data array
+    $data = [];
+
     if (isset($_GET['tenant'])) {
-        // SQL query to get tenant data, including room fee, total charges, total payments, and remaining balance
+        // SQL query to get tenant data with remaining balance
         $sql = "
-        SELECT 
-            tblTenant.tenantName,
-            tblTenant.tenantID,
-            tblhouse.houselocation,
-            tblRoom.roomNumber,
-            tblRoom.roomfee,
-            IFNULL(SUM(tblCharges.chargeAmount), 0) AS totalCharges, 
-            IFNULL((
-                SELECT SUM(tblPaymentDetails.paymentAmount)
-                FROM tblPaymentDetails
-                WHERE tblPaymentDetails.tenantID = tblTenant.tenantID
-            ), 0) AS totalPayments,
-            (IFNULL(SUM(tblCharges.chargeAmount), 0) - IFNULL((
-                SELECT SUM(tblPaymentDetails.paymentAmount)
-                FROM tblPaymentDetails
-                WHERE tblPaymentDetails.tenantID = tblTenant.tenantID
-            ), 0)) AS remainingBalance  
-        FROM 
-            tblRoom
-        JOIN 
-            tblTenant ON tblTenant.roomID = tblRoom.roomID
-        JOIN 
-            tblhouse ON tblRoom.houseID = tblhouse.houseID
-        LEFT JOIN 
-            tblCharges ON tblCharges.tenantID = tblTenant.tenantID  
-        GROUP BY 
-            tblTenant.tenantName, 
-            tblTenant.tenantID,
-            tblhouse.houselocation, 
-            tblRoom.roomNumber, 
-            tblRoom.roomfee
-        ORDER BY 
-            tblTenant.tenantName;
+            SELECT 
+                tblTenant.tenantName,
+                tblTenant.tenantID,
+                tblhouse.houselocation,
+                tblRoom.roomNumber,
+                tblRoom.roomfee,
+                IFNULL(
+                    (SELECT SUM(amount) 
+                    FROM tblchargesDetails 
+                    WHERE tblchargesDetails.tenantID = tblTenant.tenantID), 0) 
+                    - IFNULL(
+                        (SELECT SUM(paymentAmount) 
+                        FROM tblpayments 
+                        WHERE tblpayments.tenantID = tblTenant.tenantID), 0) 
+                    AS remainingBalance
+            FROM 
+                tblRoom
+            JOIN 
+                tblTenant ON tblTenant.roomID = tblRoom.roomID
+            JOIN 
+                tblhouse ON tblRoom.houseID = tblhouse.houseID
+            GROUP BY 
+                tblTenant.tenantName, 
+                tblTenant.tenantID,
+                tblhouse.houselocation, 
+                tblRoom.roomNumber, 
+                tblRoom.roomfee
+            ORDER BY 
+                tblTenant.tenantName;
         ";
 
         $result = $conn->query($sql);
-
-        if ($result) {
-            $data = array();
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    $data[] = $row;
-                }
-            }
-            echo json_encode(["status" => "success", "data" => $data]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
-        }
+        
     } else {
         // Fetch all tenant IDs and names
         $sql = "SELECT tenantID, tenantName FROM tblTenant";
         $result = $conn->query($sql);
-
-        if ($result) {
-            $data = array();
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    $data[] = $row;
-                }
-                echo json_encode(["status" => "success", "data" => $data]);
-            } else {
-                echo json_encode(["status" => "success", "data" => []]);
-            }
-        } else {
-            echo json_encode(["status" => "error", "message" => "Error executing query: " . $conn->error]);
-        }
     }
-} elseif ($requestMethod === "POST") {
+
+    // Handle the result
+    if ($result) {
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+            echo json_encode(["status" => "success", "data" => $data]);
+        } else {
+            echo json_encode(["status" => "success", "data" => []]);
+        }
+    } else {
+        echo json_encode(["status" => "error", "message" => "Error executing query: " . $conn->error]);
+    }
+}
+
+if ($requestMethod === "POST") {
     // Retrieve POST data
-    $chargeTypes = $_POST['chargeTypes'];
-    $amounts = $_POST['amounts'];
-    $dueDate = $_POST['dueDate'];
-    $tenantID = $_POST['tenantID'];
+    $paymentTypes = isset($_POST['paymentTypes']) ? $_POST['paymentTypes'] : []; 
+    $amounts = isset($_POST['amounts']) ? $_POST['amounts'] : []; 
+    $dueDate = $_POST['dueDate'] ?? ''; 
+    $tenantID = $_POST['tenantID'] ?? 0; 
 
-    // Prepare the insert statement
-    $stmt = $conn->prepare("INSERT INTO tblcharges (chargeType, chargeAmount, dueDate, tenantID) VALUES (?, ?, ?, ?)");
-
-    if ($stmt === false) {
-        echo json_encode(["status" => "error", "message" => "Error preparing statement: " . $conn->error]);
+    // Check if payment types and amounts are provided
+    if (empty($paymentTypes) || empty($amounts)) {
+        echo json_encode(["status" => "error", "message" => "Payment types and amounts must be provided."]);
         exit;
     }
 
-    // Start a transaction
+    // Prepare the insert statement for tblchargesDetails
+    $stmtGrouped = $conn->prepare("INSERT INTO tblchargesDetails (tenantID, paymentTypeID, amount, dueDate) VALUES (?, ?, ?, ?)");
+    
+    // Handle error if statement preparation fails
+    if ($stmtGrouped === false) {
+        echo json_encode(["status" => "error", "message" => "Error preparing grouped charges statement: " . $conn->error]);
+        exit;
+    }
+
+    // Start transaction
     $conn->begin_transaction();
 
     try {
-        foreach ($chargeTypes as $i => $type) {
-            $chargeType = $conn->real_escape_string($type);
-            $amount = $conn->real_escape_string($amounts[$i]);
+        $totalGroupedAmount = 0;
 
-            $stmt->bind_param("sssi", $chargeType, $amount, $dueDate, $tenantID);
+        foreach ($paymentTypes as $i => $type) {
+            $paymentType = $type;
+            $amount = (float)$amounts[$i];
 
-            if ($stmt->execute() === false) {
-                throw new Exception("Error executing statement: " . $stmt->error);
+            // Check if the paymentType exists in tblpaymenttype
+            $stmtCheck = $conn->prepare("SELECT paymentTypeID FROM tblpaymenttype WHERE paymentType = ?");
+            
+            // Handle error if statement preparation fails
+            if ($stmtCheck === false) {
+                throw new Exception("Error preparing payment type check: " . $conn->error);
             }
+
+            $stmtCheck->bind_param("s", $paymentType);
+            $stmtCheck->execute();
+            $result = $stmtCheck->get_result();
+
+            if ($result->num_rows === 0) {
+                // If paymentType doesn't exist, insert it
+                $insertCategory = $conn->prepare("INSERT INTO tblpaymenttype (paymentType) VALUES (?)");
+                
+                if ($insertCategory === false) {
+                    throw new Exception("Error preparing insert for new payment type: " . $conn->error);
+                }
+
+                $insertCategory->bind_param("s", $paymentType);
+                if (!$insertCategory->execute()) {
+                    throw new Exception("Error inserting into tblpaymenttype: " . $insertCategory->error);
+                }
+                $paymentTypeID = $insertCategory->insert_id; 
+                $insertCategory->close();
+            } else {
+                $row = $result->fetch_assoc();
+                $paymentTypeID = $row['paymentTypeID'];
+            }
+
+            // Insert each charge
+            $stmtGrouped->bind_param("iids", $tenantID, $paymentTypeID, $amount, $dueDate);
+            if ($stmtGrouped->execute() === false) {
+                throw new Exception("Error executing grouped charges statement: " . $stmtGrouped->error);
+            }
+
+            $totalGroupedAmount += $amount;
         }
 
-        // Calculate the totalAmount for the tenant after inserting the charges
-        $result = $conn->query("SELECT SUM(chargeAmount) as totalAmount FROM tblcharges WHERE tenantID = $tenantID");
-        if ($result === false) {
-            throw new Exception("Error calculating total amount: " . $conn->error);
+        // Calculate total amount of charges for the tenant
+        $stmtTotalCharges = $conn->prepare("SELECT SUM(amount) AS totalCharges FROM tblchargesDetails WHERE tenantID = ?");
+        if ($stmtTotalCharges === false) {
+            echo json_encode(["status" => "error", "message" => "Error preparing total charges statement: " . $conn->error]);
+            exit;
         }
+        $stmtTotalCharges->bind_param("i", $tenantID);
+        $stmtTotalCharges->execute();
+        $resultTotalCharges = $stmtTotalCharges->get_result();
+        $rowCharges = $resultTotalCharges->fetch_assoc();
+        $totalCharges = $rowCharges['totalCharges'] !== null ? (float)$rowCharges['totalCharges'] : 0;
 
-        $row = $result->fetch_assoc();
-        $totalAmount = $row['totalAmount'];
+        // Calculate total payments made by the tenant
+        $stmtTotalPayments = $conn->prepare("SELECT SUM(paymentAmount) AS totalPayments FROM tblpayments WHERE tenantID = ?");
+        if ($stmtTotalPayments === false) {
+            echo json_encode(["status" => "error", "message" => "Error preparing total payments statement: " . $conn->error]);
+            exit;
+        }
+        $stmtTotalPayments->bind_param("i", $tenantID);
+        $stmtTotalPayments->execute();
+        $resultTotalPayments = $stmtTotalPayments->get_result();
+        $rowPayments = $resultTotalPayments->fetch_assoc();
+        $totalPayments = $rowPayments['totalPayments'] !== null ? (float)$rowPayments['totalPayments'] : 0;
+
+        // Calculate remaining balance
+        $remainingBalance = $totalCharges - $totalPayments;
 
         // Commit the transaction
         $conn->commit();
+
+        // Return JSON response including balance
         echo json_encode([
             "status" => "success",
             "message" => "Charges inserted and total amount updated successfully",
-            "totalAmount" => $totalAmount // Send back the total amount
+            "totalCharges" => $totalCharges,
+            "totalPayments" => $totalPayments,
+            "remainingBalance" => $remainingBalance
         ]);
+
     } catch (Exception $e) {
         $conn->rollback();
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
 
-    $stmt->close();
+    $stmtGrouped->close();
 }
 ?>

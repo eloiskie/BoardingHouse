@@ -12,7 +12,7 @@ body {
     opacity: 1;
     overflow-y: scroll;
     margin: 0;
-    background: linear-gradient(to right, red, yellow);
+    
 }
 
 a {
@@ -44,7 +44,7 @@ h4 {
 #sidebar {
     max-width: 264px;
     min-width: 264px;
-    background: var(--bs-dark);
+    background: #25748B;
     transition: all 0.35s ease-in-out;
 }
 
@@ -56,7 +56,7 @@ h4 {
     overflow: hidden;
     transition: all 0.35s ease-in-out;
     width: 100%;
-    background: var(--bs-dark-bg-subtle);
+    background: #8DDBF2;
 }
 
 /* Sidebar Elements Style */

@@ -84,31 +84,63 @@
             </div>
         </nav>
       <!-- start modal -->
-      <div class="modal" id="modal" action="new" tabindex="-1" data-tenantID="" data-dueDate="">
-        <div class="modal-dialog ">
-            <div class="modal-content">
-                <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Payment</h5>
-                    <button type="button" id="btn-closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-            <form id="chargesForm" method="post">
-            <div class="form-content p-4">
-                <div class="mb-3">
-                    <label for="inpt-amount" class="form-label" style="font-size: 14px">Amount</label>
-                    <input type="number" name="inpt-amount" class="form-control text-capitalize" id="inpt-amount" style="font-size: 15px; height: 30px"> 
-                </div>
-                <div class="mb-3">
-                    <label for="inpt-datepayment" class="form-label" style="font-size: 14px">Date</label>
-                    <input type="date" name="inpt-datepayment" class="form-control text-capitalize" id="inpt-datePayment" style="font-size: 15px; height: 30px"> 
-                </div>
+      <!-- start modal -->
+<!-- Start Modal -->
+<div class="modal" id="modal" action="new" tabindex="-1" data-tenantID="" data-dueDate="" data-paymentDetailsID="">
+    <div class="modal-dialog ">
+        <div class="modal-content">
+            <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                <h5 class="modal-title" style="color: white">Payment</h5>
+                <button type="button" id="btn-closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            </form>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" id="btnPay">Pay</button>
+            <form id="paymentForm" method="post">
+                <div class="form-content p-4">
+                    <div class="mb-3">
+                        <label for="text">Balance: </label>
+                        <label for="text" id="txt-balance"></label>
+                    </div>
+                    <!-- <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                        <input type="radio" class="btn-check" name="btnradio" id="btn-fullpayment" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="btn-fullpayment">Full Payment</label>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="btn-partial" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btn-partial">Partial Payment</label>
+                    </div> -->
+
+                    <!-- Partial Payment Section -->
+                    <div class="mb-3" id="partial-payment-section" >
+                        <label for="inpt-paymentType" class="form-label" style="font-size: 14px">Payment Type</label>
+                        <div id="payment-type-selections">
+                            <select name="inpt-paymentType" class="form-control" id="inpt-paymentType" style="font-size: 15px; height: 30px">
+                                <option value="" style="font-size: 15px;">Select Payment Type</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="inpt-datepayment" class="form-label" style="font-size: 14px">Date</label>
+                            <input type="date" name="inpt-datepayment" class="form-control text-capitalize" id="inpt-partialDatePayment" style="font-size: 15px; height: 30px"> 
+                        </div>
+                    </div>
+                     <!-- Amount Input Section -->
+                    <!-- <div class="mb-3" id="inpt-amount-section">
+                        <label for="inpt-amount" class="form-label" style="font-size: 14px">Amount</label>
+                        <input type="number" name="inpt-amount" class="form-control" id="inpt-amount" style="font-size: 15px; height: 30px">
+                    </div> -->
+                    <!-- Date Input Section -->
+                    <!-- <div class="mb-3">
+                        <label for="inpt-datepayment" class="form-label" style="font-size: 14px">Date</label>
+                        <input type="date" name="inpt-datepayment" class="form-control text-capitalize" id="inpt-datePayment" style="font-size: 15px; height: 30px"> 
+                    </div> -->
                 </div>
+            </form>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="btnPay">Pay</button>
             </div>
         </div>
     </div>
+</div>
+
+
+
     <!-- close modal -->
     <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
@@ -124,9 +156,8 @@
                                     <tr>
                                         
                                         <th scope="col" style="font-size: 14px">Payment Type</th>
-                                        <th scope="col" style="font-size: 14px">Amount</th>
-                                        <th scope="col" style="font-size: 14px">Due Date</th>
                                         <th scope="col" style="font-size: 14px">Total Amount</th>
+                                        <th scope="col" style="font-size: 14px">Due Date</th>
                                         <th scope="col" style="font-size: 14px">Balance</th>
                                         <th scope="col" style="font-size: 14px">Status</th>
                                         <th scope="col" style="font-size: 14px">Action</th>
@@ -147,49 +178,67 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script>
-   $(document).ready(function() {
-    $("#sidebar-toggle").click(function() {
-        $("#sidebar").toggleClass("collapsed");
-    });
+    <script>
+        $(document).ready(function() {
+        $("#sidebar-toggle").click(function() {
+            $("#sidebar").toggleClass("collapsed");
+        });
 
-    const rentalPaymentPage = {
-        Init: function(config) {
-            this.config = config;
-            this.BindEvents();
-            this.getTenantName();
-            this.viewTable();
-           
-        
-        },
-        BindEvents: function() {
-            const $this = this.config;
-                $this.$tbody.on('click', '#btn-view', this.getTenantName.bind(this));
-                $this.$tbody.on('click', '#btn-pay', this.payButton.bind(this));
-                $this.$btn_pay.on('click', this.addPayment.bind(this));
-        },
-        getTenantName: function() {
-            const $self = this.config;
-            const tenantName = localStorage.getItem("tenantName");
-            const tenantID = localStorage.getItem("tenantID");
-          
+        const rentalPaymentPage = {
+            Init: function(config) {
+                this.config = config;
+                this.BindEvents();
+                this.getTenantName();
+                this.viewTable();
+               
             
-            if (tenantName) {
-                const label = `<h1 id="tenantName" data-tenantID="${tenantID}" class="text-uppercase">${tenantName }</h1>`;
-                $self.$tenantName.append(label); 
-            } else {
-                console.warn("No house name found in localStorage.");
-            }
-      
-        },
-        modalShow: function(){
-            const $self = this.config;
-            $self.$modal.modal('show');
-        },
+            },
+            BindEvents: function() {
+                const $self = this.config;
+                $self.$tbody.on('click', '#btn-view', this.getTenantName.bind(this));
+                $self.$tbody.on('click', '#btn-pay', this.payButton.bind(this));
+                $self.$btn_pay.on('click', this.addPayment.bind(this));
+               
+            //     $('input[name="btnradio"]').change(function() {
+            //     if ($('#btn-partial').is(':checked')) {
+            //         $self.$btn_pay.attr('data-payment-basis', 'partial'); // Changed to 'data-payment-basis'
+            //         $('#partial-payment-section').show();
+            //         $('#inpt-amount-section').hide();
+            //         $('#inpt-datePayment').closest('.mb-3').hide();
+            //     } else {
+            //         console.log('Full payment selected');
+            //         $self.$btn_pay.attr('data-payment-basis', 'fullPayment'); // Changed to 'data-payment-basis'
+            //         $('#partial-payment-section').hide();
+            //         $('#inpt-amount-section').show();
+            //         $('#inpt-datePayment').closest('.mb-3').show();
+            //     }
+            // });
+            },
+
+            getTenantName: function() {
+                const $self = this.config;
+                const tenantName = localStorage.getItem("tenantName");
+                const tenantID = localStorage.getItem("tenantID");
+            
+                
+                if (tenantName) {
+                    const label = `<h1 id="tenantName" data-tenantID="${tenantID}" class="text-uppercase">${tenantName }</h1>`;
+                    $self.$tenantName.append(label); 
+                } else {
+                    console.warn("No house name found in localStorage.");
+                }
+        
+            },
+        
+            modalShow: function(){
+                const $self = this.config;
+                $self.$modal.modal('show');
+            },
+
             viewTable: function() {
                 const $self = this.config;
-                const tenantID = $('#tenantName').data('tenantid'); // Fetch tenant ID
-                // Check if tenant ID exists
+                const tenantID = $('#tenantName').data('tenantid');
+
                 if (!tenantID) {
                     console.error('Tenant ID is missing.');
                     return;
@@ -201,147 +250,173 @@
                     data: { tenantID: tenantID },
                     dataType: 'json',
                     success: function(response) {
-                        console.log('Response:', response); // Log the response for debugging
                         if (response.status === 'success') {
-                            $self.$tbody.empty();
+                            $self.$tbody.empty(); // Clear table body
+
                             if (response.data.length > 0) {
                                 $.each(response.data, function(index, item) {
-                                    // Determine the status based on remaining balance
-                                    let status;
-                                    if (item.remainingBalance == 0) {
-                                        status = 'paid';
-                                    } else if (item.remainingBalance > 0 && item.remainingBalance < item.totalAmount) {
-                                        status = 'partial';
-                                    }else {
-                                        status = 'pending';
-                                    }
+                                    // Determine payment status
+                                    let status = (item.remainingBalance == 0) 
+                                        ? 'paid' 
+                                        : (item.remainingBalance > 0 && item.remainingBalance < item.totalAmount) 
+                                        ? 'partial' 
+                                        : 'pending';
 
+                                    // Create row template
                                     const row = `
-                                        <tr class="text-capitalize">
-                                            <td>${item.chargeTypes}</td>
-                                            <td>${item.amounts}</td>
-                                            <td>${item.dueDate}</td>
+                                        <tr class="text-capitalize" data-paymentDetailsID="${item.paymentDetailsIDs.join(',')}">
+                                            <td>${item.paymentTypes}</td>
                                             <td>${item.totalAmount}</td>
-                                            <td id="remainingBalance">${item.remainingBalance}</td>
-                                            <td id="paymentStatus">${status}</td>
+                                            <td>${item.dueDate}</td>
+                                            <td>${item.remainingBalance}</td>
+                                            <td>${status}</td>
                                             <td>
-                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-pay" data-tenantid="${item.tenantID}">Pay</button>
-                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-tenantid="${item.tenantID}">View</button>
+                                                <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${tenantID}">Pay</button>
+                                                <button type="button" class="btn btn-secondary" id="btn-view" data-tenantid="${tenantID}">View</button>
                                             </td>
                                         </tr>`;
-                                    $self.$tbody.append(row);
+                                    $self.$tbody.append(row); // Append row to table
                                 });
                             } else {
-                                $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                                $self.$tbody.append('<tr><td colspan="6" class="text-center">No records found</td></tr>');
                             }
                         } else {
                             console.error('Error fetching data: ' + response.message);
+                            $self.$tbody.html('<tr><td colspan="6">Error loading payment records.</td></tr>');
                         }
                     },
                     error: function(xhr, status, error) {
                         console.error('Error fetching data:', error);
-                        $self.$tbody.html('<tr><td colspan="7">Error loading payment records.</td></tr>');
+                        $self.$tbody.html('<tr><td colspan="6">Error loading payment records.</td></tr>');
                     }
                 });
             },
-
-
             payButton: function(event) {
                 const $self = this.config;
-                const $row = $(event.currentTarget).closest('tr');
-                const tenantID = $(event.currentTarget).data('tenantid');
-                const dueDate = $row.find('td').eq(2).text();
-                console.log(dueDate);
+                const $row = $(event.currentTarget).closest('tr'); // Get the closest <tr>
+                const tenantID = $(event.currentTarget).data('tenantid'); // Get tenant ID
+                const dueDate = $row.find('td').eq(2).text(); // Get due date from the 3rd <td>
+                const balance = $row.find('td').eq(3).text(); // Get balance from the 4th <td>
+                $self.$btn_pay.attr('data-payment-basis', 'payment'); 
+                
+                // Get paymentDetailsIDs from the data attribute and set it on the modal
+                const paymentDetailsIDs = $row.data('paymentdetailsid'); // This should be a comma-separated string
+                $self.$modal.attr('data-paymentDetailsID', paymentDetailsIDs); // Set paymentDetailsID on modal
 
                 // Set data attributes on the modal
                 $self.$modal.attr('data-tenantID', tenantID);
                 $self.$modal.attr('data-dueDate', dueDate);
+                $('#txt-balance').text(balance);
+
+                // Make AJAX call to fetch payment types based on tenantID and dueDate
+                $.ajax({
+                    url: '../controller/viewPaymentController.php',
+                    type: 'GET',
+                    data: { dueDate: dueDate, tenantID: tenantID },
+                    dataType: 'json',
+                    success: function(response) {
+                        const paymentTypeSelections = $('#payment-type-selections'); // Reference to payment type selections container
+                        paymentTypeSelections.empty(); // Clear previous labels
+
+                        // Append labels for each payment type
+                        $.each(response.data, function(index, item) {
+                            const label = `
+                                <div>
+                                    <label style="font-size: 15px;">
+                                        ${item.paymentType} <br/>
+                                        Remaining balance: ${item.balance} <br/>
+                                        <input type="number" name="paymentType" data-paymentDetailsID="${item.paymentDetailsID}" style="margin-right: 5px;">
+                                    </label>
+                                </div>`;
+                            paymentTypeSelections.append(label); // Append label to the container
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
+                    }
+                });
 
                 // Show the modal
                 $self.$modal.modal('show');
             },
 
-            addPayment: function(event) {
-    const $self = this.config;
-    const $row = $(event.currentTarget).closest('tr');
-    const paymentDetailsID = $self.$modal.data('paymentdetailsid');
-    const tenantID = $self.$modal.data('tenantid');
-    const dueDate = $self.$modal.data('duedate');
-    
-    // Get input values and trim them
-    const amount = $self.$inpt_amount.val().trim();
-    const paymentDate = $self.$inpt_datePayment.val().trim();
 
-    // Validate inputs before sending
-    if (!amount || !paymentDate) {
-        alert("Please fill in all required fields.");
-        return;
+
+            addPayment: function() {
+    const $self = this.config;
+    const tenantID = $self.$modal.data('tenantid');
+    const paymentBasis = $self.$btn_pay.attr('data-payment-basis');
+    const partialPaymentDate = $self.$inpt_partialDatePayment.val().trim();
+
+    // Initialize the request data
+    let requestData = {
+        tenantID: tenantID,
+        paymentBasis: paymentBasis
+    };
+
+    // Handle partial payments
+    if (paymentBasis === 'payment') {
+        let paymentDetails = [];
+        $('#payment-type-selections input[name="paymentType"]').each(function() {
+            const paymentDetailsID = $(this).data('paymentdetailsid');
+            const partialPaymentAmount = $(this).val().trim();
+            if (paymentDetailsID && partialPaymentAmount && !isNaN(partialPaymentAmount) && parseFloat(partialPaymentAmount) > 0) {
+                paymentDetails.push({ paymentDetailsID, partialPaymentAmount });
+            }
+        });
+
+        // Validate partial payments
+        if (paymentDetails.length > 0) {
+            requestData.paymentDetails = JSON.stringify(paymentDetails);
+            requestData.partialPaymentDate = partialPaymentDate; // Include the date for partial payments
+        } else {
+            alert('Please provide valid partial payment details.');
+            return; // Exit if inputs are invalid
+        }
+    } else {
+        alert('Invalid payment basis.'); // Alert if payment basis is not recognized
+        return; // Exit if payment basis is invalid
     }
 
+    // AJAX request to submit the payment data
     $.ajax({
         url: '../controller/viewPaymentController.php',
         type: 'POST',
-        data: {
-            amount: amount,
-            paymentDate: paymentDate,
-            paymentDetailsID: paymentDetailsID,
-            tenantID: tenantID,
-            dueDate: dueDate
-        },
+        data: requestData,
         dataType: 'json',
         success: function(response) {
-            console.log('Response from addPayment:', response); // Log the response
-
-            if (response.status === "success") {
-                alert(response.message);
-                console.log("Remaining Balance:", response.balance);
-                
-                // Update remaining balance and payment status
-                let balance = response.balance;
-                let totalAmount = response.totalCharges; // Adjusted to match your PHP response
-
-                // Determine payment status based on remaining balance
-                let paymentStatus;
-                if (balance === 0) {
-                    paymentStatus = 'paid';
-                } else if (balance > 0 && balance < totalAmount) {
-                    paymentStatus = 'partial';
-                } else {
-                    paymentStatus = 'pending';
-                }
-
-                // Update the respective cells in the row
-                $row.find(".remainingBalance").text(remainingBalance);
-                $row.find(".paymentStatus").text(paymentStatus);
-
-                // Optionally update other relevant fields if needed
-                // $row.find(".totalAmount").text(totalAmount); // Example
-
-                // Hide modal and reset the form
+            if (response.status === 'success') {
+                console.log(response.message);
+                alert('Payment added successfully!');
                 $self.$modal.modal('hide');
-                $('#chargesForm')[0].reset();
+                $self.viewTable(); // Refresh the table to show updated payments
             } else {
-                alert(response.message);
+                console.error(response.message);
+                alert('Error adding payment: ' + response.message);
             }
         },
         error: function(xhr, status, error) {
-            console.error('AJAX Error: ' + status + ' ' + error);
-            alert('An error occurred while processing your request. Please try again.');
+            console.error('AJAX Error: ', xhr.responseText);
+            alert('An error occurred while processing the payment. Please try again.');
         }
     });
 }
 
-    }
-    rentalPaymentPage.Init({
-        $tbody                      : $('#tbody'),
-        $tenantName                 : $('#tenantName-container'),
-        $modal                      : $('#modal'),
-        $btn_pay                    : $('#btnPay'),
-        $inpt_paymentType           : $('#inpt-paymentType'),
-        $inpt_amount                : $('#inpt-amount'),
-        $inpt_datePayment           : $('#inpt-datePayment')
-    });
-});
-</script>
+
+        }
+            rentalPaymentPage.Init({
+                $tbody                      : $('#tbody'),
+                $tenantName                 : $('#tenantName-container'),
+                $modal                      : $('#modal'),
+                $btn_pay                    : $('#btnPay'),
+                $btn_partial                : $('#btn-partial'),
+                $btn_fullpayment            : $('#btn-fullpayment'),
+                $inpt_paymentType           : $('#inpt-paymentType'),
+                $inpt_amount                : $('#inpt-amount'),
+                $inpt_datePayment           : $('#inpt-datePayment'),
+                $inpt_partialDatePayment    : $('#inpt-partialDatePayment')
+            });
+        });
+    </script>
 </body>
 </html>

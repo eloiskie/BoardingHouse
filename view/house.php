@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
 <body >
-<div class="wrapper">
+<div class="wrapper" style="background-color: white;">
     <aside id="sidebar">
         <div class="h-100">
             <div class="sidebar-logo">
@@ -174,25 +174,26 @@ const housePage = {
                 const container = $self.$houseCards;
                         container.empty();
                         $.each(data, function(index, item){
-                                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php" >
-                                <div class="card flex-fill border-0 illustration">
-                                    <div class="card-body p-0 d-flex flex-fill">
-                                        <div class="card-content w-100">
-                                            <div class="p-3 m-1">
-                                                <i class="bi bi-houses" style="font-size:50px"></i>
-                                                <label for="text" style="font-size: 30px">Houses</label>
-                                                <div class="m-1">
-                                                    <label for="text" id="house-name" class="text-capitalize" style="font-size:15px">${item.houselocation}</label><br/>
-                                                    <label for="text" id="house-name" class="text-capitalize" style="font-size:12px">${item.houseAddress}</label>
+                                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php">
+                                        <div class="card flex-fill border-0 illustration" style="background: linear-gradient(to top, #8DDBF2, #25748B);">
+                                            <div class="card-body p-0 d-flex flex-fill">
+                                                <div class="card-content w-100">
+                                                    <div class="p-3 m-1">
+                                                        <i class="bi bi-houses" style="font-size:50px"></i>
+                                                        <label for="text" style="font-size: 30px">Houses</label>
+                                                        <div class="m-1">
+                                                            <label for="text" id="house-name" class="text-capitalize" style="font-size:15px">${item.houselocation}</label><br/>
+                                                            <label for="text" id="house-name" class="text-capitalize" style="font-size:12px">${item.houseAddress}</label>
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                            </div>
+                                            <div class="card-footer">
+                                                <a href="#" id="btn-viewData" class="nav-link view-house" data-houseName="${item.houselocation}" data-houseID="${item.houseID}">View</a>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="card-footer">
-                                        <a href="#" id="btn-viewData" class="nav-link view-house" data-houseName="${item.houselocation}" data-houseID="${item.houseID}" >View</a>
-                                    </div>
-                                </div>
-                            </div>`;
+                                    `;
                             container.append(newCard);
                             });
             }
