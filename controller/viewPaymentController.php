@@ -130,50 +130,51 @@ if ($requestMethod === "GET") {
     }
 }
 
-else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Capture the POST variables
-    $tenantID = $_POST['tenantID'];
-    $paymentBasis = $_POST['paymentBasis'];
-    $partialPaymentDate = isset($_POST['partialPaymentDate']) ? $_POST['partialPaymentDate'] : null;
+    else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        // Capture the POST variables
+        $tenantID = $_POST['tenantID'];
+        $paymentBasis = $_POST['paymentBasis'];
+        $partialPaymentDate = isset($_POST['partialPaymentDate']) ? $_POST['partialPaymentDate'] : null;
 
-    // Handle partial payments
-    if ($paymentBasis === 'payment') {
-        $paymentDetails = json_decode($_POST['paymentDetails'], true);
+        // Handle partial payments
+        if ($paymentBasis === 'payment') {
+            $paymentDetails = json_decode($_POST['paymentDetails'], true);
 
-        // Prepare your SQL query to insert payment details
-        foreach ($paymentDetails as $detail) {
-            $paymentDetailsID = $detail['paymentDetailsID'];
-            $partialPaymentAmount = $detail['partialPaymentAmount'];
+            // Prepare your SQL query to insert payment details
+            foreach ($paymentDetails as $detail) {
+                $paymentDetailsID = $detail['paymentDetailsID'];
+                $partialPaymentAmount = $detail['partialPaymentAmount'];
 
-            // Prepare the statement (Assuming you have a PDO connection)
-            $stmt = $conn->prepare("INSERT INTO tblpayments (tenantID, paymentDetailsID, paymentAmount, paymentDate) VALUES (?, ?, ?, ?)");
-            if ($stmt === false) {
-                error_log("SQL prepare failed: " . $conn->error); // Log the error
-                echo json_encode(["status" => "error", "message" => "SQL prepare failed: " . $conn->error]);
-                exit;
+                // Prepare the statement (Assuming you have a PDO connection)
+                $stmt = $conn->prepare("INSERT INTO tblpayments (tenantID, paymentDetailsID, paymentAmount, paymentDate) VALUES (?, ?, ?, ?)");
+                if ($stmt === false) {
+                    error_log("SQL prepare failed: " . $conn->error); // Log the error
+                    echo json_encode(["status" => "error", "message" => "SQL prepare failed: " . $conn->error]);
+                    exit;
+                }
+
+                // Bind parameters and execute the query
+                $stmt->bind_param("iids", $tenantID, $paymentDetailsID, $partialPaymentAmount, $partialPaymentDate); // Adjust types as needed
+
+                if (!$stmt->execute()) {
+                    
+                    error_log("Database error: " . $stmt->error); // Log the error
+                    $response['status'] = 'error';
+                    $response['message'] = 'Database error: ' . $stmt->error;
+                    echo json_encode($response);
+                    exit();
+                }
             }
-
-            // Bind parameters and execute the query
-            $stmt->bind_param("iids", $tenantID, $paymentDetailsID, $partialPaymentAmount, $partialPaymentDate); // Adjust types as needed
-
-            if (!$stmt->execute()) {
-                error_log("Database error: " . $stmt->error); // Log the error
-                $response['status'] = 'error';
-                $response['message'] = 'Database error: ' . $stmt->error;
-                echo json_encode($response);
-                exit();
-            }
+        } else {
+            echo json_encode(['status' => 'error', 'message' => 'Invalid payment basis.']);
+            exit();
         }
-    } else {
-        echo json_encode(['status' => 'error', 'message' => 'Invalid payment basis.']);
-        exit();
-    }
 
-    // Return success response
-    $response['status'] = 'success';
-    $response['message'] = 'Payment processed successfully.';
-    echo json_encode($response);
-}
+        // Return success response
+        $response['status'] = 'success';
+        $response['message'] = 'Payment processed successfully.';
+        echo json_encode($response);
+    }
 
 
 

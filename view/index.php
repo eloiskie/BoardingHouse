@@ -45,7 +45,7 @@
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent</a>
                         </li>
                     </ul>
                 </li>

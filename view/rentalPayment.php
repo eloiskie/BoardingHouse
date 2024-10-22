@@ -45,7 +45,7 @@
                                 <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                             </li>
                             <li class="sidebar-item">
-                                <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                                <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                             </li>
                         </ul>
                     </li>
@@ -292,96 +292,96 @@
             $self.$paymentType_container.append(row);
         },
         addPaymentDetails: function(e) {
-    const $self = this.config;
-    e.preventDefault();
+            const $self = this.config;
+            e.preventDefault();
 
-    const paymentTypes = [];
-    const amounts = [];
-    const dueDate = $self.$inpt_dueDate.val();
-    const tenantID = $self.$sel_tenantName.val();
+            const paymentTypes = [];
+            const amounts = [];
+            const dueDate = $self.$inpt_dueDate.val();
+            const tenantID = $self.$sel_tenantName.val();
 
-    if (!tenantID) {
-        alert("Please select a tenant.");
-        return;
-    }
-
-    if (!dueDate) {
-        alert("Please select a due date.");
-        return;
-    }
-
-    const defaultPaymentType = $self.$inpt_chargeType.val();
-    const defaultAmount = parseFloat($self.$inpt_amount.val());
-
-    if (defaultPaymentType && !isNaN(defaultAmount)) {
-        paymentTypes.push(defaultPaymentType);
-        amounts.push(defaultAmount);
-    }
-
-    // Loop through additional payments entered
-    $self.$paymentType_container.find('.payment-type-row').each(function() {
-        const paymentType = $(this).find('.inpt-chargeType').val();
-        const amount = parseFloat($(this).find('.inpt-amount').val());
-
-        if (paymentType && !isNaN(amount)) {
-            paymentTypes.push(paymentType);
-            amounts.push(amount);
-        }
-    });
-
-    if (paymentTypes.length === 0) {
-        alert("Please enter at least one payment.");
-        return;
-    }
-
-    const formData = {
-        paymentTypes: paymentTypes,
-        amounts: amounts,
-        dueDate: dueDate,
-        tenantID: tenantID
-    };
-
-    if ($self.$submitButton) {
-        $self.$submitButton.prop('disabled', true).text('Processing...');
-    }
-
-    $.ajax({
-        type: 'POST',
-        url: '../controller/rentalPaymentController.php',
-        data: formData,
-        dataType: 'json',
-        contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
-        success: function(response) {
-            console.log("AJAX response:", response);
-            if (response.status === "success") {
-                alert(response.message);
-
-                $('#chargesForm')[0].reset();
-
-                const totalCharges = response.totalCharges || 0;
-                const totalPayments = response.totalPayments || 0;
-                const remainingBalance = response.remainingBalance || 0;
-                console.log(remainingBalance);
-                // Update total amount and balance in the UI
-                $('#totalAmountCell').text(response.remainingBalance.toFixed(2));
-
-                // Hide modal after success
-                $self.$modal.modal('hide');
-            } else {
-                alert("Error: " + response.message);
+            if (!tenantID) {
+                alert("Please select a tenant.");
+                return;
             }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX Error: ' + status + ' ' + error);
-            alert("An error occurred while processing the request. Please try again.");
-        },
-        complete: function() {
+
+            if (!dueDate) {
+                alert("Please select a due date.");
+                return;
+            }
+
+            const defaultPaymentType = $self.$inpt_chargeType.val();
+            const defaultAmount = parseFloat($self.$inpt_amount.val());
+
+            if (defaultPaymentType && !isNaN(defaultAmount)) {
+                paymentTypes.push(defaultPaymentType);
+                amounts.push(defaultAmount);
+            }
+
+            // Loop through additional payments entered
+            $self.$paymentType_container.find('.payment-type-row').each(function() {
+                const paymentType = $(this).find('.inpt-chargeType').val();
+                const amount = parseFloat($(this).find('.inpt-amount').val());
+
+                if (paymentType && !isNaN(amount)) {
+                    paymentTypes.push(paymentType);
+                    amounts.push(amount);
+                }
+            });
+
+            if (paymentTypes.length === 0) {
+                alert("Please enter at least one payment.");
+                return;
+            }
+
+            const formData = {
+                paymentTypes: paymentTypes,
+                amounts: amounts,
+                dueDate: dueDate,
+                tenantID: tenantID
+            };
+
             if ($self.$submitButton) {
-                $self.$submitButton.prop('disabled', false).text('Submit');
+                $self.$submitButton.prop('disabled', true).text('Processing...');
             }
+
+            $.ajax({
+                type: 'POST',
+                url: '../controller/rentalPaymentController.php',
+                data: formData,
+                dataType: 'json',
+                contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
+                success: function(response) {
+                    console.log("AJAX response:", response);
+                    if (response.status === "success") {
+                        alert(response.message);
+
+                        $('#chargesForm')[0].reset();
+
+                        const totalCharges = response.totalCharges || 0;
+                        const totalPayments = response.totalPayments || 0;
+                        const remainingBalance = response.remainingBalance || 0;
+                        console.log(remainingBalance);
+                        // Update total amount and balance in the UI
+                        $('#totalAmountCell').text(response.remainingBalance.toFixed(2));
+
+                        // Hide modal after success
+                        $self.$modal.modal('hide');
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                    alert("An error occurred while processing the request. Please try again.");
+                },
+                complete: function() {
+                    if ($self.$submitButton) {
+                        $self.$submitButton.prop('disabled', false).text('Submit');
+                    }
+                }
+            });
         }
-    });
-}
 
     }
 

@@ -45,7 +45,7 @@
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                         </li>
                     </ul>
                 </li>
@@ -268,7 +268,7 @@
                                             <td>${item.paymentTypes}</td>
                                             <td>${item.totalAmount}</td>
                                             <td>${item.dueDate}</td>
-                                            <td>${item.remainingBalance}</td>
+                                            <td id="remainingBalance">${item.remainingBalance}</td>
                                             <td>${status}</td>
                                             <td>
                                                 <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${tenantID}">Pay</button>
@@ -342,65 +342,66 @@
 
 
 
-            addPayment: function() {
-    const $self = this.config;
-    const tenantID = $self.$modal.data('tenantid');
-    const paymentBasis = $self.$btn_pay.attr('data-payment-basis');
-    const partialPaymentDate = $self.$inpt_partialDatePayment.val().trim();
+            addPayment: function(e) {
+                const $self = this.config;
+                e.preventDefault();
+                const tenantID = $self.$modal.data('tenantid');
+                const paymentBasis = $self.$btn_pay.attr('data-payment-basis');
+                const partialPaymentDate = $self.$inpt_partialDatePayment.val().trim();
 
-    // Initialize the request data
-    let requestData = {
-        tenantID: tenantID,
-        paymentBasis: paymentBasis
-    };
+                // Initialize the request data
+                let requestData = {
+                    tenantID: tenantID,
+                    paymentBasis: paymentBasis
+                };
 
-    // Handle partial payments
-    if (paymentBasis === 'payment') {
-        let paymentDetails = [];
-        $('#payment-type-selections input[name="paymentType"]').each(function() {
-            const paymentDetailsID = $(this).data('paymentdetailsid');
-            const partialPaymentAmount = $(this).val().trim();
-            if (paymentDetailsID && partialPaymentAmount && !isNaN(partialPaymentAmount) && parseFloat(partialPaymentAmount) > 0) {
-                paymentDetails.push({ paymentDetailsID, partialPaymentAmount });
+                // Handle partial payments
+                if (paymentBasis === 'payment') {
+                    let paymentDetails = [];
+                    $('#payment-type-selections input[name="paymentType"]').each(function() {
+                        const paymentDetailsID = $(this).data('paymentdetailsid');
+                        const partialPaymentAmount = $(this).val().trim();
+                        if (paymentDetailsID && partialPaymentAmount && !isNaN(partialPaymentAmount) && parseFloat(partialPaymentAmount) > 0) {
+                            paymentDetails.push({ paymentDetailsID, partialPaymentAmount });
+                        }
+                    });
+
+                    // Validate partial payments
+                    if (paymentDetails.length > 0) {
+                        requestData.paymentDetails = JSON.stringify(paymentDetails);
+                        requestData.partialPaymentDate = partialPaymentDate; // Include the date for partial payments
+                    } else {
+                        alert('Please provide valid partial payment details.');
+                        return; // Exit if inputs are invalid
+                    }
+                } else {
+                    alert('Invalid payment basis.'); // Alert if payment basis is not recognized
+                    return; // Exit if payment basis is invalid
+                }
+
+                // AJAX request to submit the payment data
+                $.ajax({
+                    url: '../controller/viewPaymentController.php',
+                    type: 'POST',
+                    data: requestData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            console.log(response.message);
+                            alert('Payment added successfully!');
+                            $self.$modal.modal('hide');
+                            $self.viewTable(); // Refresh the table to show updated payments
+                        } else {
+                            console.error(response.message);
+                            alert('Error adding payment: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ', xhr.responseText);
+                        alert('An error occurred while processing the payment. Please try again.');
+                    }
+                });
             }
-        });
-
-        // Validate partial payments
-        if (paymentDetails.length > 0) {
-            requestData.paymentDetails = JSON.stringify(paymentDetails);
-            requestData.partialPaymentDate = partialPaymentDate; // Include the date for partial payments
-        } else {
-            alert('Please provide valid partial payment details.');
-            return; // Exit if inputs are invalid
-        }
-    } else {
-        alert('Invalid payment basis.'); // Alert if payment basis is not recognized
-        return; // Exit if payment basis is invalid
-    }
-
-    // AJAX request to submit the payment data
-    $.ajax({
-        url: '../controller/viewPaymentController.php',
-        type: 'POST',
-        data: requestData,
-        dataType: 'json',
-        success: function(response) {
-            if (response.status === 'success') {
-                console.log(response.message);
-                alert('Payment added successfully!');
-                $self.$modal.modal('hide');
-                $self.viewTable(); // Refresh the table to show updated payments
-            } else {
-                console.error(response.message);
-                alert('Error adding payment: ' + response.message);
-            }
-        },
-        error: function(xhr, status, error) {
-            console.error('AJAX Error: ', xhr.responseText);
-            alert('An error occurred while processing the payment. Please try again.');
-        }
-    });
-}
 
 
         }

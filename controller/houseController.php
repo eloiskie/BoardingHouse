@@ -1,7 +1,63 @@
 <?php
 include_once('../server/db.php');
 $requestMethod = $_SERVER['REQUEST_METHOD'];
-if ($_SERVER["REQUEST_METHOD"] == "POST"){
+if($requestMethod == "DELETE"){
+    parse_str(file_get_contents("php://input"), $_DELETE);
+
+    if(isset($_DELETE['houseID'])){
+        $houseID= intval($_DELETE['houseID']);
+
+        $sql="DELETE FROM tblhouse WHERE houseID = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $houseID);
+        if($stmt->execute()){
+            echo json_encode(["status" => "success", "message" => "Successfully House Deleted."]);
+        }else{
+            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+        }
+        $stmt->close();
+    }
+}
+else if($requestMethod =='PUT'){
+    $inputData = json_decode(file_get_contents("php://input"), true);
+
+    // Check for JSON errors and the required fields
+    // Fixed typo: changed $inputDate to $inputData in the isset check
+    if(json_last_error() === JSON_ERROR_NONE && isset($inputData['houseID'], $inputData['houselocation'], $inputData['houseAddress'], $inputData['numberOfRoom'])) {
+        $houseID        = intval($inputData['houseID']);
+        $houselocation  = $inputData['houselocation'];
+        $houseAddress   = $inputData['houseAddress'];
+        $numberOfRoom   = intval($inputData['numberOfRoom']);
+
+        // Prepare SQL statement
+        $sql = "UPDATE tblHouse
+                SET houselocation = ?, houseAddress = ?, numberOfRoom =?
+                WHERE houseID = ?";
+        $stmt = $conn->prepare($sql);
+
+        if($stmt) {
+            // Bind parameters
+            $stmt->bind_param("ssii", $houselocation, $houseAddress, $numberOfRoom, $houseID);
+
+            // Execute statement
+            if($stmt->execute()) {
+                echo json_encode(['status' => 'success', 'message' => "Successfully Updated House Details."]);
+            } else {
+                // If statement execution fails, return error
+                echo json_encode(['status' => 'error', 'message' => "Error: " . $conn->error]);
+            }
+        } else {
+            // Return error if statement preparation fails
+            echo json_encode(['status' => 'error', 'message' => "Failed to prepare SQL statement."]); // <-- Added this error response
+        }
+    } else {
+        // If JSON decoding fails or required fields are missing
+        echo json_encode(['status' => 'error', 'message' => "Invalid input data. Please ensure all fields are filled correctly."]);
+    }
+}
+
+else if ($requestMethod == "POST"){
     $house_location = $_POST['inputHouse-location'];
     $house_address = $_POST['inputHouse-address'];
     $numberOf_rooms = $_POST['inputNumberOf-rooms'];
@@ -30,7 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
     $conn->close();
 }
 
-
 else if($requestMethod == "GET"){
     $sql = "SELECT * FROM tblhouse";
     $result = $conn->query($sql);
@@ -48,17 +103,18 @@ else if($requestMethod == "GET"){
   
 }
 
-else if(isset($_POST['houseID'])) {
-    // Retrieve houseID from POST data
-    $houseID = $_POST['houseID'];
-    
-    // Store houseID in session (example)
-    $_SESSION['houseID'] = $houseID;
-    
-    // Return a response if needed
-    echo 'Data received successfully';
-} else {
-    // Handle case where houseID is not received
-    echo 'houseID not found in POST data';
-}
+    else if(isset($_POST['houseID'])) {
+        // Retrieve houseID from POST data
+        $houseID = $_POST['houseID'];
+        
+        // Store houseID in session (example)
+        $_SESSION['houseID'] = $houseID;
+        
+        // Return a response if needed
+        echo 'Data received successfully';
+    } else {
+        // Handle case where houseID is not received
+        echo 'houseID not found in POST data';
+    }
+
 ?>

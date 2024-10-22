@@ -45,7 +45,7 @@
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                         </li>
                     </ul>
                 </li>
@@ -85,7 +85,7 @@
         </nav>
         <!-- start modal -->
         <div class="modal" id="modal" action="new" tabindex="-1" data-availableStatus="">
-        <div class="modal-dialog ">
+            <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
                     <h5 class="modal-title" style="color: white">Add Room</h5>
@@ -118,8 +118,8 @@
                     <button type="button" class="btn btn-primary" id="btnSave">Save</button>
                 </div>
             </div>
+            </div>
         </div>
-    </div>
     <!-- close modal -->
     <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
@@ -187,7 +187,7 @@
             $this.$modal.on('click', '#btn-Update', this.update.bind(this));
             $this.$btn_closeModal.on('click', this.closeModal.bind(this));
             $this.$tbody.on('click', '#btn-delete', this.deleteData.bind(this));
-            $this.$tbody.on('click', '#btn-edit', this.edit.bind(this));
+            $this.$tbody.on('click', '#btn-edit', this.btnEdit.bind(this));
 
 
         },
@@ -449,7 +449,7 @@
                     }
                 });
         },
-        edit: function(event) {
+        btnEdit: function(event) {
             const $self = this.config;
             const $row = $(event.currentTarget).closest('tr');
             const roomID = $row.data('roomid');

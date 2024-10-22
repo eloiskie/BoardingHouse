@@ -86,8 +86,71 @@
                 </ul>
             </div>
         </nav>
+        <main class="content px-4 py-4">
+    <div class="container-fluid bg-white">
+            <div class="room-content p-2">
+                <div class="row">
+                    <div class="d-md-flex" id="deliquent-container"></div>
+                        <div class="d-flex align-items-center py-2" style="height: 50px;">
+                            <div class="d-flex">
+                                <label for="sel-roomType" >Search Name</label>
+                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
+                            </div>
+                           
+                </div>
+                    <div class="table-responsive">
+                        <div class="table-wrapper">
+                            <table class="table table-hover">
+                                <thead class="table-dark    ">
+                                    <tr>
+                                        <th scope="col">Name</th>
+                                        <th scope="col">House Rented</th>
+                                        <th scope="col">No. of Delayed</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody" >
+                                    <!-- Table rows go here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+    $("#sidebar-toggle").click(function() {
+        $("#sidebar").toggleClass("collapsed");
+    });
+
+    const reportPage = {
+        Init: function(config) {
+            this.config = config;
+            this.BindEvents();
+         
+        },
+        BindEvents: function() {
+            const $this = this.config;
+           
+        },
+     
+       
+
+    }
+
+    reportPage.Init({
+    
+    });
+});
+
+
+    </script>
 </body>
 </html>

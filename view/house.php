@@ -45,7 +45,7 @@
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                         </li>
                     </ul>
                 </li>
@@ -65,11 +65,11 @@
         </div>
     </aside>
     <!-- start modal -->
-    <div class="modal" id="modal" tabindex="-1">
+    <div class="modal" id="modal" tabindex="-1" data-houseid="">
         <div class="modal-dialog ">
             <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Add House</h5>
+                    <h5 class="modal-title" style="color: white" id="lbl-modalName">Add House</h5>
                     <button type="button" id="btn-close" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             <form id="houseForm" method="post">
@@ -132,158 +132,376 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 <script>
    $(document).ready(function() {
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
-const housePage = {
-    Init: function(config) {
-        this.config = config;
-        this.BindEvents();
-        this.displayHouse();
-    },
-    BindEvents: function() {
-        const $this = this.config;
-        $this.$btn_addHouse.on('click', this.addHouseBtn.bind(this));
-        $this.$btn_Save.on('click', this.addHouse.bind(this));
-        $this.$btn_close.on('click', this.closeModal.bind(this));
-        $this.$btnMenu_house.on('click', this.displayHouse.bind(this));
-        $this.$houseCards.on('click', '#btn-viewData', this.passHouseID.bind(this));
-        
-    },
-    passHouseID: function(e) {
-    e.preventDefault();
-    var houseName = $(e.currentTarget).data('housename'); // Correct
-    var houseID = $(e.currentTarget).data('houseid');     // Corrected to camelCase
-  
-        localStorage.setItem("housename", houseName);
-        localStorage.setItem("houseID", houseID);
-        window.location.href = "room.php";
+    const housePage = {
+        Init: function(config) {
+            this.config = config;
+            this.BindEvents();
+            this.displayHouse();
+        },
+        BindEvents: function() {
+             const $this = this.config;
 
-    },
-    displayHouse: function() {
-        const $self = this.config;
-        $.ajax({
-            url     : "../controller/houseController.php",
-            type    : "GET",
-            dataType  :'json',
-            success: function(data){
-                const container = $self.$houseCards;
-                        container.empty();
-                        $.each(data, function(index, item){
-                                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php">
-                                        <div class="card flex-fill border-0 illustration" style="background: linear-gradient(to top, #8DDBF2, #25748B);">
-                                            <div class="card-body p-0 d-flex flex-fill">
-                                                <div class="card-content w-100">
-                                                    <div class="p-3 m-1">
-                                                        <i class="bi bi-houses" style="font-size:50px"></i>
-                                                        <label for="text" style="font-size: 30px">Houses</label>
-                                                        <div class="m-1">
-                                                            <label for="text" id="house-name" class="text-capitalize" style="font-size:15px">${item.houselocation}</label><br/>
-                                                            <label for="text" id="house-name" class="text-capitalize" style="font-size:12px">${item.houseAddress}</label>
+            $this.$btn_addHouse.on('click', this.addHouseBtn.bind(this));
+            $this.$btnSave.on('click', function(e) {
+                e.preventDefault();  
+
+                const action = $this.$modal.attr('action'); 
+                if (action === "new") {
+                    housePage.addHouse.call(housePage, e);  
+                } else if (action === "edit") {
+                    housePage.updateHouse.call(housePage, e);  
+                }
+            });
+            $this.$btn_close.on('click', this.closeModal.bind(this));
+            $this.$btnMenu_house.on('click', this.displayHouse.bind(this));
+            $this.$houseCards.on('click', '#btn-viewData', this.passHouseID.bind(this));
+            $this.$houseCards.on('click', '#btn-deleteCards', this.deleteHouse.bind(this));
+            $this.$houseCards.on('click', '#btn-editCards', this.btnEdit.bind(this));
+        },
+        passHouseID: function(e) {
+            e.preventDefault();
+            var houseName = $(e.currentTarget).data('housename'); // Correct
+            var houseID = $(e.currentTarget).data('houseid');     // Corrected to camelCase
+        
+            localStorage.setItem("housename", houseName);
+            localStorage.setItem("houseID", houseID);
+            window.location.href = "room.php";
+
+        },
+        displayHouse: function() {
+            const $self = this.config;
+                $.ajax({
+                    url     : "../controller/houseController.php",
+                    type    : "GET",
+                    dataType  :'json',
+                    success: function(data){
+                        const container = $self.$houseCards;
+                            container.empty();
+                            $.each(data, function(index, item){
+                                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php" id="houseCards" data-cardID="${item.houseID}">
+                                                    <div class="card flex-fill border-0 illustration" style="background: linear-gradient(to right, #FDFEFE, #3F8FA7);">
+                                                        <div class="card-body p-0 d-flex flex-fill">
+                                                            <div class="card-content w-100">
+                                                                <div class="d-flex justify-content-end p-2">
+                                                                    <a style="font-size: 18px;" id="btn-editCards" data-houseID="${item.houseID}"><i class="bi bi-pencil-fill"></i></a>
+                                                                    <button type="button" id="btn-deleteCards" class="btn-close" data-houseID="${item.houseID}" aria-label="Close"></button>
+                                                                </div>
+                                                                <div class="p-2 m-1">
+                                                                    <i class="bi bi-houses" style="font-size:50px"></i>
+                                                                    <label for="text" style="font-size: 30px" class="lbl-location text-capitalize" data-housLocation="${item.houselocation}" id="lbl-houselocationCards">${item.houselocation}</label>
+                                                                    <div class="m-1">
+                                                                        <label for="text" class="house-address text-capitalize" style="font-size:15px" data-houseAddress="${item.houseAddress}" id="lbl-houseAddressCards">House Address: ${item.houseAddress}</label><br/>
+                                                                        <label for="text" class="room-number text-capitalize" style="font-size:12px"data-roomNumber="${item.numberOfRoom}" id="lbl-numberOfRoomCards">Number of rooms: ${item.numberOfRoom}</label>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-footer d-flex justify-content-end">
+                                                            <a href="#" id="btn-viewData" class="nav-link view-house text-capitalize" data-houseName="${item.houselocation}" data-houseID="${item.houseID}">View</a>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                            <div class="card-footer">
-                                                <a href="#" id="btn-viewData" class="nav-link view-house" data-houseName="${item.houselocation}" data-houseID="${item.houseID}">View</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    `;
-                            container.append(newCard);
-                            });
-            }
-         });
+
+                                            `;
+                                    container.append(newCard);
+                                    });
+                    }
+                });
          return false; 
-    },
-    closeModal: function() {
-        const $self = this.config;
-        $self.$modal.modal('hide');
-        $("#houseForm")[0].reset(); // Reset the form fields
-    },
-    addHouseBtn: function() {
-        const $self = this.config;
-        $self.$modal.modal('show');
-    },
-    addHouse: function(e) {
-        e.preventDefault();
-        const $self = this.config;
-        if ($self.$inputHouse_location.val().trim() === "" || $self.$inputHouse_address.val().trim() === "" || $self.$inputNumberOf_rooms.val().trim() === "") {
-            alert("Please input fields");
-            return;
-        } else if ($self.$inputNumberOf_rooms.val() < 0) {
-            alert("Number of rooms cannot be negative");
-            return;
-        } else {
-            $.ajax({
-    url: "../controller/houseController.php",
-    type: "post",
-    data: $("#houseForm").serialize(),
-    success: function(response) {
-        const data = JSON.parse(response);
-        if (data.status === "error") {
-            alert(data.message);
-        } else if (data.status === "success") {
-            alert(data.message);
-            const container = $self.$houseCards; // Assuming this is where you want to append the new cards
-
-            // Iterate over each item in the data array
-            $.each(data.data, function(index, item) {
-                const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php">
-                    <div class="card flex-fill border-0 illustration">
-                        <div class="card-body p-0 d-flex flex-fill">
-                            <div class="card-content w-100">
-                                <div class="p-3 m-1">
-                                    <i class="bi bi-houses" style="font-size:50px"></i>
-                                    <label for="text" style="font-size: 30px">Houses</label>
-                                    <div class="m-1">
-                                        <label for="text" class="text-capitalize" id="house-name" style="font-size:15px">${item.houselocation}</label><br/>
-                                        <label for="text" class="text-capitalize" id="house-name" style="font-size:12px">${item.houseAddress}</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <a href="#" id="btn-viewData" class="nav-link view-house " data-houseName="${item.houselocation}" data-houseID="${item.houseID}" >View</a>
-                        </div>
-                    </div>
-                </div>`;
-                container.append(newCard);
-            });
-
-            $('#houseForm')[0].reset(); // Reset the form fields
+        },
+        closeModal: function() {
+            const $self = this.config;
             $self.$modal.modal('hide');
+            $("#houseForm")[0].reset(); // Reset the form fields
+            $self.$modal.attr('data-houseid', ''); // Reset houseID
+            $self.$modal.attr('action', ''); // Reset action
+        },
+        addHouseBtn: function() {
+            const $self = this.config;
+            $self.$modal.attr('action', 'new');
+            $self.$lbl_modalName.text('Add House');
+            $self.$btnSave.text("Save");
+            $self.$btnSave.attr('id', 'btnSave');
+            $('#houseForm')[0].reset(); 
+            $self.$modal.modal('show');
+        },
+        addHouse: function(e) {
+            e.preventDefault();
+            const $self = this.config;
+            const action = $self.$modal.attr('action');
+            let hasError = false;
+
+            // Clear previous Bootstrap validation classes
+            $self.$inpt_location.removeClass('is-invalid');
+            $self.$inpt_address.removeClass('is-invalid');
+            $self.$inpt_rooms.removeClass('is-invalid');
+            if(action == "new");
+           {     // Check for empty fields and apply the Bootstrap 'is-invalid' class
+                if ($self.$inpt_location.val().trim() === "") {
+                    $self.$inpt_location.addClass('is-invalid');
+                    hasError = true;
+                }
+                if ($self.$inpt_address.val().trim() === "") {
+                    $self.$inpt_address.addClass('is-invalid');
+                    hasError = true;
+                }
+                if ($self.$inpt_rooms.val().trim() === "" || $self.$inpt_rooms.val() < 0) {
+                    $self.$inpt_rooms.addClass('is-invalid');
+                    hasError = true;
+                }
+
+                // If there's an error, stop submission and show alert
+                if (hasError) {
+                    alert("Please fill in all required fields correctly.");
+                    return;
+                }
+
+                // Continue with the AJAX request if no errors
+                else {
+                    $.ajax({
+                        url: "../controller/houseController.php",
+                        type: "post",
+                        data: $("#houseForm").serialize(),
+                        success: function(response) {
+                            const data = JSON.parse(response);
+                            if (data.status === "error") {
+                                alert(data.message);
+                            } else if (data.status === "success") {
+                                alert(data.message);
+                                const container = $self.$houseCards;
+
+                                // Iterate over each item in the data array
+                                $.each(data.data, function(index, item) {
+                                    const newCard = `<div class="col-12 col-md-4 d-flex p-3" action="room.php" id="houseCards" data-cardID="${item.houseID}">
+                                                        <div class="card flex-fill border-0 illustration" style="background: linear-gradient(to right, #FDFEFE, #3F8FA7);">
+                                                            <div class="card-body p-0 d-flex flex-fill">
+                                                                <div class="card-content w-100">
+                                                                    <div class="d-flex justify-content-end p-2">
+                                                                        <a style="font-size: 18px;" id="btn-editCards" data-houseID="${item.houseID}"><i class="bi bi-pencil-fill"></i></a>
+                                                                        <button type="button" id="btn-deleteCards" class="btn-close" data-houseID="${item.houseID}" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="p-2 m-1">
+                                                                        <i class="bi bi-houses" style="font-size:50px"></i>
+                                                                        <label for="text" style="font-size: 30px" class="lbl-location text-capitalize" data-housLocation="${item.houselocation}" id="lbl-houselocationCards">${item.houselocation}</label>
+                                                                        <div class="m-1">
+                                                                            <label for="text" class="house-address text-capitalize" style="font-size:15px" data-houseAddress="${item.houseAddress}" id="lbl-houseAddressCards">House Address: ${item.houseAddress}</label><br/>
+                                                                            <label for="text" class="room-number text-capitalize" style="font-size:12px" data-roomNumber="${item.numberOfRoom}" id="lbl-numberOfRoomCards">Number of rooms: ${item.numberOfRoom}</label>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="card-footer d-flex justify-content-end">
+                                                                <a href="#" id="btn-viewData" class="nav-link view-house text-capitalize" data-houseName="${item.houselocation}" data-houseID="${item.houseID}">View</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>`;
+                                    container.append(newCard);
+                                });
+
+                                $('#houseForm')[0].reset(); // Reset the form fields
+                                $self.$modal.modal('hide');
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            alert("An error occurred while processing your request.");
+                        }
+                    });
+                }
+            }
+        },
+        deleteHouse: function(e){
+            e.preventDefault();
+            const $self = this.config;
+            const houseID = $(e.currentTarget).data('houseid');
+
+            if(confirm('Are you sure you want to delete this house?'))
+            { 
+                    $.ajax({
+                        url: '../controller/houseController.php',
+                        type: 'DELETE',
+                        data: {houseID : houseID},
+                        dataType: 'json', 
+                        success: function(response){ // Corrected 'succes' to 'success'
+                    if(response.status === 'success'){
+                        alert(response.message);
+                        $(e.currentTarget).closest('.col-12').remove();
+                    }else{
+                        alert(response.message);
+                    }
+                },
+                        error: function(xhr, status, error) {
+                                alert("An error occurred: " + error);
+                            }
+
+                    })
+                }
+        },
+        btnEdit: function(e) {
+            e.preventDefault();
+            const $self = this.config;
+            const houseCard = $(e.currentTarget).closest('.card');  
+            const houseID = $(e.currentTarget).data('houseid');
+        
+            // Extracting data attributes from the houseCard
+            const houseLocation = houseCard.find('.lbl-location').data('houslocation');
+            const houseAddress = houseCard.find('.house-address').data('houseaddress');
+            const roomNumber = houseCard.find('.room-number').data('roomnumber');
+        
+            // Clear previous data
+            $self.$modal.removeAttr('data-houseid'); // Remove any previous houseID
+            $self.$modal.removeAttr('action');       // Remove previous action
+
+            // Setting values in the modal
+            $self.$inpt_location.val(houseLocation);
+            $self.$inpt_address.val(houseAddress);
+            $self.$inpt_rooms.val(roomNumber);
+
+            // Setting modal attributes
+            $self.$modal.attr('action', 'edit');
+            $self.$modal.attr('data-houseid', houseID);  // Set the new houseID
+
+            $self.$lbl_modalName.text('Edit House');
+            $self.$btnSave.text("Save Update");
+            $self.$btnSave.attr('id', 'btn-update');
+
+            // Show the modal
+            $self.$modal.modal('show');
+        },
+        updateHouse: function() {
+            const $self = this.config;
+
+            const action = $self.$modal.attr('action');
+            const houseID = $self.$modal.attr('data-houseid');
+            const houselocation = $self.$inpt_location.val().trim();
+            const houseAddress = $self.$inpt_address.val().trim();
+            const numberOfRoom = parseInt($self.$inpt_rooms.val().trim(), 10);
+            
+            let hasError = false;
+
+            // Clear previous Bootstrap validation classes
+            $self.$inpt_location.removeClass('is-invalid');
+            $self.$inpt_address.removeClass('is-invalid');
+            $self.$inpt_rooms.removeClass('is-invalid');
+            if(action == "edit")
+            { // Validation and applying Bootstrap 'is-invalid' class for highlighting
+            if (houselocation === "") {
+                $self.$inpt_location.addClass('is-invalid');
+                hasError = true;
+            }
+            if (houseAddress === "") {
+                $self.$inpt_address.addClass('is-invalid');
+                hasError = true;
+            }
+            if (isNaN(numberOfRoom) || numberOfRoom < 0) {
+                $self.$inpt_rooms.addClass('is-invalid');
+                hasError = true;
+            }
+
+            // If validation fails, show an alert and stop the form submission
+            if (hasError) {
+                alert("Please fill in all the fields correctly.");
+                return;
+            }
+            else{
+                $.ajax({
+                    url: "../controller/houseController.php",
+                    type: "PUT",
+                    data: JSON.stringify({
+                        houseID: houseID,
+                        houselocation: houselocation,
+                        houseAddress: houseAddress,
+                        numberOfRoom: numberOfRoom
+                    }),
+                    success: function(response) {
+                        const data = JSON.parse(response);
+                        if (data.status === "success") {
+                            alert(data.message);
+                            $.ajax({
+                                url: "../controller/houseController.php",
+                                type: "GET",
+                                dataType: 'json',
+                                success: function(data) {
+                                    const container = $self.$houseCards;
+                                    container.empty();
+
+                                    // Iterate over each house and update the UI
+                                    $.each(data, function(index, item) {
+                                        const newCard = `
+                                            <div class="col-12 col-md-4 d-flex p-3" action="room.php" id="houseCards" data-cardID="${item.houseID}">
+                                                <div class="card flex-fill border-0 illustration" style="background: linear-gradient(to right, #FDFEFE, #3F8FA7);">
+                                                    <div class="card-body p-0 d-flex flex-fill">
+                                                        <div class="card-content w-100">
+                                                            <div class="d-flex justify-content-end p-2">
+                                                                <a style="font-size: 18px;" id="btn-editCards" data-houseID="${item.houseID}"><i class="bi bi-pencil-fill"></i></a>
+                                                                <button type="button" id="btn-deleteCards" class="btn-close" data-houseID="${item.houseID}" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="p-2 m-1">
+                                                                <i class="bi bi-houses" style="font-size:50px"></i>
+                                                                <label for="text" style="font-size: 30px" class="lbl-location text-capitalize" data-housLocation="${item.houselocation}" id="lbl-houselocationCards">${item.houselocation}</label>
+                                                                <div class="m-1">
+                                                                    <label for="text" class="house-address text-capitalize" style="font-size:15px" data-houseAddress="${item.houseAddress}" id="lbl-houseAddressCards">House Address: ${item.houseAddress}</label><br/>
+                                                                    <label for="text" class="room-number text-capitalize" style="font-size:12px" data-roomNumber="${item.numberOfRoom}" id="lbl-numberOfRoomCards">Number of rooms: ${item.numberOfRoom}</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-footer d-flex justify-content-end">
+                                                        <a href="#" id="btn-viewData" class="nav-link view-house text-capitalize" data-houseName="${item.houselocation}" data-houseID="${item.houseID}">View</a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                        container.append(newCard);
+                                    });
+
+                                    $self.$modal.modal('hide');
+                                    $('#houseForm')[0].reset();
+                                    $self.$btnSave.attr('id', 'btnSave');
+                                    $self.$btnSave.text("Save ");
+                                },
+                                error: function(xhr, status, error) {
+                                    alert("An error occurred while loading house data.");
+                                }
+                            });
+                        } else {
+                            alert(data.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        alert("An error occurred while processing your request.");
+                    }
+                });
+            }
+            }
         }
-    },
-    error: function(xhr, status, error) {
-        alert("An error occurred while processing your request.");
+
+
     }
-});
 
-        }
-    }
-}
+    housePage.Init({
+        $btn_addHouse               : $("#add-house"),
+        $btn_close                  : $("#btn-close"),
+        $btn                        : $("#btn"),
+        $btnMenu_house              : $("#btnMenu-house"),
+        $btn_viewData               : $("#btn-viewData"),
+        $btn_deleteCards            : $('#btn-deleteCards'),
+        $btn_editCards              : $('#btn-editCards'),
+        $modal                      : $("#modal"),
+        $btnSave                    : $("#btnSave"),
+        $inpt_location              : $("#inputHouse-location"),
+        $inpt_address               : $("#inputHouse-address"),
+        $inpt_rooms                 : $("#inputNumberOf-rooms"),
+        $houseCards                 : $("#houseCardsContainer"),
+        $viewID                     : $("#viewID"),
+        $lbl_modalName              : $('#lbl-modalName')
+    });
 
-housePage.Init({
-    $btn_addHouse               : $("#add-house"),
-    $btn_close                  : $("#btn-close"),
-    $btn                        : $("#btn"),
-    $btnMenu_house              : $("#btnMenu-house"),
-    $btn_viewData               : $("#btn-viewData"),
-    $modal                      : $("#modal"),
-    $btn_Save                   : $("#btnSave"),
-    $inputHouse_location        : $("#inputHouse-location"),
-    $inputHouse_address         : $("#inputHouse-address"),
-    $inputNumberOf_rooms        : $("#inputNumberOf-rooms"),
-    $houseCards                 : $("#houseCardsContainer"),
-    $viewID                     : $("#viewID")
-});
-
-});
+    });
 
 </script>
 </body>

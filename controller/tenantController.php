@@ -140,7 +140,6 @@ if ($requestMethod == 'POST') {
     
     }
 }
-
 else if ($requestMethod == 'GET') {
     // Existing GET requests handling
     if (!isset($_GET['houseID']) && !isset($_GET['tenant']) && !isset($_GET['tenantID']) ) {

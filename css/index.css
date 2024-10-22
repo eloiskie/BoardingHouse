@@ -134,6 +134,7 @@ a.sidebar-link:hover {
 .card {
     box-shadow: 0 0 .875rem 0 rgba(34, 46, 60, .05);
     margin-bottom: 24px;
+    
 }
 
 .illustration {
@@ -157,7 +158,9 @@ a.sidebar-link:hover {
     font-family: 'Poppins', sans-serif;
     font-weight: 400;
     cursor: pointer;
+    
 }
+
 @media (max-width: 450px) {
     .col-12 {
         display: none;
