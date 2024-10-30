@@ -42,13 +42,10 @@
                     </a>
                     <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="rentalFee.php" class="sidebar-link">Rental Fee</a>
-                        </li>
-                        <li class="sidebar-item">
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                         </li>
                     </ul>
                 </li>
@@ -59,7 +56,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="report.php">
+                    <a class="sidebar-link" href="reports.php">
                         <i class="bi bi-file-earmark-text"></i>
                         Report
                     </a>

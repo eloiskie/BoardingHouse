@@ -228,8 +228,8 @@
                     <input type="text" class="form-control" id="inpt-username" style="font-size: 15px; height: 40px">
                 </div>
                 <div class="mb-2">
-                    <label for="password" class="form-label" style="font-size: 14px">Password</label>
-                    <input type="text" class="form-control" id="inpt-password" style="font-size: 15px; height: 40px" disabled>
+                    <label for="password" class="form-label" id="lbl-password" style="font-size: 14px; display: none">Password</label>
+                    <input type="text" class="form-control" id="inpt-password" style="font-size: 15px; height: 40px; display: none" disabled >
                     <button type="button" class="btn btn-primary mt-2" id="generatePass">Generate Password</button>
                 </div>
                 </form>
@@ -274,9 +274,7 @@
                         <div class="mb-3">
                             <label for="date-started" id="lbl-dateStarted" class="form-label">Date Started:</label>
                         </div>
-                        <div class="mb-3">
-                            <label for="last-payment" id="lbl-lastPayment" class="form-label">Last Payment:</label>
-                        </div>
+                        
                     </div>
                     <div class="col-md-3">
                             <div class="mb-3">
@@ -293,9 +291,6 @@
                             </div>
                             <div class="mb-3">
                                 <label for="mothers-phone-number" id="lbl-mothersNumber" class="form-label">Phone Number:</label>
-                            </div>
-                            <div class="mb-3">
-                                <label for="emergency-phone-number" id="lbl-emergencynumber" class="form-label">Phone Number:</label>
                             </div>
                     </div>
                 </div>
@@ -315,7 +310,7 @@
                         <div class="d-md-flex" id="house-location-container"></div>
                         <div class="d-flex align-items-center py-2" style="height: 50px;">
                             <div class="d-flex align-items-center mb-2">
-                                <label for="sel-roomType" class="form-label me-2">Search</label>
+                                <label for="inpt-searchName" class="form-label me-2">Search</label>
                                 <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
                             </div>
                             <div class="ms-auto mb-2">
@@ -364,7 +359,7 @@
         },
         BindEvents: function() {
             const $this = this.config;
-            $this.$btn_add.on('click', this.modalShow.bind(this));
+            $this.$btn_add.on('click', this.btnAdd.bind(this));
             $this.$btn_nextStep.on('click', this.step_1_Modal.bind(this));
             $this.$btn_step2_next.on('click', this.nextStep_2_Modal.bind(this));
             $this.$btn_step2_previous.on('click', this.previousStep_2_Modal.bind(this));
@@ -375,13 +370,26 @@
             $this.$tbody.on('click', '#btn-edit', this.editButton.bind(this));
             $this.$modal_3.on('click', '#btn-Update', this.update.bind(this));
             $this.$btn_generatePass.on('click', this.generate.bind(this));
+            $this.$inpt_searchName.on('keyup', this.filterName.bind(this));
             
 
             // Bind change event to house location dropdown
             $this.$sel_houseLocation.on('change', this.getRoom.bind(this));
         },
-        modalShow: function(){
+        btnAdd: function(){
             const $self = this.config;
+            $self.$modal_1.attr('action', 'new');
+            $self.$modal_2.attr('action', 'new');
+            $self.$modal_3.attr('action', 'new');
+            $self.$btn_submit.text("Save");
+            $self.$btn_submit.attr('id', 'btn-submit');
+          
+            $('#form1')[0].reset();
+            $('#form2')[0].reset();
+            $('#form3')[0].reset();
+
+            $self.$lbl_password.hide();
+            $self.$inpt_password.hide();
             $self.$modal_1.modal('show');
         },
         step_1_Modal: function(){
@@ -458,69 +466,115 @@
                     data:{generatePass: true},
                     dataType: 'json',
                     success: function(response) {
-                       $self.$inpt_password.val(response.password);
+                        $self.$lbl_password.show();
+                        $self.$inpt_password.show();
+                        $self.$inpt_password.val(response.password);
+                    },
+                    error: function() {
+                        console.error("Error generating password");
                     }
                 });
         },
         addTenant: function() {
             const $self = this.config;
             const action = $self.$modal_3.attr('action');
-            if(action === "new")
-            $.ajax({
-                url: '../controller/tenantController.php',
-                type: 'POST',
-                data: {
-                    tenantName: $self.$inpt_name.val().trim(),
-                    gender: $self.$inpt_gender.val().trim(),
-                    number: $self.$inpt_number.val().trim(),
-                    email: $self.$inpt_email.val().trim(),
-                    address: $self.$inpt_address.val().trim(),
-                    fatherName: $self.$inpt_fatherName.val().trim(),
-                    fatherNumber: $self.$inpt_fatherNumber.val().trim(),
-                    motherName: $self.$inpt_motherName.val().trim(),
-                    motherNumber: $self.$inpt_motherNumber.val().trim(),
-                    emergencyName: $self.$inpt_emergencyName.val().trim(),
-                    emergencyNumber: $self.$inpt_emergencyNumber.val().trim(),
-                    dateStarted: $self.$inpt_dateStarted.val().trim(),
-                    username: $self.$inpt_username.val().trim(),
-                    password: $self.$inpt_password.val().trim(),
-                    roomID: $self.$sel_roomNumber.val()
+            
+            if (action === "new") {
+                // Gather input values
+                const tenantName = $self.$inpt_name.val().trim();
+                const gender = $self.$inpt_gender.val().trim();
+                const number = $self.$inpt_number.val().trim();
+                const email = $self.$inpt_email.val().trim();
+                const address = $self.$inpt_address.val().trim();
+                const fatherName = $self.$inpt_fatherName.val().trim();
+                const fatherNumber = $self.$inpt_fatherNumber.val().trim();
+                const motherName = $self.$inpt_motherName.val().trim();
+                const motherNumber = $self.$inpt_motherNumber.val().trim();
+                const emergencyName = $self.$inpt_emergencyName.val().trim();
+                const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
+                const dateStarted = $self.$inpt_dateStarted.val().trim();
+                const username = $self.$inpt_username.val().trim();
+                const password = $self.$inpt_password.val().trim();
+                const roomID = $self.$sel_roomNumber.val();
 
-                },
-                dataType: 'json',
-                success: function(response){
-                       
-                        $self.$tbody.empty();
-                        if (response.status === "error"){
-                            alert(response.messsage);
-                        }else if(response.status ==="success"){
-                                    alert(response.message);
-                                $.each(response.data, function(index, item) {
-                                    const row = `
-                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}">
-                                            <td>${item.tenantName}</td>
-                                            <td>${item.phoneNumber}</td>
-                                            <td>${item.houselocation}</td>
-                                            <td>${item.roomNumber}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-secondary style="width: 80px, font-size: 12px" flex-fill edit-room" id="btn-view" data-roomID="${item.tenantID}">View</button>
-                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                                <button type="button" class="btn btn-secondary style="width: 80px, font-size: 12px" flex-fill delete-room" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
-                                            </td>
-                                        </tr>`;
-                                    $self.$tbody.append(row);
-                                });
-                                $self.$modal_3.modal('hide');
-                                $('#form1')[0].reset();
-                                $('#form2')[0].reset();
-                                $('#form3')[0].reset();
-                    }
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert('An error occurred while submitting tenant details.');
+                // Validation checks
+                if (!tenantName || !gender || !number || !email || !address || 
+                    !fatherName || !fatherNumber || !motherName || 
+                    !motherNumber || !emergencyName || !emergencyNumber || 
+                    !dateStarted || !username || !password || !roomID) {
+                    alert('Please fill in all required fields.');
+                    return;
                 }
-            });
 
+                // Email validation regex
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                // Phone number validation: Only digits allowed
+                const phoneRegex = /^\d+$/;
+                if (!phoneRegex.test(number) || !phoneRegex.test(fatherNumber) ||
+                    !phoneRegex.test(motherNumber) || !phoneRegex.test(emergencyNumber)) {
+                    alert('Phone numbers must consist of digits only.');
+                    return;
+                }
+
+                // AJAX request
+                $.ajax({
+                    url: '../controller/tenantController.php',
+                    type: 'POST',
+                    data: {
+                        tenantName,
+                        gender,
+                        number,
+                        email,
+                        address,
+                        fatherName,
+                        fatherNumber,
+                        motherName,
+                        motherNumber,
+                        emergencyName,
+                        emergencyNumber,
+                        dateStarted,
+                        username,
+                        password,
+                        roomID
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        $self.$tbody.empty();
+                        if (response.status === "error") {
+                            alert(response.message);
+                        } else if (response.status === "success") {
+                            alert(response.message);
+                            $.each(response.data, function(index, item) {
+                                const row = `
+                                <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
+                                    <td>${item.tenantName}</td>
+                                    <td>${item.phoneNumber}</td>
+                                    <td>${item.houselocation}</td>
+                                    <td>${item.roomNumber}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                    </td>
+                                </tr>`;
+                                $self.$tbody.append(row);
+                            });
+                            $self.$modal_3.modal('hide');
+                            $('#form1')[0].reset();
+                            $('#form2')[0].reset();
+                            $('#form3')[0].reset();
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('An error occurred while submitting tenant details.');
+                    }
+                });
+            }
         },
         displayData: function(){
             const $self = this.config;
@@ -535,7 +589,7 @@
                             if (response.data.length > 0) { 
                                 $.each(response.data, function(index, item) {
                                     const row = `
-                                        <tr class="text-capitalize" data-tenantid="${item.tenantID}">
+                                        <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}" >
                                             <td>${item.tenantName}</td>
                                             <td>${item.phoneNumber}</td>
                                             <td>${item.houselocation}</td>
@@ -585,7 +639,6 @@
                                 $('#lbl-emergencyName').text(`Emergency Name: ${item.emergencyName}`);
                                 $('#lbl-emergencyNumber').text(`Phone Number: ${item.emergencyNumber}`);
                                 $('#lbl-dateStarted').text(`Date Started: ${item.dateStarted}`);
-                                $('#lbl-lastPayment').text(`Last Payment: ${item.lastPayment}`);
                                 $('#lbl-balanceskie').text(`Balance: ${item.balance}`);
                                 $('#lbl-tenantUsername').text(`Username: ${item.username}`);
                                     $("#modalView").modal('show');
@@ -601,24 +654,26 @@
             const $self = this.config;
             const $row = $(event.currentTarget).closest('tr');
             const tenantID = $row.data('tenantid'); 
-            console.log(tenantID);
-            $.ajax({
-                url: '../controller/tenantController.php',
-                type    : 'DELETE',
-                data    : {tenantID : tenantID},
-                success : function(response){
-                    var result = JSON.parse(response);
-                    if(result.status === 'success') {
-                            alert(result.message);
-                            $row.remove();
-                        } else {
-                            alert(result.message);
+            const roomID = $row.data('roomid'); 
+            if(confirm("Are you sure you want to delete?")){
+                $.ajax({
+                    url: '../controller/tenantController.php',
+                    type    : 'DELETE',
+                    data    : {tenantID : tenantID, roomID : roomID},
+                    success : function(response){
+                        var result = JSON.parse(response);
+                        if(result.status === 'success') {
+                                alert(result.message);
+                                $row.remove();
+                            } else {
+                                alert(result.message);
+                            }
+                    },
+                    error: function(xhr, status, error) {
+                            alert("An error occurred: " + error);
                         }
-                },
-                error: function(xhr, status, error) {
-                        alert("An error occurred: " + error);
-                    }
-                });
+                    });
+            }
         },
         editButton: function(event) {
             const $self = this.config;
@@ -631,6 +686,9 @@
             $self.$btn_submit.text("Save Update");
             $self.$btn_submit.attr('id', 'btn-Update');
             $self.$modal_3.attr('data-tenantid', tenantID);
+
+            $self.$lbl_password.hide();
+            $self.$inpt_password.hide();
             
             $.ajax({
                 url: '../controller/tenantController.php',
@@ -682,66 +740,141 @@
             const tenantID = $self.$modal_3.data('tenantid');
             const tenantName = $self.$inpt_name.val().trim();
             const gender = $self.$inpt_gender.val().trim();
-            const phoneNumber = $self.$inpt_number.val().trim(); // Added phoneNumber
+            const phoneNumber = $self.$inpt_number.val().trim(); 
             const emailAddress = $self.$inpt_email.val().trim();
             const currentAddress = $self.$inpt_address.val().trim();
             const fatherName = $self.$inpt_fatherName.val().trim();
-            const fatherNumber = $self.$inpt_fatherNumber.val().trim(); // Corrected assignment
+            const fatherNumber = $self.$inpt_fatherNumber.val().trim(); 
             const motherName = $self.$inpt_motherName.val().trim();
             const motherNumber = $self.$inpt_motherNumber.val().trim();
             const emergencyName = $self.$inpt_emergencyName.val().trim();
             const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
             const dateStarted = $self.$inpt_dateStarted.val().trim();
-            const roomID = $self.$modal_3.data('roomid')
+            const userPassword = $self.$inpt_password.val().trim();
+            const roomID = $self.$modal_3.data('roomid');
             const action = $self.$modal_3.attr('action');
+            
+            // Restriction: Validate required fields
+            if (!tenantName || !gender || !phoneNumber || !emailAddress || !currentAddress || !fatherName
+            || !fatherNumber || !motherName || !motherNumber || !emergencyName || !emergencyNumber || !dateStarted
+            ) {
+                alert("Please fill in all required fields");
+                return; // Stop the function if validation fails
+            }
 
-    if (action === "edit") {
-        $.ajax({
-            url: '../controller/tenantController.php',
-            type: 'PUT',
-            contentType: 'application/json',
-            data: JSON.stringify({
-                tenantID: tenantID,
-                tenantName: tenantName,
-                gender: gender,
-                phoneNumber: phoneNumber, // Included in the request
-                emailAddress: emailAddress,
-                currentAddress: currentAddress,
-                fatherName: fatherName,
-                fatherNumber: fatherNumber, // Corrected fatherNumber
-                motherName: motherName,
-                motherNumber: motherNumber,
-                emergencyName: emergencyName,
-                emergencyNumber: emergencyNumber,
-                dateStarted: dateStarted,
-                roomID: roomID
-            }),
-            dataType: 'json',
-            success: function(response) {
-                try {
-                    $self.$tbody.empty();
-                    if (response.status === "error") {
-                        alert(response.message);
-                    } else if (response.status === "success") {
-                        alert(response.message);
-                        // Additional AJAX call to refresh tenant data
-                        $.ajax({
-                url: '../controller/tenantController.php',
-                type: 'GET',
-                data: { tenant: true },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        $self.$tbody.empty(); 
-                        if (response.data.length > 0) { 
-                            $.each(response.data, function(index, item) {
+            // Restriction: Validate phone number format (simple example, adjust as needed)
+            const phonePattern = /^\d{10}$/; // Example: only allow 10-digit phone numbers
+            if (!phonePattern.test(phoneNumber)) {
+                alert("Please enter a valid phone number (10 digits).");
+                return; // Stop the function if validation fails
+            }
+
+            // Restriction: Validate date (this is a simple check)
+            if (isNaN(Date.parse(dateStarted))) {
+                alert("Please enter a valid date.");
+                return; // Stop the function if validation fails
+            }
+
+            if (action === "edit") {
+                $.ajax({
+                    url: '../controller/tenantController.php',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        tenantID: tenantID,
+                        tenantName: tenantName,
+                        gender: gender,
+                        phoneNumber: phoneNumber, 
+                        emailAddress: emailAddress,
+                        currentAddress: currentAddress,
+                        fatherName: fatherName,
+                        fatherNumber: fatherNumber, 
+                        motherName: motherName,
+                        motherNumber: motherNumber,
+                        emergencyName: emergencyName,
+                        emergencyNumber: emergencyNumber,
+                        dateStarted: dateStarted,
+                        userPassword: userPassword,
+                        roomID: roomID
+                    }),
+                    dataType: 'json',
+                    success: function(response) {
+                        try {
+                            $self.$tbody.empty();
+                            if (response.status === "error") {
+                                alert(response.message);
+                            } else if (response.status === "success") {
+                                alert(response.message);
+                                // Additional AJAX call to refresh tenant data
+                                $.ajax({
+                                    url: '../controller/tenantController.php',
+                                    type: 'GET',
+                                    data: { tenant: true },
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        if (response.status === 'success') {
+                                            $self.$tbody.empty(); 
+                                            if (response.data.length > 0) { 
+                                                $.each(response.data, function(index, item) {
+                                                    const row = `
+                                                            <tr class="text-capitalize" data-tenantid="${item.tenantID}">
+                                                                <td>${item.tenantName}</td>
+                                                                <td>${item.phoneNumber}</td>
+                                                                <td>${item.houselocation}</td>
+                                                                <td>${item.roomNumber}</td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                                                </td>
+                                                            </tr>`;
+                                                            $self.$tbody.append(row);
+                                                    $self.$modal_3.modal('hide');   
+                                                });
+                                            } else { 
+                                                $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                                            }
+                                        } else { 
+                                            console.error('Error fetching data: ' + response.message);
+                                        }
+                                    },
+                                    error: function(xhr, status, error) {
+                                        console.error('AJAX Error: ' + status + ' ' + error);
+                                    }
+                                });
+                            }
+                        } catch (e) {
+                            alert('Failed to parse response: ' + e.message);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('An error occurred while submitting tenant details.');
+                    }
+                });
+            }
+        },
+        filterName: function() {
+            const $self = this.config;
+            let query = $self.$inpt_searchName.val().trim();
+
+            // Clear the table before appending new data
+            $self.$tbody.empty();
+
+            if (query !== '') {
+                $.ajax({
+                    url: '../controller/tenantController.php', // PHP script to process the request
+                    method: 'POST',
+                    dataType: 'json', // Expect JSON response
+                    data: { query: query },
+                    success: function(response) {
+                        if (response.length > 0) {
+                            $.each(response, function(index, item) {
                                 const row = `
-                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}">
+                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
                                         <td>${item.tenantName}</td>
                                         <td>${item.phoneNumber}</td>
                                         <td>${item.houselocation}</td>
                                         <td>${item.roomNumber}</td>
-                                        <td>${item.roomFee}</td>
                                         <td>
                                             <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
                                             <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
@@ -749,32 +882,54 @@
                                         </td>
                                     </tr>`;
                                 $self.$tbody.append(row);
-                                $self.$modal_3.modal('hide');   
                             });
-                        } else { 
-                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                        } else {
+                            // If no results, display a message
+                            $self.$tbody.append('<tr><td colspan="5">No tenants found.</td></tr>');
                         }
-                    } else { 
-                        console.error('Error fetching data: ' + response.message);
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error: ' + status + ' ' + error);
-                }
-            });
-                    }
-                } catch (e) {
-                    alert('Failed to parse response: ' + e.message);
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                alert('An error occurred while submitting tenant details.');
+                });
+            } else {
+                $.ajax({
+                            url: '../controller/tenantController.php',
+                            type: 'GET',
+                            data: { tenant: true },
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    $self.$tbody.empty(); 
+                                    if (response.data.length > 0) { 
+                                        $.each(response.data, function(index, item) {
+                                            const row = `
+                                                <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}" >
+                                                    <td>${item.tenantName}</td>
+                                                    <td>${item.phoneNumber}</td>
+                                                    <td>${item.houselocation}</td>
+                                                    <td>${item.roomNumber}</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                                    </td>
+                                                </tr>`;
+                                            $self.$tbody.append(row);
+                                        });
+                                    } else { 
+                                        $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                                    }
+                                } else { 
+                                    console.error('Error fetching data: ' + response.message);
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error: ' + status + ' ' + error);
+                            }
+                        });
             }
-        });
-    }
-}
-    }
+        }
 
+
+    }
     tenantPage.Init({
         $btn_add                    : $('#btn-add'),
         $btn_nextStep               : $('#btn-nextStep'),
@@ -802,10 +957,12 @@
         $inpt_dateStarted           : $('#inpt-dateStarted'),
         $inpt_username              : $('#inpt-username'),
         $inpt_password              : $('#inpt-password'),
+        $inpt_searchName            : $('#inpt-searchName'),
         $tbody                      : $('#tbody'),
         $btn_view                   : $('#btn-view'),
         $btn_delete                 : $('#btn-delete'),
-        $btn_generatePass           : $('#generatePass')
+        $btn_generatePass           : $('#generatePass'),
+        $lbl_password               : $('#lbl-password')
     });
 });
 

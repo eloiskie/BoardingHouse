@@ -24,7 +24,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a type="button" class="sidebar-link" href="house.php">
+                    <a class="sidebar-link" href="house.php">
                         <i class="bi bi-house"></i>
                         House
                     </a>
@@ -45,7 +45,7 @@
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="deliquent.php" class="sidebar-link">Deliquent</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                         </li>
                     </ul>
                 </li>
@@ -90,9 +90,12 @@
                             <div class="card flex-fill border-0 illustration">
                                 <div class="card-body p-0 d-flex flex-fill">
                                     <div class="card-content w-100">
-                                        <div class="p-3 m-1">
+                                        <div class="pt-3  px-3 m-1">
                                             <i class="bi bi-houses" style="font-size:50px"></i>
                                             <label for="text" style="font-size: 30px">Houses</label>
+                                        </div>
+                                        <div class="ps-3 m-1">
+                                            <label for="text" class="text-capitalize" style="font-size:15px" id="lbl-numberOfhouses"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -105,9 +108,12 @@
                             <div class="card flex-fill border-0 illustration">
                                 <div class="card-body p-0 d-flex flex-fill">
                                     <div class="card-content w-100">
-                                        <div class="p-3 m-1">
+                                        <div class="pt-3  px-3 m-1">
                                             <i class="bi bi-people" style="font-size: 50px"></i>
                                             <label for="text" style="font-size: 30px">Tenant</label>
+                                        </div>
+                                        <div class="ps-3 m-1">
+                                            <label for="text" class="text-capitalize" style="font-size:15px" id="lbl-numberOfTenant"></label>
                                         </div>
                                     </div>
                                 </div>
@@ -137,15 +143,49 @@
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
-<script src="../js/jquery-3.7.1.min.map"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
-  $(document).ready(function() {
+        $(document).ready(function() {
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
-});
 
+    const indexPage = {
+        Init: function(config) {
+            this.config = config;
+            this.BindEvents();
+            this.viewData();
+         
+        },
+        BindEvents: function() {
+            const $this = this.config;
+           
+        },
+        viewData: function(){
+                const $self = this.config;
+
+                $.ajax({
+                    url         : '../controller/indexController.php',
+                    type        : 'GET',
+                    dataType    : 'json',
+                    success: function(data){
+                            $.each(data, function(index, item){
+                                $self.$lbl_numberOfhouses.text('Number Of Houses: ' + item.HouseCount);
+                                $self.$lbl_numberOfTenant.text('Number Of Tenant: ' + item.TenantCount);
+                            });
+                    }
+                });
+            }
+       
+
+    }
+
+    indexPage.Init({
+            $lbl_numberOfhouses         : $('#lbl-numberOfhouses'),
+            $lbl_numberOfTenant         : $('#lbl-numberOfTenant') 
+
+    });
+});
 </script>
 </body>
 </html>

@@ -123,44 +123,44 @@
     <!-- close modal -->
     <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
-            <div class="room-content p-2">
-                <div class="row">
-                    <div class="d-md-flex" id="house-location-container"></div>
-                        <div class="d-flex align-items-center py-2" style="height: 50px;">
-                            <div class="d-flex">
-                                <label for="sel-roomType" >Room Type</label>
-                                <select id="sel-roomType" class="form-select" style="height: 40px">
-                                    <option>Select Room Type</option>
-                                </select>
-                            </div>
-                            <div class="ms-auto">
-                                <button class="btn btn-primary btn-sm p-2" type="button" id="btnAdd-Room" style="font-size: 12px;">Add Room</button>
-                            </div>
+        <div class="room-content p-2">
+            <div class="row">
+                <div class="d-md-flex" id="house-location-container"></div>
+                <div class="input-group mb-3">
+                <label for="sel-roomType" class="form-label mb-1 pe-3">Room Type: </label>
+                <select id="sel-roomType" class="form-select" >
+                            <option>Select Room Type</option>
+                        </select>
+                <div class="ms-auto">
+                        <button class="btn btn-primary btn-sm p-2" type="button" id="btnAdd-Room" style="font-size: 12px;">Add Room</button>
                 </div>
-                    <div class="table-responsive">
-                        <div class="table-wrapper">
-                            <table class="table table-hover">
-                                <thead class="table-dark    ">
-                                    <tr>
-                                        <th scope="col">Room Number</th>
-                                        <th scope="col">Room Type</th>
-                                        <th scope="col">Capacity</th>
-                                        <th scope="col">Room Fee</th>
-                                        <th scope="col">Location</th>
-                                        <th scope="col">Status</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody" >
-                                    <!-- Table rows go here -->
-                                </tbody>
-                            </table>
-                        </div>
+                </div>
+                <div class="table-responsive">
+                    <div class="table-wrapper">
+                        <table class="table table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th scope="col">Room Number</th>
+                                    <th scope="col">Room Type</th>
+                                    <th scope="col">Capacity</th>
+                                    <th scope="col">Room Fee</th>
+                                    <th scope="col">Location</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbody">
+                                <!-- Table rows go here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
+</main>
+
+
 
     </div>
 </div>
@@ -172,7 +172,7 @@
         $("#sidebar").toggleClass("collapsed");
     });
 
-    const housePage = {
+    const roomPage = {
         Init: function(config) {
             this.config = config;
             this.BindEvents();
@@ -188,8 +188,10 @@
             $this.$btn_closeModal.on('click', this.closeModal.bind(this));
             $this.$tbody.on('click', '#btn-delete', this.deleteData.bind(this));
             $this.$tbody.on('click', '#btn-edit', this.btnEdit.bind(this));
-
-
+            $('#sel-roomType').on('change', function() 
+            {
+                housePage.filterRoomType();
+            });
         },
         closeModal: function() {
             const $self = this.config;
@@ -197,8 +199,17 @@
             $self.$modal.attr('action', 'new');
             $self.$btnSave.text("Save ");
             $self.$btnSave.attr('id', 'btnSave');
+            
+            // Reset the room form and remove invalid classes
             $("#roomForm")[0].reset();
+            
+            // Remove 'is-invalid' class from input fields
+            $self.$input_roomNumber.removeClass('is-invalid');
+            $self.$input_roomType.removeClass('is-invalid');
+            $self.$input_capacity.removeClass('is-invalid');
+            $self.$input_roomFee.removeClass('is-invalid');
         },
+
         getHouseID: function() {
             const $self = this.config;
             const houseName = localStorage.getItem("housename");
@@ -233,22 +244,29 @@
                 }
             });
         },
-        viewTable: function(){
+        viewTable: function() {
             const $self = this.config;
             const houseID = $("#house-locationName").data('houselocationid');
-    
-                $.ajax({
-                    url: "../controller/roomController.php",
-                    type: "GET",
-                    data: { houseID: houseID },
-                    dataType: 'json',
-                    success: function(data) {
+
+            $.ajax({
+                url: "../controller/roomController.php",
+                type: "GET",
+                data: { houseID: houseID },
+                dataType: 'json',
+                success: function(data) {
+                    $self.$tbody.empty(); // Clear the table body before appending new rows
+
                     if (data.length === 0) {
                         $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
                     } else {
+                        const roomTypesSet = new Set(); // Create a set to store unique room types
+                        
                         $.each(data, function(index, item) {
+                            // Add roomType to the set to keep it unique
+                            roomTypesSet.add(item.roomType);
+
                             const row = `
-                                <tr  class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
                                     <td>${item.roomNumber}</td>
                                     <td>${item.roomType}</td>
                                     <td>${item.capacity}</td>
@@ -260,59 +278,94 @@
                                         <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
                                     </td>
                                 </tr>
-                                `;
+                            `;
                             $self.$tbody.append(row);
+                        });
+
+                        // Populate room types dropdown (outside the loop)
+                        const selRoomType = $self.$sel_roomType;
+                        selRoomType.empty();
+                        selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+
+                        // Loop through the Set and append unique room types to the dropdown
+                        roomTypesSet.forEach(function(roomType) {
+                            selRoomType.append('<option value="' + roomType + '">' + roomType + '</option>');
                         });
                     }
                 },
-
-                        error: function(xhr, status, error) {
-                        console.error('AJAX Error: ' + status + ' ' + error);
-                    }
-                });
-            },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
         btnAddRoom: function() {
             const $self = this.config;
+            
+            // Remove 'is-invalid' class from input fields before showing the modal
+            $self.$input_roomNumber.removeClass('is-invalid');
+            $self.$input_roomType.removeClass('is-invalid');
+            $self.$input_capacity.removeClass('is-invalid');
+            $self.$input_roomFee.removeClass('is-invalid');
+            
+            // Show the modal
             $self.$modal.modal('show');
         },
         addRoom: function() {
             const $self = this.config;
-            const roomNumber = $self.$input_roomNumber.val();
-            const roomType = $self.$input_roomType.val();
-            const capacity = $self.$input_capacity.val();
-            const roomFee = $self.$input_roomFee.val();
+            const roomNumber = $self.$input_roomNumber.val().trim();
+            const roomType = $self.$input_roomType.val().trim();
+            const capacity = parseInt($self.$input_capacity.val().trim(), 10);
+            const roomFee = parseFloat($self.$input_roomFee.val().trim());
             const houseID = $('#house-name').data('houseid');
             const action = $self.$modal.attr('action');
             const availableStatus = "available";
-            const roomID = $self.$modal.data('roomid'); // Retrieve the stored roomID if editing
-            
-   
 
-            if ($self.$input_roomNumber.val().trim()==="" || $self.$input_roomType.val().trim() === "" || $self.$input_capacity.val().trim() === "" || $self.$input_roomFee.val().trim() === "") {
-                alert("Please enter complete fields");
+            // Reset previous validation states
+            $self.$input_roomNumber.removeClass('is-invalid');
+            $self.$input_roomType.removeClass('is-invalid');
+            $self.$input_capacity.removeClass('is-invalid');
+            $self.$input_roomFee.removeClass('is-invalid');
+
+            // Validate inputs
+            if (!roomNumber || !roomType || isNaN(capacity) || isNaN(roomFee)) {
+                alert("Please fill in all fields correctly.");
+                if (!roomNumber) $self.$input_roomNumber.addClass('is-invalid');
+                if (!roomType) $self.$input_roomType.addClass('is-invalid');
+                if (isNaN(capacity)) $self.$input_capacity.addClass('is-invalid');
+                if (isNaN(roomFee)) $self.$input_roomFee.addClass('is-invalid');
                 return;
-            } else if ($self.$input_roomFee.val() < 0 || $self.$input_capacity.val() < 0) {
-                alert("Negative Numbers are not allowed");
+            } else if (roomFee < 0 || capacity < 0) {
+                alert("Negative numbers are not allowed.");
+                if (roomFee < 0) $self.$input_roomFee.addClass('is-invalid');
+                if (capacity < 0) $self.$input_capacity.addClass('is-invalid');
                 return;
-            } else if(action === 'new'){
+            }
+
+            // Check if action is 'new'
+            if (action === 'new') {
                 $.ajax({
-                    url : '../controller/roomController.php',
-                    type : 'POST',
-                    data : {
-                        roomNumber  : roomNumber,
-                        roomType   : roomType,
-                        capacity    : capacity,
-                        roomFee     : roomFee,
-                        availableStatus : availableStatus,
-                        houseID     : houseID
+                    url: '../controller/roomController.php',
+                    type: 'POST',
+                    data: {
+                        roomNumber: roomNumber,
+                        roomType: roomType,
+                        capacity: capacity,
+                        roomFee: roomFee,
+                        availableStatus: availableStatus,
+                        houseID: houseID
                     },
-                    success: function(response){
+                    success: function(response) {
                         const data = JSON.parse(response);
-                        $self.$tbody.empty();
-                        if (data.status === "error"){
-                            alert(data.messsage);
-                        }else if(data.status ==="success"){
-                            alert(data.message);
+                        
+
+                        if (data.status === "error") {
+                            alert(data.message); // Show error message from the server
+                            $self.$modal.modal('hide');
+                        } else if (data.status === "success") {
+                            alert(data.message); // Show success message
+
+                            const roomTypesSet = new Set(); // Collect unique room types
+
                             $.each(data.data, function(index, item) {
                                 const row = `
                                     <tr class="text-capitalize" data-roomID="${item.roomID}">
@@ -323,23 +376,31 @@
                                         <td>${item.houselocation}</td>
                                         <td>${item.availableStatus}</td>
                                         <td>
-                                            <button type="button" class="btn btn-secondary style="width: 80px" flex-fill edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
-                                            <button type="button" class="btn btn-secondary style="width: 80px" flex-fill delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                            <button type="button" class="btn btn-secondary" style="width: 80px" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                            <button type="button" class="btn btn-secondary" style="width: 80px" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
                                         </td>
                                     </tr>`;
                                 $self.$tbody.append(row);
+                                roomTypesSet.add(item.roomType); // Add room type to the set
                             });
+
+                            // Update the room types dropdown
+                            const selRoomType = $self.$sel_roomType;
+                            selRoomType.empty();
+                            selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+                            roomTypesSet.forEach(function(type) {
+                                selRoomType.append('<option value="' + type + '">' + type + '</option>');
+                            });
+
                             $self.$modal.modal('hide');
-                            $('#roomForm')[0].reset();
+                            $('#roomForm')[0].reset(); // Reset the form
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        alert('An error occurred while submitting room details.');
+                        alert('An error occurred while submitting room details: ' + textStatus);
                     }
                 });
-
             }
-            
         },
         update: function() {
             const $self = this.config;
@@ -349,77 +410,101 @@
             const roomFee = parseFloat($self.$input_roomFee.val().trim());
             const houseID = $('#house-name').data('houseid');
             const action = $self.$modal.attr('action');
-            const availableStatus =  $self.$modal.data('availableStatus');
+            const availableStatus = $self.$modal.data('availableStatus');
             const roomID = $self.$modal.data('roomid');
+
+            // Reset previous validation states
+            $self.$input_roomNumber.removeClass('is-invalid');
+            $self.$input_roomType.removeClass('is-invalid');
+            $self.$input_capacity.removeClass('is-invalid');
+            $self.$input_roomFee.removeClass('is-invalid');
+
             if (roomNumber === "" || roomType === "" || isNaN(capacity) || isNaN(roomFee)) {
                 alert("Please enter complete fields");
+                if (roomNumber === "") $self.$input_roomNumber.addClass('is-invalid');
+                if (roomType === "") $self.$input_roomType.addClass('is-invalid');
+                if (isNaN(capacity)) $self.$input_capacity.addClass('is-invalid');
+                if (isNaN(roomFee)) $self.$input_roomFee.addClass('is-invalid');
                 return;
             } else if (roomFee < 0 || capacity < 0) {
                 alert("Negative numbers are not allowed");
+                if (roomFee < 0) $self.$input_roomFee.addClass('is-invalid');
+                if (capacity < 0) $self.$input_capacity.addClass('is-invalid');
                 return;
             } else if (action === 'edit') {
-                        $.ajax({
-                            url: '../controller/roomController.php',
-                            type: 'PUT',
-                            contentType: 'application/json',
-                            data: JSON.stringify({
-                                roomID: roomID,
-                                roomNumber: roomNumber,
-                                roomType: roomType,
-                                capacity: capacity,
-                                roomFee: roomFee,
-                                availableStatus: availableStatus,
-                                houseID: houseID
-                            }),
-                            success: function(response) {
-                                try {
-                                    const data = JSON.parse(response);
-                                    $self.$tbody.empty();
-                                    if (data.status === "error") {
-                                        alert(data.message);
-                                    } else if (data.status === "success") {
-                                        alert(data.message);
-                                        $.ajax({
-                                                url: "../controller/roomController.php",
-                                                type: "GET",
-                                                data: { houseID: houseID },
-                                                dataType: 'json',
-                                                success: function(data) {
-                                                if (data.length === 0) {
-                                                    $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
-                                                } else {
-                                                    $.each(data, function(index, item) {
-                                                        const row = `
-                                                            <tr  class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
-                                                                <td>${item.roomNumber}</td>
-                                                                <td>${item.roomType}</td>
-                                                                <td>${item.capacity}</td>
-                                                                <td>${item.roomFee}</td>
-                                                                <td>${item.houselocation}</td>
-                                                                <td>${item.availableStatus}</td>
-                                                                <td>
-                                                                    <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
-                                                                    <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
-                                                                </td>
-                                                            </tr>
-                                                            `;
-                                                        $self.$tbody.append(row);
-                                                    });
-                                                    $self.$modal.modal('hide');
-                                                    $('#roomForm')[0].reset();
-                                                    $self.$btnSave.attr('id', 'btnSave');
-                                                    $self.$btnSave.text("Save ");
-                                                }
-                                            },
+                $.ajax({
+                    url: '../controller/roomController.php',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        roomID: roomID,
+                        roomNumber: roomNumber,
+                        roomType: roomType,
+                        capacity: capacity,
+                        roomFee: roomFee,
+                        availableStatus: availableStatus,
+                        houseID: houseID
+                    }),
+                    success: function(response) {
+                        const data = JSON.parse(response);
+                        $self.$tbody.empty(); // Clear current tbody contents
 
-                                            error: function(xhr, status, error) {
-                                            console.error('AJAX Error: ' + status + ' ' + error);
-                                            }
-                                            });
-                            }
-                            } catch (e) {
-                                alert('Failed to parse response: ' + e.message);
-                            }
+                        if (data.status === "error") {
+                            alert(data.message);
+                        } else if (data.status === "success") {
+                            alert(data.message);
+                            $.ajax({
+                                url: "../controller/roomController.php",
+                                type: "GET",
+                                data: { houseID: houseID },
+                                dataType: 'json',
+                                success: function(data) {
+                                    $self.$tbody.empty(); // Clear the table body before appending new rows
+
+                                    if (data.length === 0) {
+                                        $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                                    } else {
+                                        const roomTypesSet = new Set(); // Create a set to store unique room types
+                                        
+                                        $.each(data, function(index, item) {
+                                            // Add roomType to the set to keep it unique
+                                            roomTypesSet.add(item.roomType);
+
+                                            const row = `
+                                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                                    <td>${item.roomNumber}</td>
+                                                    <td>${item.roomType}</td>
+                                                    <td>${item.capacity}</td>
+                                                    <td>${item.roomFee}</td>
+                                                    <td>${item.houselocation}</td>
+                                                    <td>${item.availableStatus}</td>
+                                                    <td>
+                                                        <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                                        <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                                    </td>
+                                                </tr>
+                                            `;
+                                            $self.$tbody.append(row);
+                                        });
+
+                                        // Populate room types dropdown (outside the loop)
+                                        const selRoomType = $self.$sel_roomType;
+                                        selRoomType.empty();
+                                        selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+
+                                        // Loop through the Set and append unique room types to the dropdown
+                                        roomTypesSet.forEach(function(roomType) {
+                                            selRoomType.append('<option value="' + roomType + '">' + roomType + '</option>');
+                                        });
+                                        $self.$modal.modal('hide');
+                                        $('#roomForm')[0].reset();
+                                    }
+                                },
+                                error: function(xhr, status, error) {
+                                    console.error('AJAX Error: ' + status + ' ' + error);
+                                }
+                            });
+                        }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         alert('An error occurred while submitting room details.');
@@ -474,10 +559,103 @@
 
             // Show the modal
             $self.$modal.modal('show');
+        },
+        filterRoomType: function() {
+            const $self = this.config;
+            const houseID = $("#house-locationName").data('houselocationid');
+            const roomType = $("#sel-roomType").val(); // Get selected roomType
+
+            if (houseID && roomType) {
+                $.ajax({
+                    url: "../controller/roomController.php",
+                    type: "GET",
+                    data: { houseID: houseID, roomType: roomType }, // Pass houseID and roomType to the server
+                    dataType: 'json',
+                    success: function(data) {
+                        $self.$tbody.empty(); // Clear the existing table rows
+                        if (data.length === 0) {
+                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                        } else {
+                            $.each(data, function(index, item) {
+                                const row = `
+                                    <tr  class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                        <td>${item.roomNumber}</td>
+                                        <td>${item.roomType}</td>
+                                        <td>${item.capacity}</td>
+                                        <td>${item.roomFee}</td>
+                                        <td>${item.houselocation}</td>
+                                        <td>${item.availableStatus}</td>
+                                        <td>
+                                            <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                            <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                        </td>
+                                    </tr>
+                                    `;
+                                $self.$tbody.append(row); // Append new filtered rows to the table
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
+                    }
+                });
+            } else {
+                $.ajax({
+                url: "../controller/roomController.php",
+                type: "GET",
+                data: { houseID: houseID },
+                dataType: 'json',
+                success: function(data) {
+                    $self.$tbody.empty(); // Clear the table body before appending new rows
+
+                    if (data.length === 0) {
+                        $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                    } else {
+                        const roomTypesSet = new Set(); // Create a set to store unique room types
+                        
+                        $.each(data, function(index, item) {
+                            // Add roomType to the set to keep it unique
+                            roomTypesSet.add(item.roomType);
+
+                            const row = `
+                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                    <td>${item.roomNumber}</td>
+                                    <td>${item.roomType}</td>
+                                    <td>${item.capacity}</td>
+                                    <td>${item.roomFee}</td>
+                                    <td>${item.houselocation}</td>
+                                    <td>${item.availableStatus}</td>
+                                    <td>
+                                        <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                        <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                    </td>
+                                </tr>
+                            `;
+                            $self.$tbody.append(row);
+                        });
+
+                        // Populate room types dropdown (outside the loop)
+                        const selRoomType = $self.$sel_roomType;
+                        selRoomType.empty();
+                        selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+
+                        // Loop through the Set and append unique room types to the dropdown
+                        roomTypesSet.forEach(function(roomType) {
+                            selRoomType.append('<option value="' + roomType + '">' + roomType + '</option>');
+                        });
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+            }
         }
+
+        
     }
 
-    housePage.Init({
+    roomPage.Init({
         $btnAdd_Room                : $("#btnAdd-Room"),
         $btnSave                    : $("#btnSave"),
         $btn_viewRoom               : $("#btn-viewRoom"),
@@ -492,6 +670,7 @@
         $input_roomFee              : $("#input-roomFee"),
         $input_houseName            : $("#input-houseName"),
         $select_house               : $("#select-house"),
+        $sel_roomType               : $("#sel-roomType"),
         $house_name                 : $("#house-name"),
         $house_location             : $("#house-location-container"),
         $tbody                      : $("#tbody"),

@@ -42,13 +42,10 @@
                     </a>
                     <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="rentalFee.php" class="sidebar-link">Rental Fee</a>
-                        </li>
-                        <li class="sidebar-item">
                             <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="houseAmenities.php" class="sidebar-link">House Amenities</a>
+                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
                         </li>
                     </ul>
                 </li>
@@ -124,6 +121,28 @@
             </div>
         </div>
     <!-- close modal -->
+       <!-- start modal viewTable -->
+       <div class="modal" id="delayListModal" tabindex="-1"  >
+            <div class="modal-dialog " >
+                <div class="modal-content">
+                    <div class="m-4 p-6">
+                    <table class="table table-hover">
+                        <thead class="table-dark    ">
+                            <tr>
+                                <th scope="col">Payment Type</th>
+                                <th scope="col">dueDate</th>
+                                <th scope="col">DatePayment</th>
+                            </tr>
+                            </thead>
+                                <tbody id="tbodyDelayedList" >
+                                    <!-- Table rows go here -->
+                                </tbody>
+                </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <!-- end modal -->
     <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
             <div class="room-content p-2">
@@ -164,6 +183,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
 <script>
     $(document).ready(function() {
+        // Sidebar toggle functionality
         $("#sidebar-toggle").click(function() {
             $("#sidebar").toggleClass("collapsed");
         });
@@ -172,9 +192,11 @@
             Init: function(config) {
                 this.config = config;
                 this.BindEvents();
+                this.viewTable();
             },
             BindEvents: function() {
-                this.viewTable();
+                const $this = this.config; 
+                $this.$tbody.on('click', '.delete-room', this.viewDelayedTable.bind(this)); // Use the correct class for the button
             },
 
             viewTable: function() {
@@ -182,14 +204,14 @@
 
                 $.ajax({
                     url: '../controller/deliquentController.php',
-                    type: 'GET', // Use GET here
-                    dataType: 'json', // Expect JSON response
+                    type: 'GET',
+                    dataType: 'json',
+                    data: {delayedPayments: true},
                     success: function(response) {
-                        if (response && response.length) {
-                            // Call function to render the table with the response data
+                        if (response && Array.isArray(response) && response.length) {
                             deliquentPage.renderTable(response, $self.$tbody);
                         } else {
-                            console.error("No data found:", response.message || "No message");
+                            console.warn("No data found:", response.message || "No message");
                         }
                     },
                     error: function(xhr, status, error) {
@@ -202,22 +224,65 @@
                 $tbody.empty(); // Clear existing table rows
                 data.forEach(item => {
                     const row = `
-                        <tr>
+                        <tr data-tenantid="${item.tenantID}">
                             <td>${item.tenantName}</td>
-                            <td> House Rented: ${item.houseLocation}<br/> Room Number: ${item.roomNumber}</td> <!-- Combined house location and room number -->
+                            <td>House Rented: ${item.houseLocation}<br/>Room Number: ${item.roomNumber}</td>
                             <td>${item.delayedPayments}</td>
                             <td>
-                                <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-view">View</button>
+                                <button type="button" style="width: 80px" class="btn btn-secondary view-delayed-btn" data-tenantid="${item.tenantID}">View</button>
                             </td>
                         </tr>
                     `;
-                    $tbody.append(row); // Add new rows
+                    $tbody.append(row);
+                });
+
+                // Bind the click event to the "View" button within the table rows
+                $tbody.find('.view-delayed-btn').on('click', this.viewDelayedTable.bind(this));
+            },
+
+            viewDelayedTable: function(event) {
+                const tenantId = $(event.currentTarget).data('tenantid'); 
+                const $self = this.config;
+
+                console.log("Viewing details for tenant ID:", tenantId);
+                $.ajax({
+                    url: '../controller/deliquentController.php',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { tenantID: tenantId },
+                    success: function(data) {
+                $self.$tbodyDelayedList.empty(); // Clear tbody before adding new rows
+
+                if (data.length === 0) {
+                    $self.$tbodyDelayedList.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                } else {
+                    $.each(data, function(index, item) {
+                        const row = `
+                            <tr>
+                                <td>${item.paymentTypes}</td>
+                                <td>${item.dueDate}</td>
+                                <td>${item.paymentDates}</td>
+                            </tr>
+                        `;
+                        $self.$tbodyDelayedList.append(row);
+                    });
+                }
+                $self.$delayListModal.modal('show'); // Show modal after updating content
+            },
+
+                    error: function(xhr, status, error) {
+                        console.error("AJAX error:", error);
+                    }
                 });
             }
-        };
+
+
+        }
 
         deliquentPage.Init({
-            $tbody: $('#tbody') 
+            $tbody: $('#tbody'),
+            $tbodyDelayedList: $('#tbodyDelayedList'),
+            $delayListModal: $('#delayListModal') // Corrected the selector
         });
     });
 </script>

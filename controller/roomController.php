@@ -11,63 +11,119 @@ if ($requestMethod == 'POST') {
     $availableStatus = $_POST['availableStatus'];
     $houseID = $_POST['houseID'];
 
-    // Corrected SQL INSERT statement
-    $sql = "INSERT INTO tblroom (roomNumber, roomType, capacity, roomFee, availableStatus, houseID) 
-            VALUES ('{$roomNumber}', '{$roomType}', '{$capacity}', '{$roomFee}', '{$availableStatus}', '{$houseID}')";
+    // Check the current number of rooms for the specified houseID
+    $countSql = "SELECT COUNT(*) as roomCount FROM tblroom WHERE houseID = '{$houseID}'";
+    $countResult = $conn->query($countSql);
 
-    if ($conn->query($sql)) {
-        // Fetch rooms for the specific houseID
+    if ($countResult) {
+        $countRow = $countResult->fetch_assoc();
+        $currentRoomCount = $countRow['roomCount'];
+
+        // Fetch the maximum number of rooms allowed from tblhouse
+        $houseSql = "SELECT numberOfRoom FROM tblhouse WHERE houseID = '{$houseID}'";
+        $houseResult = $conn->query($houseSql);
+
+        if ($houseResult) {
+            $houseRow = $houseResult->fetch_assoc();
+            $maxRooms = $houseRow['numberOfRoom'];
+
+            // Check if the current room count has reached the limit
+            if ($currentRoomCount >= $maxRooms) {
+                echo json_encode(["status" => "error", "message" => "Room limit reached. Cannot add more rooms."]);
+                return;
+            } else {
+                // Proceed with inserting the new room
+                $sql = "INSERT INTO tblroom (roomNumber, roomType, capacity, roomFee, availableStatus, houseID) 
+                        VALUES ('{$roomNumber}', '{$roomType}', '{$capacity}', '{$roomFee}', '{$availableStatus}', '{$houseID}')";
+
+                if ($conn->query($sql)) {
+                    // Fetch rooms for the specific houseID
+                    $sql = "SELECT tblroom.roomID, tblroom.roomNumber, tblroom.roomType, tblroom.capacity, tblroom.roomFee, tblroom.availableStatus, tblhouse.houselocation
+                            FROM tblhouse
+                            LEFT JOIN tblroom ON tblroom.houseID = tblhouse.houseID
+                            WHERE tblhouse.houseID = '{$houseID}'"; // Filter by houseID
+
+                    $selectResult = $conn->query($sql);
+
+                    if ($selectResult) {
+                        $data = array();
+                        if ($selectResult->num_rows > 0) {
+                            while ($row = $selectResult->fetch_assoc()) {
+                                $data[] = $row;
+                            }
+                        }
+                        echo json_encode(["status" => "success", "message" => "Room Successfully Added", "data" => $data]);
+                    } else {
+                        echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+                    }
+                } else {
+                    echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+                }
+            }
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error fetching house details: " . $conn->error]);
+        }
+    } else {
+        echo json_encode(["status" => "error", "message" => "Error fetching room count: " . $conn->error]);
+    }
+}
+
+ else if ($requestMethod == 'GET'){
+    if (isset($_GET['houseID']) && !isset($_GET['roomType'])) {
+        $houseID = intval($_GET['houseID']);
+
         $sql = "SELECT tblroom.roomID, tblroom.roomNumber, tblroom.roomType, tblroom.capacity, tblroom.roomFee, tblroom.availableStatus, tblhouse.houselocation
                 FROM tblhouse
                 LEFT JOIN tblroom ON tblroom.houseID = tblhouse.houseID
-                WHERE tblhouse.houseID = '{$houseID}'"; // Filter by houseID
+                WHERE tblhouse.houseID = ?
+                AND tblroom.roomNumber IS NOT NULL
+                AND tblroom.roomType IS NOT NULL
+                AND tblroom.capacity IS NOT NULL
+                AND tblroom.roomFee IS NOT NULL
+                AND tblroom.availableStatus IS NOT NULL";
+        
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("i", $houseID);
+        $stmt->execute();
+        $result = $stmt->get_result();
 
-        $selectResult = $conn->query($sql);
-
-        if ($selectResult) {
-            $data = array();
-            if ($selectResult->num_rows > 0) {
-                while ($row = $selectResult->fetch_assoc()) {
-                    $data[] = $row;
-                }
+        $data = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
             }
-            echo json_encode(["status" => "success", "message" => "Room Successfully Added", "data" => $data]);
-        } else {
-            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
         }
-    } else {
-        echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
-    }
-}
- else if (isset($_GET['houseID'])) {
-    $houseID = intval($_GET['houseID']);
+        $stmt->close();
+        $conn->close();
 
-    $sql = "SELECT tblroom.roomID, tblroom.roomNumber, tblroom.roomType, tblroom.capacity, tblroom.roomFee, tblroom.availableStatus, tblhouse.houselocation
-            FROM tblhouse
-            LEFT JOIN tblroom ON tblroom.houseID = tblhouse.houseID
-            WHERE tblhouse.houseID = ?
-            AND tblroom.roomNumber IS NOT NULL
-            AND tblroom.roomType IS NOT NULL
-            AND tblroom.capacity IS NOT NULL
-            AND tblroom.roomFee IS NOT NULL
-            AND tblroom.availableStatus IS NOT NULL";
-    
-    $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $houseID);
-    $stmt->execute();
-    $result = $stmt->get_result();
+        echo json_encode($data);
+    }else if(isset($_GET['roomType']) ){
+        $houseID = intval($_GET['houseID']);
+        $roomType = $_GET['roomType'];
 
-    $data = [];
-    if ($result->num_rows > 0) {
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
+        // SQL query to filter by houseID and roomType
+        $sql = "SELECT tblroom.roomID, tblroom.roomNumber, tblroom.roomType, tblroom.capacity, tblroom.roomFee, tblroom.availableStatus, tblhouse.houselocation
+                FROM tblhouse
+                LEFT JOIN tblroom ON tblroom.houseID = tblhouse.houseID
+                WHERE tblhouse.houseID = ? AND tblroom.roomType = ?";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("is", $houseID, $roomType);  // Bind both houseID and roomType
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $data = [];
+        if ($result->num_rows > 0) {
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
         }
-    }
-    $stmt->close();
-    $conn->close();
+        $stmt->close();
+        $conn->close();
 
-    echo json_encode($data);
-} else if ($requestMethod == 'DELETE') {
+        echo json_encode($data);
+    }
+}else if ($requestMethod == 'DELETE') {
     // Read raw input data
     parse_str(file_get_contents("php://input"), $_DELETE);
     
@@ -95,7 +151,8 @@ if ($requestMethod == 'POST') {
     }
 
     $conn->close();
-} else if ($requestMethod == 'PUT') {
+} 
+else if ($requestMethod == 'PUT') {
     // Read raw input data and decode JSON
     $inputData = json_decode(file_get_contents("php://input"), true);
 
