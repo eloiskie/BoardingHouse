@@ -138,10 +138,38 @@
         </div>
     </div>
 </div>
+<!-- start modal paymentTransaction -->
+<div class="modal" id="transactionModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Transaction Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th scope="col">Payment Type</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Due Date</th>
+                                <th scope="col">Date Payment</th>
+                                <th scope="col">Payment Amount</th>
+                                <th scope="col">Balance</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyPaymentList">
+                            <!-- Table rows go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-
-
-    <!-- close modal -->
+    <!-- end modal -->
     <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
             <div class="room-content p-2">
@@ -196,6 +224,7 @@
             BindEvents: function() {
                 const $self = this.config;
                 $self.$tbody.on('click', '#btn-view', this.getTenantName.bind(this));
+                $self.$tbody.on('click', '#btn-viewPayment', this.viewPayment.bind(this));
                 $self.$tbody.on('click', '#btn-pay', this.payButton.bind(this));
                 $self.$btn_pay.on('click', this.addPayment.bind(this));
                
@@ -272,7 +301,7 @@
                                             <td>${status}</td>
                                             <td>
                                                 <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${tenantID}">Pay</button>
-                                                <button type="button" class="btn btn-secondary" id="btn-view" data-tenantid="${tenantID}">View</button>
+                                                <button type="button" class="btn btn-secondary" id="btn-viewPayment" data-tenantid="${tenantID}">View</button>
                                             </td>
                                         </tr>`;
                                     $self.$tbody.append(row); // Append row to table
@@ -312,7 +341,7 @@
                 $.ajax({
                     url: '../controller/viewPaymentController.php',
                     type: 'GET',
-                    data: { dueDate: dueDate, tenantID: tenantID },
+                    data: { pay: true, dueDate: dueDate, tenantID: tenantID },
                     dataType: 'json',
                     success: function(response) {
                         const paymentTypeSelections = $('#payment-type-selections'); // Reference to payment type selections container
@@ -339,9 +368,6 @@
                 // Show the modal
                 $self.$modal.modal('show');
             },
-
-
-
             addPayment: function(e) {
                 const $self = this.config;
                 e.preventDefault();
@@ -401,12 +427,58 @@
                         alert('An error occurred while processing the payment. Please try again.');
                     }
                 });
+            },
+            viewPayment: function(event) {
+                const $self = this.config;
+                $self.$transactionModal.modal('show');
+                const $row = $(event.currentTarget).closest('tr'); // Get the closest row
+                const tenantID = $(event.currentTarget).data('tenantid'); // Get tenant ID
+                const dueDate = $row.find('td').eq(2).text(); // Get due date from the third cell
+
+                $.ajax({
+                    url: '../controller/viewPaymentController.php',
+                    type: 'GET',
+                    data: { 
+                        paymentList: true,
+                        tenantID: tenantID,
+                        dueDate: dueDate 
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                $self.$tbodyPaymentList.empty(); // Clear previous results
+                if (response.data.length > 0) { 
+                    $.each(response.data, function(index, item) {
+                        const row = `
+                            <tr class="text-capitalize">
+                                <td>${item.PaymentType}</td>
+                                <td>${item.Amount}</td>
+                                <td>${item.DueDate}</td>
+                                <td>${item.PaymentDate}</td>
+                                <td>${item.PaymentAmount}</td>
+                                <td>${item.Balance}</td>
+                            </tr>`;
+                        $self.$tbodyPaymentList.append(row);
+                    });
+                } else { 
+                    $self.$tbodyPaymentList.append('<tr><td colspan="6" class="text-center">No records found</td></tr>');
+                }
+            } else { 
+                console.error('Error fetching data: ' + response.message);
+                $self.$tbodyPaymentList.append('<tr><td colspan="6" class="text-center">Error fetching data</td></tr>');
+            }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
+                    }
+                });
             }
 
 
         }
             rentalPaymentPage.Init({
                 $tbody                      : $('#tbody'),
+                $tbodyPaymentList           : $('#tbodyPaymentList'),
                 $tenantName                 : $('#tenantName-container'),
                 $modal                      : $('#modal'),
                 $btn_pay                    : $('#btnPay'),
@@ -415,7 +487,8 @@
                 $inpt_paymentType           : $('#inpt-paymentType'),
                 $inpt_amount                : $('#inpt-amount'),
                 $inpt_datePayment           : $('#inpt-datePayment'),
-                $inpt_partialDatePayment    : $('#inpt-partialDatePayment')
+                $inpt_partialDatePayment    : $('#inpt-partialDatePayment'),
+                $transactionModal           : $('#transactionModal')
             });
         });
     </script>

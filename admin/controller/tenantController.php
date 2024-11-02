@@ -5,7 +5,7 @@ $requestMethod = $_SERVER['REQUEST_METHOD'];
 if ($requestMethod == 'POST') {
     if (isset($_POST['houseID'])) {
         $houseID = intval($_POST['houseID']);
-        $sql = "SELECT roomID, roomNumber FROM tblroom WHERE houseID = ?";
+        $sql = "SELECT roomID, roomNumber, roomType FROM tblroom WHERE houseID = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("i", $houseID);
         $stmt->execute();
@@ -23,104 +23,99 @@ if ($requestMethod == 'POST') {
             echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
         }
     } else if (isset($_POST['tenantName'])) {
-        $name = $_POST['tenantName'];
-        $gender = $_POST['gender'];
-        $number = $_POST['number'];
-        $email = $_POST['email'];
-        $address = $_POST['address'];
-        $fatherName = $_POST['fatherName'];
-        $fatherNumber = $_POST['fatherNumber'];
-        $motherName = $_POST['motherName'];
-        $motherNumber = $_POST['motherNumber'];
-        $emergencyName = $_POST['emergencyName'];
-        $emergencyNumber = $_POST['emergencyNumber'];
-        $dateStarted = $_POST['dateStarted'];
-        $username = $_POST['username'];
-        $password = $_POST['password'];
+        // Fetching the roomID and its details
         $roomID = $_POST['roomID'];
-
-        $sql = "INSERT INTO tbltenant(tenantName, gender, phoneNumber, emailAddress, currentAddress, fatherName, fatherNumber, motherName, motherNumber, emergencyName, emergencyNumber, dateStarted, username, userPassword, roomID) 
-                VALUES ('{$name}', '{$gender}', '{$number}', '{$email}', '{$address}', '{$fatherName}', '{$fatherNumber}', '{$motherName}', '{$motherNumber}', '{$emergencyName}', '{$emergencyNumber}', '{$dateStarted}', '{$username}', '{$password}', '{$roomID}')";
-
-        if($conn->query($sql)){
-            $updateRoom = $conn->prepare("UPDATE tblRoom SET availableStatus = ? WHERE roomID = ?");
-            $status = 'Occupied'; // Example status
-            $updateRoom->bind_param('si', $status, $roomID);
-
-            if($updateRoom->execute()){
-                    $selectSql = "SELECT t.*, r.*, h.*
-                                    FROM tblTenant t  
-                                    JOIN tblRoom r ON t.roomID = r.roomID
-                                    JOIN tblHouse h ON r.houseID = h.houseID;
-                                    ";
-                $selectResult = $conn->query($selectSql);
-                if ($selectResult) {
-                                $data = array();
-                                if ($selectResult->num_rows > 0) {
-                                    while ($row = $selectResult->fetch_assoc()) {
-                                        $data[] = $row;
-                                    }
+        $roomQuery = $conn->prepare("SELECT roomType, capacity FROM tblRoom WHERE roomID = ?");
+        $roomQuery->bind_param('i', $roomID);
+        $roomQuery->execute();
+        $roomResult = $roomQuery->get_result();
+    
+        if ($roomResult->num_rows > 0) {
+            $roomData = $roomResult->fetch_assoc();
+            $roomType = $roomData['roomType'];
+            $capacity = $roomData['capacity'];
+    
+            // Count current tenants in the room
+            $tenantCountQuery = $conn->prepare("SELECT COUNT(*) as tenantCount FROM tblTenant WHERE roomID = ?");
+            $tenantCountQuery->bind_param('i', $roomID);
+            $tenantCountQuery->execute();
+            $tenantCountResult = $tenantCountQuery->get_result();
+            $tenantCount = $tenantCountResult->fetch_assoc()['tenantCount'];
+    
+            // Check the conditions for adding a new tenant
+            if (($roomType === 'regular' && $tenantCount < 1) || ($roomType !== 'regular' && $tenantCount < $capacity)) {
+                // Proceed with adding tenant
+                $name = $_POST['tenantName'];
+                $gender = $_POST['gender'];
+                $number = $_POST['number'];
+                $email = $_POST['email'];
+                $address = $_POST['address'];
+                $fatherName = $_POST['fatherName'];
+                $fatherNumber = $_POST['fatherNumber'];
+                $motherName = $_POST['motherName'];
+                $motherNumber = $_POST['motherNumber'];
+                $emergencyName = $_POST['emergencyName'];
+                $emergencyNumber = $_POST['emergencyNumber'];
+                $dateStarted = $_POST['dateStarted'];
+                $username = $_POST['username'];
+                $password = $_POST['password'];
+                $tenantStatus = $_POST['tenantStatus'];
+    
+                // Prepared statement for inserting a tenant
+                $stmt = $conn->prepare("INSERT INTO tblTenant (tenantName, gender, phoneNumber, emailAddress, currentAddress, fatherName, fatherNumber, motherName, motherNumber, emergencyName, emergencyNumber, dateStarted, username, userPassword, tenantStatus, roomID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                $stmt->bind_param("ssssssssssssssss", $name, $gender, $number, $email, $address, $fatherName, $fatherNumber, $motherName, $motherNumber, $emergencyName, $emergencyNumber, $dateStarted, $username, $password, $tenantStatus, $roomID);
+    
+                if ($stmt->execute()) {
+                    // Update the room's status
+                    $updateRoom = $conn->prepare("UPDATE tblRoom SET availableStatus = ? WHERE roomID = ?");
+                    $status = 'Occupied'; // Example status
+                    $updateRoom->bind_param('si', $status, $roomID);
+    
+                    if ($updateRoom->execute()) {
+                        // Fetching tenant data
+                        $selectSql = "SELECT t.*, r.*, h.* FROM tblTenant t JOIN tblRoom r ON t.roomID = r.roomID JOIN tblHouse h ON r.houseID = h.houseID WHERE tenantStatus='active';";
+                        $selectResult = $conn->query($selectSql);
+                        if ($selectResult) {
+                            $data = array();
+                            if ($selectResult->num_rows > 0) {
+                                while ($row = $selectResult->fetch_assoc()) {
+                                    $data[] = $row;
                                 }
-                                echo json_encode(["status" => "success", "message" => "Tenant Successfully Added", "data" => $data]);
-                            } else {
-                                echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
                             }
-            }else {
-                    echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+                            echo json_encode(["status" => "success", "message" => "Tenant Successfully Added", "data" => $data]);
+                        } else {
+                            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+                        }
+                    } else {
+                        echo json_encode(["status" => "error", "message" => "Error: " . $updateRoom->error]);
                     }
+                    $updateRoom->close(); // Close the statement
+                } else {
+                    echo json_encode(["status" => "error", "message" => "Error: " . $stmt->error]);
+                }
+                $stmt->close(); // Close the statement
+            } else {
+                echo json_encode(["status" => "error", "message" => "Cannot add tenant: Room capacity exceeded or room type restriction."]);
+            }
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error: Room not found."]);
         }
-        
-    }else if (isset($_POST['generatePass'])){
-        $length = 8 ; // Length of the password
+        $roomQuery->close(); // Close the statement
+    }
+    else if (isset($_POST['generatePass'])) {
+        $length = 8; // Length of the password
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomPassword = '';
         for ($i = 0; $i < $length; $i++) {
             $randomPassword .= $characters[rand(0, $charactersLength - 1)];
         }
-        echo json_encode(['password' => $randomPassword]);
-    
-    }if (isset($_POST['query'])) {
-        $searchTerm = mysqli_real_escape_string($conn, $_POST['query']);
-        
-        // Search for tenant names that match the query
-        $sql = "SELECT t.tenantID, t.tenantName, t.phoneNumber, r.roomNumber, h.houselocation
-                FROM tblTenant t  
-                JOIN tblRoom r ON t.roomID = r.roomID
-                JOIN tblHouse h ON r.houseID = h.houseID 
-                WHERE tenantName LIKE ?";
-        $stmt = $conn->prepare($sql);
-        $searchParam = "%" . $searchTerm . "%";
-        $stmt->bind_param("s", $searchParam);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        
-        $tenants = array();
-    
-        if ($result->num_rows > 0) {
-            while ($row = $result->fetch_assoc()) {
-                // Add the row data to the array
-                $tenants[] = array(
-                    'tenantID' => $row['tenantID'],
-                    'tenantName' => $row['tenantName'],
-                    'phoneNumber' => $row['phoneNumber'],
-                    'roomNumber' => $row['roomNumber'],
-                    'houselocation' => $row['houselocation']
-                );
-            }
-        }
-        
-        // Return the result as JSON
-        echo json_encode($tenants);
-        
-        $stmt->close();
+        echo json_encode(['status' => 'success', 'password' => $randomPassword]);
     }
-    
-    $conn->close();
-}    
+}
 else if ($requestMethod == 'GET') {
     // Existing GET requests handling
-    if (!isset($_GET['houseID']) && !isset($_GET['tenant']) && !isset($_GET['tenantID']) ) {
+    if (!isset($_GET['houseID']) && !isset($_GET['tenant']) && !isset($_GET['tenantID']) && !isset($_GET['inactiveTenant']) ) {
         $sql = "SELECT houseID, houselocation FROM tblHouse";
         $result = $conn->query($sql);
 
@@ -139,7 +134,8 @@ else if ($requestMethod == 'GET') {
         $sql = "SELECT t.*, r.*, h.*
                     FROM tblTenant t  
                     JOIN tblRoom r ON t.roomID = r.roomID
-                    JOIN tblHouse h ON r.houseID = h.houseID;";
+                    JOIN tblHouse h ON r.houseID = h.houseID
+                    WHERE tenantStatus = 'active';";
 
         $result = $conn->query($sql);
 
@@ -176,31 +172,54 @@ else if ($requestMethod == 'GET') {
         } else {
             echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
         }
+    }else if (isset($_GET['inactiveTenant'])) {
+        $sql = "SELECT t.*, r.*, h.*
+                    FROM tblTenant t  
+                    JOIN tblRoom r ON t.roomID = r.roomID
+                    JOIN tblHouse h ON r.houseID = h.houseID
+                    WHERE tenantStatus = 'In-active';";
+
+        $result = $conn->query($sql);
+
+        if ($result) {
+            $data = array();
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    $data[] = $row;
+                }
+            }
+            echo json_encode(["status" => "success", "data" => $data]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error: " . $conn->error]);
+        }
     }
 }
 else if ($requestMethod == 'DELETE') {
     // Read raw input data
     parse_str(file_get_contents("php://input"), $_DELETE);
     
-    // Retrieve and sanitize the roomID
-    if (isset($_DELETE['tenantID'])) {
-        $tenantID   = intval($_DELETE['tenantID']);
-        $roomID     = intval($_DELETE['roomID']);
-        // Construct SQL DELETE query
-        $sql = "DELETE FROM tbltenant WHERE tenantID = ?";
+    // Check if both tenantID and roomID are provided
+    if (isset($_DELETE['tenantID']) && isset($_DELETE['roomID'])) {
+        $tenantID   = intval($_DELETE['tenantID']); // Ensure tenantID is an integer
+        $roomID     = intval($_DELETE['roomID']);   // Ensure roomID is an integer
+
+        $tenantStatus = "In-active"; // String value for tenant status
+        // Construct SQL UPDATE query
+        $sql = "UPDATE tbltenant SET tenantStatus = ? WHERE tenantID = ?";
         
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $tenantID);
+        // Bind parameters: first is string (s), second is integer (i)
+        $stmt->bind_param("si", $tenantStatus, $tenantID);
         
         if ($stmt->execute()) {
             $updateAvailable = "UPDATE tblroom SET availableStatus = 'Available' WHERE roomID = ?"; 
 
             $stmtUpdate = $conn->prepare($updateAvailable);
-            $stmtUpdate->bind_param("i", $roomID);
-            if($stmtUpdate->execute()){
+            $stmtUpdate->bind_param("i", $roomID); // roomID is also an integer
+            if ($stmtUpdate->execute()) {
                 echo json_encode(["status" => "success", "message" => "Tenant Successfully Deleted"]);
             } else {
-                // Error in update
+                // Error in updating room availability
                 echo json_encode(["status" => "error", "message" => "Error updating room availability: " . $stmtUpdate->error]);
             }
             $stmtUpdate->close();
@@ -216,10 +235,12 @@ else if ($requestMethod == 'DELETE') {
 
     $conn->close();
 }
+
 else if($requestMethod == 'PUT') {
     $inputData = json_decode(file_get_contents("php://input"), true);
     
     // Validate the input
+    // if(isset($_PUT['tenantUpdate']) && !isset($_PUT['activate'])){
     if (json_last_error() === JSON_ERROR_NONE && 
         isset($inputData['tenantID'], $inputData['tenantName'], 
               $inputData['gender'], $inputData['phoneNumber'], 
@@ -278,4 +299,5 @@ else if($requestMethod == 'PUT') {
 
     $conn->close();
 }
+
 ?>

@@ -492,19 +492,25 @@ $(document).ready(function() {
 
             $.ajax({
                 url: '../controller/accountController.php',
-                type: 'PUT',
-                contentType: 'application/json',  // Set the content type to JSON
+                type: 'PUT',  // Ensure the method is correct (PUT)
+                contentType: 'application/json', // Set the content type to JSON
                 data: JSON.stringify({
                     resetPass: true,
                     adminID: adminID,
                     newPassword: newPassword
                 }),
                 success: function(response) {
-                    if (response.status === 'success') {
-                        alert(response.message);
-                        $self.$changePassModal.modal('hide');
+                    // Parse the response
+                    const data = typeof response === "string" ? JSON.parse(response) : response; // Ensure we have a JSON object
+                    console.log(data); // Log the response for debugging
+                    if (data.status === 'success') {
+                        alert(data.message); // Success message
+                        $self.$changePassModal.modal('hide'); // Hide the modal
+                        // Optionally, you can reset the input fields here
+                        $self.$inpt_newPassword.val('');
+                        $self.$inpt_confirmNewPassword.val('');
                     } else {
-                        alert(response.message);
+                        alert(data.message); // Show error message
                     }
                 },
                 error: function(xhr, status, error) {
@@ -512,6 +518,8 @@ $(document).ready(function() {
                 }
             });
         }
+
+
 
 
         

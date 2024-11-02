@@ -106,34 +106,35 @@ else if ($requestMethod == "PUT") {
         }
     }
     // Condition for resetting the password
-    elseif (isset($inputData['resetPass']) && $inputData['resetPass'] === true) {
-        // Check required fields for password reset
-        if (isset($inputData['adminID'], $inputData['newPassword'])) {
-            $adminID     = $inputData['adminID'];
-            $newPassword =  password_hash($inputData['newPassword'], PASSWORD_BCRYPT);
-           
+        elseif (isset($inputData['resetPass']) && $inputData['resetPass'] === true) {
+            // Check required fields for password reset
+            if (isset($inputData['adminID'], $inputData['newPassword'])) {
+                $adminID     = $inputData['adminID'];
+                $newPassword =  password_hash($inputData['newPassword'], PASSWORD_BCRYPT);
+            
 
-            $sql = "UPDATE tbladminaccount
-                    SET PasswordHash = ?
-                    WHERE adminID = ?";
+                $sql = "UPDATE tbladminaccount
+                        SET PasswordHash = ?
+                        WHERE adminID = ?";
 
-            $stmt = $conn->prepare($sql);
-            $stmt->bind_param('si', $newPassword, $adminID);
-            $result = $stmt->execute();
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param('si', $newPassword, $adminID);
+                $result = $stmt->execute();
 
-            if ($result) {
-                echo json_encode(["status" => "success", "message" => "Password successfully updated"]);
+                if ($result) {
+                    echo json_encode(["status" => "success", "message" => "Password successfully updated"]);
+                } else {
+                    echo json_encode(["status" => "error", "message" => "Error updating password: " . $conn->error]);
+                }
+                
             } else {
-                echo json_encode(["status" => "error", "message" => "Error updating password: " . $conn->error]);
+                echo json_encode(["status" => "error", "message" => "Missing required fields for password reset"]);
             }
-        } else {
-            echo json_encode(["status" => "error", "message" => "Missing required fields for password reset"]);
+        } 
+        // Invalid input handling
+        else {
+            echo json_encode(["status" => "error", "message" => "Invalid input. Please check your data."]);
         }
-    } 
-    // Invalid input handling
-    else {
-        echo json_encode(["status" => "error", "message" => "Invalid input. Please check your data."]);
-    }
 }
 
 
