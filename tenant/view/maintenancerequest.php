@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BoardingHouse</title>
-    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../admin/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/index.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -18,47 +18,33 @@
             </div>
             <ul class="sidebar-nav">
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="index.php">
-                        <i class="bi bi-laptop"></i>
-                        Dashboard
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="house.php">
-                        <i class="bi bi-house"></i>
-                        House
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="tenant.php">
+                    <a class="sidebar-link" href="profile.php">
                         <i class="bi bi-people"></i>
-                        Tenant
+                        Profile
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a href="#" class="sidebar-link dropdown-toggle" data-bs-toggle="collapse" data-bs-target="#payments" aria-expanded="false" aria-controls="payments">
+                    <a class="sidebar-link" href="index.php">
                         <i class="bi bi-credit-card-2-front"></i>
-                        Payments
-                    </a>
-                    <ul id="payments" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="rentalPayment.php" class="sidebar-link">Rental Payment</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="deliquent.php" class="sidebar-link">Deliquent Tenant</a>
-                        </li>
-                    </ul>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="maintenance.php">
-                        <i class="bi bi-envelope-paper"></i>
-                        Maintenance
+                        Payment History
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="reports.php">
-                        <i class="bi bi-file-earmark-text"></i>
-                        Report
+                    <a class="sidebar-link" href="maintenancerequest.php">
+                        <i class="bi bi-house"></i>
+                        Request Maintenance
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                <a class="sidebar-link" href="agreement.php">
+                        <i class="bi bi-laptop"></i>
+                        Terms and Conditions
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                <a class="sidebar-link" href="adminaccount.php">
+                        <i class="bi bi-laptop"></i>
+                        Admin Profile
                     </a>
                 </li>
             </ul>
@@ -83,7 +69,6 @@
                 </ul>
             </div>
         </nav>
-           
         <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
             <div class="room-content p-2">
@@ -91,18 +76,22 @@
                     <div class="d-md-flex" id="deliquent-container"></div>
                         <div class="d-flex align-items-center py-2" style="height: 50px;">
                             <div class="d-flex">
-                                <label for="sel-roomType" >Select Status</label>
-                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Select Status" style="font-size: 15px; height: 40px">
+                                <label for="sel-Year" >Select Status</label>
+                                <input type="text" id="inpt-selYear" class="form-control" placeholder="Select Status" style="font-size: 15px; height: 40px">
                             </div>
+                            <div class="ms-auto">
+                            <a href="requestMaintenance.php" class=" nav-link text-primary">Request Maintenance</a>
+                            </div>
+                           
                 </div>
                     <div class="table-responsive">
                         <div class="table-wrapper">
                             <table class="table table-hover">
                                 <thead class="table-dark    ">
                                     <tr>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">House Rented</th>
-                                        <th scope="col">No. of Request</th>
+                                        <th scope="col">Date of Request</th>
+                                        <th scope="col">Maintenance Type</th>
+                                        <th scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -120,30 +109,44 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+   
     $(document).ready(function() {
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
 
-    const reportPage = {
+    const maintenancerequestPage = {
         Init: function(config) {
             this.config = config;
             this.BindEvents();
+            this.getTenantID();
             this.reqeustList();
         },
         BindEvents: function() {
             const $this = this.config;
-            $this.$tbody.on('click', '#btn-view', this.passTenantID.bind(this));
-            $
+         
         },
-        reqeustList: function(){ 
+        getTenantID: function() {
+            const $self = this.config;
+            
+            const tenantID = localStorage.getItem("tenantID");
+
+            if (tenantID) {
+                $self.$tbody.attr('data-tenantid', tenantID);
+            } else {
+                console.warn("No tenantID found in localStorage.");
+            }
+        },
+        reqeustList: function(){
             const $self = this.config;
             const tenantID = $self.$tbody.data('tenantid');
             $.ajax({
-                url : '../controller/maintenanceReqController.php',
+                url : '../controller/maintenancerequestController.php',
                 Type: 'GET',
+                data: {
+                    tenantID : tenantID
+                },
                 dataType: 'json',
                 success: function(data){
                     $self.$tbody.empty(); // Clear the existing table rows
@@ -152,49 +155,36 @@
                         } else {
                             $.each(data, function(index, item) {
                                 const row = `
-                                    <tr  class="text-capitalize" data-tenantID="${item.tenantID}">
-                                        <td>${item.tenantName}</td>
+                                    <tr  class="text-capitalize" data-requestID="${item.requestID}">
                                         <td>
-                                            House: ${item.houseLocation} <br/>
-                                            Room Number: ${item.roomNumber}
+                                            Date: ${item.requestDate} <br/>
+                                            Time: ${item.requestTime}
                                         </td>
-                                        <td>${item.requestCount}</td>
+                                        <td>${item.maintenanceType}</td>
+                                        <td>${item.requestStatus}</td>
                                         <td>
-                                            <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-view" data-tenantID="${item.tenantID}">View</button>
-                                            
+                                            <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.requestID}">Edit</button>
                                         </td>
                                     </tr>
                                     `;
                                 $self.$tbody.append(row); // Append new filtered rows to the table
                             });
-                          
                         }
                 },
                 error: function(){
 
                 }
             });
-        },
-        passTenantID: function(e) {
-            e.preventDefault();
-            const $row = $(e.currentTarget).closest('tr');
-            const tenantID = $row.data('tenantid');
-            const tenantName = $row.find('td').eq(0).text();
-            localStorage.setItem("tenantID", tenantID);
-            localStorage.setItem("tenantName", tenantName);
-            window.location.href = "listTenantRequest.php";
         }
-
        
 
     }
 
-    reportPage.Init({
-        $tbody          : $('#tbody')
+    maintenancerequestPage.Init({
+            $tbody      : $('#tbody')
     });
-    });
+});
 
-
-</script>
+    </script>
 </body>
-</html>
+</html> 

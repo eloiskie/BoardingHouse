@@ -36,7 +36,7 @@ if ($requestMethod == 'POST') {
             $capacity = $roomData['capacity'];
     
             // Count current tenants in the room
-            $tenantCountQuery = $conn->prepare("SELECT COUNT(*) as tenantCount FROM tblTenant WHERE roomID = ?");
+            $tenantCountQuery = $conn->prepare("SELECT COUNT(*) as tenantCount FROM tblTenant WHERE roomID = ? AND tenantStatus = 'available'");
             $tenantCountQuery->bind_param('i', $roomID);
             $tenantCountQuery->execute();
             $tenantCountResult = $tenantCountQuery->get_result();
@@ -58,12 +58,21 @@ if ($requestMethod == 'POST') {
                 $emergencyNumber = $_POST['emergencyNumber'];
                 $dateStarted = $_POST['dateStarted'];
                 $username = $_POST['username'];
-                $password = $_POST['password'];
                 $tenantStatus = $_POST['tenantStatus'];
-    
+                $password = $_POST['password'];
+
+                
+
+              
+                // Trim the password to remove extra spaces
+                $trimmedPassword = trim($password);
+
+                // Hash the trimmed password
+                $hashedPassword = password_hash($trimmedPassword, PASSWORD_DEFAULT);
+                    
                 // Prepared statement for inserting a tenant
                 $stmt = $conn->prepare("INSERT INTO tblTenant (tenantName, gender, phoneNumber, emailAddress, currentAddress, fatherName, fatherNumber, motherName, motherNumber, emergencyName, emergencyNumber, dateStarted, username, userPassword, tenantStatus, roomID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-                $stmt->bind_param("ssssssssssssssss", $name, $gender, $number, $email, $address, $fatherName, $fatherNumber, $motherName, $motherNumber, $emergencyName, $emergencyNumber, $dateStarted, $username, $password, $tenantStatus, $roomID);
+                $stmt->bind_param("ssssssssssssssss", $name, $gender, $number, $email, $address, $fatherName, $fatherNumber, $motherName, $motherNumber, $emergencyName, $emergencyNumber, $dateStarted, $username, $hashedPassword, $tenantStatus, $roomID);
     
                 if ($stmt->execute()) {
                     // Update the room's status
@@ -102,13 +111,15 @@ if ($requestMethod == 'POST') {
         }
         $roomQuery->close(); // Close the statement
     }
+    
     else if (isset($_POST['generatePass'])) {
         $length = 8; // Length of the password
         $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         $charactersLength = strlen($characters);
         $randomPassword = '';
+            
         for ($i = 0; $i < $length; $i++) {
-            $randomPassword .= $characters[rand(0, $charactersLength - 1)];
+            $randomPassword .= $characters[random_int(0, $charactersLength - 1)]; // Use random_int
         }
         echo json_encode(['status' => 'success', 'password' => $randomPassword]);
     }

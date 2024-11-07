@@ -500,22 +500,22 @@
                 const password = $self.$inpt_password.val().trim();
                 const roomID = $self.$sel_roomNumber.val();
                 const tenantStatus = "active";
+                console.log(password);
+                // // Validation checks
+                // if (!tenantName || !gender || !number || !email || !address || 
+                //     !fatherName || !fatherNumber || !motherName || 
+                //     !motherNumber || !emergencyName || !emergencyNumber || 
+                //     !dateStarted || !username || !password || !roomID) {
+                //     alert('Please fill in all required fields.');
+                //     return;
+                // }
 
-                // Validation checks
-                if (!tenantName || !gender || !number || !email || !address || 
-                    !fatherName || !fatherNumber || !motherName || 
-                    !motherNumber || !emergencyName || !emergencyNumber || 
-                    !dateStarted || !username || !password || !roomID) {
-                    alert('Please fill in all required fields.');
-                    return;
-                }
-
-                // Email validation regex
-                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailRegex.test(email)) {
-                    alert('Please enter a valid email address.');
-                    return;
-                }
+                // // Email validation regex
+                // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                // if (!emailRegex.test(email)) {
+                //     alert('Please enter a valid email address.');
+                //     return;
+                // }
 
                 // AJAX request
                 $.ajax({
