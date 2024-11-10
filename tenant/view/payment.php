@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BoardingHouse</title>
-    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../../admin/css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/index.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -24,7 +24,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="index.php">
+                    <a class="sidebar-link" href="payment.php">
                         <i class="bi bi-credit-card-2-front"></i>
                         Payment
                 </li>
@@ -119,20 +119,83 @@
         Init: function(config) {
             this.config = config;
             this.BindEvents();
-         
+            this.getTenantID();
         },
         BindEvents: function() {
             const $this = this.config;
            
         },
-        displayInformation:
-     
-       
+        getTenantID: function() {
+            const $self = this.config;
+            
+            const tenantID = localStorage.getItem("tenantID");
 
+            if (tenantID) {
+                $self.$tbody.attr('data-tenantid', tenantID);
+            } else {
+                console.warn("No tenantID found in localStorage.");
+            }
+        },
+        // viewTable: function() {
+        //         const $self = this.config;
+        //         const tenantID = $self.$tbody.data('tenantid');
+
+        //         if (!tenantID) {
+        //             console.error('Tenant ID is missing.');
+        //             return;
+        //         }
+
+        //         $.ajax({
+        //             url: '../controller/viewPaymentController.php',
+        //             type: 'GET',
+        //             data: { tenantID: tenantID },
+        //             dataType: 'json',
+        //             success: function(response) {
+        //                 if (response.status === 'success') {
+        //                     $self.$tbody.empty(); // Clear table body
+
+        //                     if (response.data.length > 0) {
+        //                         $.each(response.data, function(index, item) {
+        //                             // Determine payment status
+        //                             let status = (item.remainingBalance == 0) 
+        //                                 ? 'paid' 
+        //                                 : (item.remainingBalance > 0 && item.remainingBalance < item.totalAmount) 
+        //                                 ? 'partial' 
+        //                                 : 'pending';
+
+        //                             // Create row template
+        //                             const row = `
+        //                                 <tr class="text-capitalize" data-paymentDetailsID="${item.paymentDetailsIDs.join(',')}">
+        //                                     <td>${item.paymentTypes}</td>
+        //                                     <td>${item.totalAmount}</td>
+        //                                     <td>${item.dueDate}</td>
+        //                                     <td id="remainingBalance">${item.remainingBalance}</td>
+        //                                     <td>${status}</td>
+        //                                     <td>
+        //                                         <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${tenantID}">Pay</button>
+        //                                         <button type="button" class="btn btn-secondary" id="btn-viewPayment" data-tenantid="${tenantID}">View</button>
+        //                                     </td>
+        //                                 </tr>`;
+        //                             $self.$tbody.append(row); // Append row to table
+        //                         });
+        //                     } else {
+        //                         $self.$tbody.append('<tr><td colspan="6" class="text-center">No records found</td></tr>');
+        //                     }
+        //                 } else {
+        //                     console.error('Error fetching data: ' + response.message);
+        //                     $self.$tbody.html('<tr><td colspan="6">Error loading payment records.</td></tr>');
+        //                 }
+        //             },
+        //             error: function(xhr, status, error) {
+        //                 console.error('Error fetching data:', error);
+        //                 $self.$tbody.html('<tr><td colspan="6">Error loading payment records.</td></tr>');
+        //             }
+        //         });
+        // },
     }
 
     paymentPage.Init({
-    
+        $tbody          : $('#tbody')
     });
 });
 

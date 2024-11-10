@@ -42,7 +42,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="index.php">
+                    <a class="sidebar-link" href="payment.php">
                         <i class="bi bi-credit-card-2-front"></i>
                         Payment
                     </a>
