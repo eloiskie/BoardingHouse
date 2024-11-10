@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BoardingHouse</title>
-    <link rel="stylesheet" href="../../admin/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
     <link rel="stylesheet" href="../css/index.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -75,11 +75,11 @@
                     <div class="d-md-flex" id="deliquent-container"></div>
                         <div class="d-flex align-items-center py-2" style="height: 50px;">
                             <div class="d-flex">
-                                <label for="sel-Year" >Select Status</label>
-                                <input type="text" id="inpt-selYear" class="form-control" placeholder="Select Status" style="font-size: 15px; height: 40px">
+                                <label for="sel-Year" >Select Year</label>
+                                <input type="text" id="inpt-selYear" class="form-control" placeholder="Select Year" style="font-size: 15px; height: 40px">
                             </div>
                             <div class="ms-auto">
-                            <a href="requestMaintenance.php" class=" nav-link text-primary">Request Maintenance</a>
+                                <button class="btn btn-primary btn-sm p-2" type="button" id="btnFilter" style="font-size: 12px;">Filter</button>
                             </div>
                            
                 </div>
@@ -88,10 +88,10 @@
                             <table class="table table-hover">
                                 <thead class="table-dark    ">
                                     <tr>
-                                        <th scope="col">Date of Request</th>
-                                        <th scope="col">Maintenance Type</th>
-                                        <th scope="col">Status</th>
-                                        
+                                        <th scope="col">Date Paid</th>
+                                        <th scope="col">Payment Type</th>
+                                        <th scope="col">Credit</th>
+                                        <th scope="col">Remark</th>
                                     </tr>
                                 </thead>
                                 <tbody id="tbody" >
@@ -108,79 +108,35 @@
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
 <script>
-   
     $(document).ready(function() {
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
 
-    const maintenancerequestPage = {
+    const paymentPage = {
         Init: function(config) {
             this.config = config;
             this.BindEvents();
-            this.getTenantID();
-            this.reqeustList();
+         
         },
         BindEvents: function() {
             const $this = this.config;
-         
+           
         },
-        getTenantID: function() {
-            const $self = this.config;
-            
-            const tenantID = localStorage.getItem("tenantID");
-
-            if (tenantID) {
-                $self.$tbody.attr('data-tenantid', tenantID);
-            } else {
-                console.warn("No tenantID found in localStorage.");
-            }
-        },
-        reqeustList: function(){
-            const $self = this.config;
-            const tenantID = $self.$tbody.data('tenantid');
-            $.ajax({
-                url : '../controller/maintenancerequestController.php',
-                Type: 'GET',
-                data: {
-                    tenantID : tenantID
-                },
-                dataType: 'json',
-                success: function(data){
-                    $self.$tbody.empty(); // Clear the existing table rows
-                        if (data.length === 0) {
-                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
-                        } else {
-                            $.each(data, function(index, item) {
-                                const row = `
-                                    <tr  class="text-capitalize" data-requestID="${item.requestID}">
-                                        <td>
-                                            Date: ${item.requestDate} <br/>
-                                            Time: ${item.requestTime}
-                                        </td>
-                                        <td>${item.maintenanceType}</td>
-                                        <td>${item.requestStatus}</td>
-                                    </tr>
-                                    `;
-                                $self.$tbody.append(row); // Append new filtered rows to the table
-                            });
-                        }
-                },
-                error: function(){
-
-                }
-            });
-        }
+        displayInformation:
+     
        
 
     }
 
-    maintenancerequestPage.Init({
-            $tbody      : $('#tbody')
+    paymentPage.Init({
+    
     });
 });
 
-    </script>
+
+</script>
 </body>
 </html> 

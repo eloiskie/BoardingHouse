@@ -44,7 +44,7 @@
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="index.php">
                         <i class="bi bi-credit-card-2-front"></i>
-                        Payment History
+                        Payment
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -167,7 +167,7 @@
 
                         <div class="form-group">
                             <label for="dateStarted">Date Started:</label>
-                            <input type="text" id="inpt-dateStarted" class="form-control">
+                            <input type="text" id="inpt-dateStarted" class="form-control" disabled>
                         </div>
 
                         <div class="form-footer">
@@ -177,24 +177,27 @@
 
                     <div class="form-container account-section">
                         <h2>Account Management</h2>
+                        <div class="div" id="accountManagement">
+                            <div class="form-group">
+                                <label for="newUsername">Old Password:</label>
+                                <input type="text" id="inpt-oldPassword" class="form-control" placeholder="Enter old password">
+                            </div>
 
-                        <div class="form-group">
-                            <label for="newUsername">New Username:</label>
-                            <input type="text" id="newUsername" class="form-control" placeholder="Enter new username">
+                            <div class="form-group">
+                                <label for="newPassword">New Password:</label>
+                                <input type="password" id="inpt-newPassword" class="form-control" placeholder="Enter new password">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="confirmPassword">Confirm Password:</label>
+                                <input type="password" id="inpt-confirmPassword" class="form-control" placeholder="Confirm new password">
+                            </div>
+                            <div class="form-footer">
+                            <button type="button" class="btn btn-success" id="btn-savePassword">Save</button>
                         </div>
-
-                        <div class="form-group">
-                            <label for="newPassword">New Password:</label>
-                            <input type="password" id="newPassword" class="form-control" placeholder="Enter new password">
                         </div>
-
-                        <div class="form-group">
-                            <label for="confirmPassword">Confirm Password:</label>
-                            <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm new password">
-                        </div>
-
                         <div class="form-footer">
-                            <button type="button" class="btn btn-success">Change Password</button>
+                            <button type="button" class="btn btn-success" id="btn-changePassword">Change Password</button>
                         </div>
                     </div>
                 </div>
@@ -221,10 +224,12 @@
         BindEvents: function() {
             const $this = this.config;
             $this.$btn_save.on('click', this.updateData.bind(this));
+            $this.$btn_changePassword.on('click', this.showAccountDetails.bind(this));
+            $this.$btn_savePassword.on('click', this.updatePassword.bind(this));
         },
         getTenantID: function() {
             const $self = this.config;
-            
+            $('#accountManagement').hide();
             const tenantID = localStorage.getItem("tenantID");
             console.log('Retrieved tenantID:', tenantID); // Log the tenantID
 
@@ -269,11 +274,118 @@
                 }
             });
         },
-        updateData: function(){
+        updateData: function() {
             const $self = this.config;
+            const tenantID = $self.$inpt_tenantName.data('tenantid');
+            const tenantName = $self.$inpt_tenantName.val().trim();
+            const phoneNumber = $self.$inpt_phoneNumber.val().trim();
+            const gender = $self.$sel_gender.val().trim();
+            const emailAddress = $self.$inpt_emailAddress.val().trim();
+            const currentAddress = $self.$inpt_currentAddress.val().trim();
+            const fatherName = $self.$inpt_fatherName.val().trim();
+            const fatherNumber = $self.$inpt_fatherNumber.val().trim();
+            const motherName = $self.$inpt_motherName.val().trim();
+            const motherNumber = $self.$inpt_motherNumber.val().trim();
+            const emergencyName = $self.$inpt_emergencyName.val().trim();
+            const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
+           
+            
+            // Restriction: Validate required fields
+            if (!tenantName || !gender || !phoneNumber || !emailAddress || !currentAddress || !fatherName
+            || !fatherNumber || !motherName || !motherNumber || !emergencyName || !emergencyNumber 
+            ) {
+                alert("Please fill in all required fields");
+                return; // Stop the function if validation fails
+            }
+
+                $.ajax({
+                    url: '../controller/profileController.php',
+                    type: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        details: true,
+                        tenantID: tenantID,
+                        tenantName: tenantName,
+                        gender: gender,
+                        phoneNumber: phoneNumber, 
+                        emailAddress: emailAddress,
+                        currentAddress: currentAddress,
+                        fatherName: fatherName,
+                        fatherNumber: fatherNumber, 
+                        motherName: motherName,
+                        motherNumber: motherNumber,
+                        emergencyName: emergencyName,
+                        emergencyNumber: emergencyNumber,
+                        
+                    }),
+                    dataType: 'json',
+                    success: function(response) {
+                            if (response.status === "error") {
+                                alert(response.message);
+                            } else if (response.status === "success") {
+                                alert(response.message);
+                            }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('An error occurred while submitting tenant details.');
+                    }
+                });
+        },
+        showAccountDetails: function(){
+            const $self = this.config;
+            $('#accountManagement').show();
+        },
+        updatePassword: function() {
+            const $self = this.config;
+            const tenantID = $self.$inpt_tenantName.data('tenantid');
+            const oldPassword = $self.$inpt_oldPassword.val().trim();
+            const newPassword = $self.$inpt_newPassword.val().trim();
+            const confirmPassword = $self.$inpt_confirmPassword.val().trim();
+
+            // // Validate password fields
+            // if (!oldPassword || !newPassword || !confirmPassword) {
+            //     alert("Please fill in all password fields.");
+            //     return;
+            // }
+
+            // if (newPassword !== confirmPassword) {
+            //     alert("New password and confirm password do not match.");
+            //     return;
+            // }
+
+            $.ajax({
+                url: '../controller/profileController.php',
+                type: 'PUT',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    account: true,
+                    tenantID: tenantID,
+                    oldPassword: oldPassword,
+                    newPassword: newPassword
+                }),
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === "success") {
+                        alert(response.message);
+                        $self.$inpt_oldPassword.val('');
+                        $self.$inpt_newPassword.val('');
+                        $self.$inpt_confirmPassword.val('');
+                        $('#accountManagement').hide(); // Optionally hide the account management section
+                    } else if (response.status === "error") {
+                        alert(response.message);
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert('An error occurred while updating the password. Please try again later.');
+                }
+            });
         }
 
+        
+
     }
+
+
     profileTenantPage.Init({
         $inpt_tenantName            : $('#inpt-tenantName'),
         $inpt_phoneNumber           : $('#inpt-phoneNumber'),
@@ -287,9 +399,17 @@
         $inpt_emergencyName         : $('#inpt-emergencyName'),
         $inpt_emergencyNumber       : $('#inpt-emergencyNumber'),
         $inpt_dateStarted           : $('#inpt-dateStarted'),
-        $btn_save                   : $('#btn-save')
+        $inpt_verficationCode       : $('#inpt-verificationCode'),
+        $inpt_oldPassword           : $('#inpt-oldPassword'),
+        $inpt_newPassword           : $('#inpt-newPassword'),
+        $inpt_confirmPassword       : $('#inpt-confirmPassword'),
+        $btn_save                   : $('#btn-save'),
+        $btn_savePassword           : $('#btn-savePassword'),
+        $btn_changePassword         : $('#btn-changePassword'),
+        $resetModal                 : $('#resetModal'),
+        $lbl_verificationDetails    : $('#lbl-verificationDetails')
     });
-});
+    });
 
 </script>
 </body>

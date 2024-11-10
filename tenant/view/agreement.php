@@ -26,7 +26,7 @@
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="index.php">
                         <i class="bi bi-credit-card-2-front"></i>
-                        Payment History
+                        Payment
                     </a>
                 </li>
                 <li class="sidebar-item">
