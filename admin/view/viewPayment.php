@@ -83,8 +83,39 @@
                 </ul>
             </div>
         </nav>
-      <!-- start modal -->
-      <!-- start modal -->
+     <!-- start modal -->
+     <div class="modal" id="modalEdit" tabindex="-1" action="new">
+        <div class="modal-dialog ">
+                        <div class="modal-content">
+                            <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
+                                <h5 class="modal-title" style="color: white">Edit Payment</h5>
+                                <button type="button" id="btn-closeModal" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                        <form id="chargesForm" method="post">
+                        <div class="form-content p-4">
+                            <div class="row align-items-start">
+                                <div class="col">
+                                <label for="tenatName" class="form-label fw-bold" style="font-size: 14px">Tenant Name</label>
+                                <select id="sel-tenantName" class="form-select" style="font-size: 15px; height: 40px">
+                                                <option>Select Tenant</option>
+                                </select>
+                                </div>
+                        </div>
+                        <div class="mb-3">
+                        </div>
+                        <div id="paymentType-container">
+
+                        </div>
+                        </div>
+                        </form>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="btn-save">Save</button>
+                            </div>
+                        </div>
+                    
+                </div>
+        </div>
+        <!-- end modal -->
 <!-- Start Modal -->
 <div class="modal" id="modal" action="new" tabindex="-1" data-tenantID="" data-dueDate="" data-paymentDetailsID="">
     <div class="modal-dialog ">
@@ -99,37 +130,16 @@
                         <label for="text">Balance: </label>
                         <label for="text" id="txt-balance"></label>
                     </div>
-                    <!-- <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                        <input type="radio" class="btn-check" name="btnradio" id="btn-fullpayment" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary" for="btn-fullpayment">Full Payment</label>
-
-                        <input type="radio" class="btn-check" name="btnradio" id="btn-partial" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="btn-partial">Partial Payment</label>
-                    </div> -->
-
-                    <!-- Partial Payment Section -->
                     <div class="mb-3" id="partial-payment-section" >
                         <label for="inpt-paymentType" class="form-label" style="font-size: 14px">Payment Type</label>
                         <div id="payment-type-selections">
-                            <select name="inpt-paymentType" class="form-control" id="inpt-paymentType" style="font-size: 15px; height: 30px">
-                                <option value="" style="font-size: 15px;">Select Payment Type</option>
-                            </select>
+
                         </div>
                         <div class="mb-3">
                             <label for="inpt-datepayment" class="form-label" style="font-size: 14px">Date</label>
                             <input type="date" name="inpt-datepayment" class="form-control text-capitalize" id="inpt-partialDatePayment" style="font-size: 15px; height: 30px"> 
                         </div>
                     </div>
-                     <!-- Amount Input Section -->
-                    <!-- <div class="mb-3" id="inpt-amount-section">
-                        <label for="inpt-amount" class="form-label" style="font-size: 14px">Amount</label>
-                        <input type="number" name="inpt-amount" class="form-control" id="inpt-amount" style="font-size: 15px; height: 30px">
-                    </div> -->
-                    <!-- Date Input Section -->
-                    <!-- <div class="mb-3">
-                        <label for="inpt-datepayment" class="form-label" style="font-size: 14px">Date</label>
-                        <input type="date" name="inpt-datepayment" class="form-control text-capitalize" id="inpt-datePayment" style="font-size: 15px; height: 30px"> 
-                    </div> -->
                 </div>
             </form>
             <div class="modal-footer">
@@ -218,32 +228,17 @@
                 this.BindEvents();
                 this.getTenantName();
                 this.viewTable();
-               
-            
+                this.SelTenantName();
             },
             BindEvents: function() {
                 const $self = this.config;
                 $self.$tbody.on('click', '#btn-view', this.getTenantName.bind(this));
                 $self.$tbody.on('click', '#btn-viewPayment', this.viewPayment.bind(this));
                 $self.$tbody.on('click', '#btn-pay', this.payButton.bind(this));
+                $self.$tbody.on('click', '#btn-edit', this.edit.bind(this));
                 $self.$btn_pay.on('click', this.addPayment.bind(this));
-               
-            //     $('input[name="btnradio"]').change(function() {
-            //     if ($('#btn-partial').is(':checked')) {
-            //         $self.$btn_pay.attr('data-payment-basis', 'partial'); // Changed to 'data-payment-basis'
-            //         $('#partial-payment-section').show();
-            //         $('#inpt-amount-section').hide();
-            //         $('#inpt-datePayment').closest('.mb-3').hide();
-            //     } else {
-            //         console.log('Full payment selected');
-            //         $self.$btn_pay.attr('data-payment-basis', 'fullPayment'); // Changed to 'data-payment-basis'
-            //         $('#partial-payment-section').hide();
-            //         $('#inpt-amount-section').show();
-            //         $('#inpt-datePayment').closest('.mb-3').show();
-            //     }
-            // });
+                $self.$btn_save.on('click', this.update.bind(this));
             },
-
             getTenantName: function() {
                 const $self = this.config;
                 const tenantName = localStorage.getItem("tenantName");
@@ -258,12 +253,39 @@
                 }
         
             },
-        
             modalShow: function(){
                 const $self = this.config;
                 $self.$modal.modal('show');
             },
+            SelTenantName: function() {
+                const $self = this.config;
+                $.ajax({
+                    url: '../controller/rentalPaymentController.php', // Ensure this path is correct
+                    type: 'GET',
+                    data: {tenantName : true},
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            const selectTenant = $self.$sel_tenantName;
+                            selectTenant.empty();
+                            selectTenant.append('<option value="" style="font-size: 15px;">Select Tenant</option>');
 
+                            if (response.data.length > 0) {
+                                $.each(response.data, function(index, item) {
+                                    selectTenant.append('<option value="' + item.tenantID + '">' + item.tenantName + '</option>');
+                                });
+                            } else {
+                                console.log("No tenants found.");
+                            }
+                        } else {
+                            console.error('Error fetching tenant names: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
+                    }
+                });
+            },
             viewTable: function() {
                 const $self = this.config;
                 const tenantID = $('#tenantName').data('tenantid');
@@ -300,8 +322,9 @@
                                             <td id="remainingBalance">${item.remainingBalance}</td>
                                             <td>${status}</td>
                                             <td>
-                                                <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${tenantID}">Pay</button>
-                                                <button type="button" class="btn btn-secondary" id="btn-viewPayment" data-tenantid="${tenantID}">View</button>
+                                                <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${item.tenantID}">Pay</button>
+                                                <button type="button" class="btn btn-secondary" id="btn-viewPayment" data-tenantid="${item.tenantID}">View</button>
+                                                <button type="button" class="btn btn-secondary" id="btn-edit" data-tenantid="${item.tenantID}">Edit</button>
                                             </td>
                                         </tr>`;
                                     $self.$tbody.append(row); // Append row to table
@@ -323,11 +346,13 @@
             payButton: function(event) {
                 const $self = this.config;
                 const $row = $(event.currentTarget).closest('tr'); // Get the closest <tr>
-                const tenantID = $(event.currentTarget).data('tenantid'); // Get tenant ID
+                const tenantID = $('#tenantName').data('tenantid');
                 const dueDate = $row.find('td').eq(2).text(); // Get due date from the 3rd <td>
                 const balance = $row.find('td').eq(3).text(); // Get balance from the 4th <td>
-                $self.$btn_pay.attr('data-payment-basis', 'payment'); 
                 
+                // Set the balance in the modal
+                $('#txt-balance').text(balance);
+
                 // Get paymentDetailsIDs from the data attribute and set it on the modal
                 const paymentDetailsIDs = $row.data('paymentdetailsid'); // This should be a comma-separated string
                 $self.$modal.attr('data-paymentDetailsID', paymentDetailsIDs); // Set paymentDetailsID on modal
@@ -335,7 +360,6 @@
                 // Set data attributes on the modal
                 $self.$modal.attr('data-tenantID', tenantID);
                 $self.$modal.attr('data-dueDate', dueDate);
-                $('#txt-balance').text(balance);
 
                 // Make AJAX call to fetch payment types based on tenantID and dueDate
                 $.ajax({
@@ -354,7 +378,12 @@
                                     <label style="font-size: 15px;">
                                         ${item.paymentType} <br/>
                                         Remaining balance: ${item.balance} <br/>
-                                        <input type="number" name="paymentType" data-paymentDetailsID="${item.paymentDetailsID}" style="margin-right: 5px;">
+                                        <input type="number" 
+                                            name="paymentType" 
+                                            data-paymentDetailsID="${item.paymentDetailsID}" 
+                                            class="form-control payment-input" 
+                                            style="margin-right: 5px;" 
+                                            placeholder="Enter amount">
                                     </label>
                                 </div>`;
                             paymentTypeSelections.append(label); // Append label to the container
@@ -368,11 +397,12 @@
                 // Show the modal
                 $self.$modal.modal('show');
             },
+
             addPayment: function(e) {
                 const $self = this.config;
                 e.preventDefault();
                 const tenantID = $self.$modal.data('tenantid');
-                const paymentBasis = $self.$btn_pay.attr('data-payment-basis');
+                const paymentBasis = 'payment';
                 const partialPaymentDate = $self.$inpt_partialDatePayment.val().trim();
 
                 // Initialize the request data
@@ -415,6 +445,7 @@
                         if (response.status === 'success') {
                             console.log(response.message);
                             alert('Payment added successfully!');
+                            window.location.reload(); 
                             $self.$modal.modal('hide');
                             $self.viewTable(); // Refresh the table to show updated payments
                         } else {
@@ -432,7 +463,7 @@
                 const $self = this.config;
                 $self.$transactionModal.modal('show');
                 const $row = $(event.currentTarget).closest('tr'); // Get the closest row
-                const tenantID = $(event.currentTarget).data('tenantid'); // Get tenant ID
+                const tenantID = $('#tenantName').data('tenantid');
                 const dueDate = $row.find('td').eq(2).text(); // Get due date from the third cell
 
                 $.ajax({
@@ -463,16 +494,156 @@
                 } else { 
                     $self.$tbodyPaymentList.append('<tr><td colspan="6" class="text-center">No records found</td></tr>');
                 }
-            } else { 
+                } else { 
                 console.error('Error fetching data: ' + response.message);
                 $self.$tbodyPaymentList.append('<tr><td colspan="6" class="text-center">Error fetching data</td></tr>');
-            }
+                }
                     },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error: ' + status + ' ' + error);
                     }
                 });
+            },
+            edit: function(event) {
+                const $self = this.config;
+                const $row = $(event.currentTarget).closest('tr'); // Get the closest row
+                const tenantID = $('#tenantName').data('tenantid');
+                const dueDate = $row.find('td').eq(2).text(); // Get due date from the third cell
+                $.ajax({
+                    url: '../controller/viewPaymentController.php',
+                    type: 'GET',
+                    data: { 
+                        paymentList: true,
+                        tenantID: tenantID,
+                        dueDate: dueDate 
+                    },
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            $self.$tbodyPaymentList.empty(); // Clear previous results
+                            if (response.data.length > 0) {
+                                // Clear previous payment type rows
+                                $('#paymentType-container').empty();
+
+                                $.each(response.data, function(index, item) {
+                                    $self.$sel_tenantName.val(tenantID);
+
+                                    // Check if the PaymentType is "Others"
+                                    let paymentTypeField;
+                                    if (item.PaymentType != 'rent' || 'water' || 'electric') {
+                                        // If PaymentType is "Others", display an input field with the value
+                                        paymentTypeField = `<input type="text" class="form-control paymentType" data-detailsid="${item.paymentDetailsID}" id="inpt-paymentType-${index}" style="font-size: 15px; height: 39px" value="${item.PaymentType}" readonly />`;
+                                    } else {
+                                        // Otherwise, display a select dropdown
+                                        paymentTypeField = `
+                                            <select id="inpt-chargeType-${index}" name="paymentType" data-detailsid="${item.paymentDetailsID}" class="form-select paymentType" style="font-size: 15px; height: 40px">
+                                                <option style="font-size: 15px;" disabled ${item.PaymentType ? 'selected' : ''}>Select Payment Type</option>
+                                                <option style="font-size: 15px;" value="Rent" ${item.PaymentType === "rent" ? 'selected' : ''}>Rent</option>
+                                                <option style="font-size: 15px;" value="Water" ${item.PaymentType === "water" ? 'selected' : ''}>Water</option>
+                                                <option style="font-size: 15px;" value="Electric" ${item.PaymentType === "electric" ? 'selected' : ''}>Electric</option>
+                                                <option style="font-size: 15px;" value="Others" ${item.PaymentType === "others" ? 'selected' : ''}>Others</option>
+                                            </select>
+                                        `;
+                                    }
+
+                                    // Create the new payment type form dynamically with the appropriate paymentTypeField
+                                    var paymentRow = `
+                                        <div class="mb-1">
+                                            <div class="row align-items-start">
+                                                <div class="col">
+                                                    <label for="inpt-chargeType" class="form-label fw-bold" style="font-size: 14px">Payment Type</label>
+                                                    ${paymentTypeField}
+                                                </div>
+                                                <div class="col">
+                                                    <label for="inpt-amount-${index}" class="form-label fw-bold" style="font-size: 14px">Amount</label>
+                                                    <input type="number" class="form-control inpt-amount" id="inpt-amount-${index}" style="font-size: 15px; height: 39px" value="${item.Amount}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="inpt-dueDate-${index}" class="form-label fw-bold" style="font-size: 14px">Due Date</label>
+                                            <input type="date" class="form-control editDueDate" id="inpt-dueDate-${index}" data-duedate="${item.DueDate}" style="font-size: 15px; height: 30px" value="${item.DueDate}">
+                                        </div>
+                                    `;
+
+                                    // Append the new row to the paymentType-container
+                                    $('#paymentType-container').append(paymentRow);
+                                });
+                            }
+                        }
+                    },
+
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
+                    }
+                });
+                // Show the modal
+                $self.$modalEdit.modal('show');
+            },
+            update: function(event) {
+                const $self = this.config;
+                const tenantID = $('#tenantName').data('tenantid');
+                const totalRequests = $('#paymentType-container .mb-1').length; // Total number of rows to update
+                let completedRequests = 0; // Counter for completed requests
+                let hasError = false; // Track if any error occurs
+
+                $('#paymentType-container .mb-1').each(function() {
+                    const paymentDetailsID = $(this).find('.paymentType').data('detailsid');
+                    const paymentType = $(this).find('.paymentType').val();
+                    const amount = $(this).find('.inpt-amount').val();
+                    const dueDate = $(this).closest('.mb-1').next('.mb-3').find('.editDueDate').val();
+
+                    // Log parameters to debug
+                    console.log('paymentDetailsID:', paymentDetailsID);
+                    console.log('paymentType:', paymentType);
+                    console.log('amount:', amount);
+                    console.log('dueDate:', dueDate);
+
+                    // Check if any required parameter is missing
+                    if (!paymentDetailsID || !paymentType || !amount || !dueDate) {
+                        console.warn("Missing required parameters: paymentDetailsID, paymentType, amount, or dueDate");
+                        return; // Skip this iteration if a parameter is missing
+                    }
+
+                    // Send the update request using AJAX for each row
+                    $.ajax({
+                        url: '../controller/viewPaymentController.php',
+                        type: 'PUT',
+                        data: JSON.stringify({
+                            paymentDetailsID: paymentDetailsID,
+                            tenantID: tenantID,
+                            dueDate: dueDate,
+                            paymentType: paymentType,
+                            amount: amount
+                        }),
+                        contentType: 'application/json',
+                        dataType: 'json',
+                        processData: false,
+                        success: function(response) {
+                            if (response.status !== 'success') {
+                                hasError = true; // Set error flag if an error occurs
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error: ' + status + ' ' + error);
+                            hasError = true; // Set error flag if AJAX fails
+                        },
+                        complete: function() {
+                            completedRequests++; // Increment completed requests
+
+                            // Show success alert only after all requests have completed
+                            if (completedRequests === totalRequests) {
+                                if (!hasError) {
+                                    alert('All payment details updated successfully!');
+                                } else {
+                                    alert('Some payment details could not be updated. Please try again.');
+                                }
+                            }
+                        }
+                    });
+                });
             }
+
 
 
         }
@@ -488,7 +659,10 @@
                 $inpt_amount                : $('#inpt-amount'),
                 $inpt_datePayment           : $('#inpt-datePayment'),
                 $inpt_partialDatePayment    : $('#inpt-partialDatePayment'),
-                $transactionModal           : $('#transactionModal')
+                $transactionModal           : $('#transactionModal'),
+                $modalEdit                  : $('#modalEdit'),
+                $sel_tenantName             : $('#sel-tenantName'),
+                $btn_save                   : $('#btn-save')
             });
         });
     </script>

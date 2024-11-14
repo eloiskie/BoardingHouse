@@ -89,7 +89,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <h5 class="modal-title" style="color: white" id="modalTitle">Add Tenant</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="progress m-2" style="height: 2px;">
@@ -110,7 +110,12 @@
                 </div>
                     <div class="col">
                         <label for="gender" class="form-label" style="font-size: 14px">Gender</label>
-                        <input type="text" class="form-control" id="inpt-gender" style="font-size: 15px; height: 30px">
+                        <select id="inpt-gender" class="form-select" style="font-size: 13px; height: 31px" placeholder="Select Gender">
+                            <option value ="" disabled selected>Select Gender</option>
+                            <option value ="Male">Male</option>
+                            <option value ="Female">Female</option>
+                        </select>
+
                     </div>
                 </div>
                 </div>
@@ -135,7 +140,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <h5 class="modal-title" style="color: white" id="modalTitle2">Add Tenant</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="progress m-2" style="height: 2px;">
@@ -194,7 +199,7 @@
             <div class="modal-dialog">
                 <div class="modal-content">
                 <div class="modal-header bg-dark border-bottom border-body" data-bs-theme="dark">
-                    <h5 class="modal-title" style="color: white">Add Tenant</h5>
+                    <h5 class="modal-title" style="color: white" id="modalTitle3">Add Tenant</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="progress m-2" style="height: 2px;">
@@ -311,7 +316,7 @@
                         <div class="d-flex align-items-center py-2" style="height: 50px;">
                             <div class="d-flex align-items-center mb-2">
                                 <label for="inpt-searchName" class="form-label me-2">Search</label>
-                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
+                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" data-status="active"style="font-size: 15px; height: 40px">
                             </div>
                             <div class="ms-auto mb-2" id="content-btn">
                             <button class="btn btn-primary btn-sm p-2" type="button" id="btn-inactiveTenant" style="font-size: 12px;">Inactive Tenant</button>
@@ -331,7 +336,7 @@
                                             <th scope="col">Action</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tbody" style="font-size: 15px;" >
+                                    <tbody id="tbody" data-action="new" style="font-size: 15px;" >
                                         <!-- Table rows go here -->
                                     </tbody>
                                 </table>
@@ -375,9 +380,18 @@
             $this.$inpt_searchName.on('keyup', this.filterName.bind(this));
             $this.$btn_inactiveTenant.on('click', this.inactiveTenant.bind(this));
             $this.$content_btn.on('click', '#btn-activeTenant', this.activeTenant.bind(this));
+            $this.$tbody.on('click', '#btn-active', this.btnActiveTenant.bind(this));
+            $this.$btn_close.on('click', this.btnClose.bind(this));
            
             // Bind change event to house location dropdown
             $this.$sel_houseLocation.on('change', this.getRoom.bind(this));
+        },
+        btnClose: function(){
+            const $self = this.condig
+
+            $('#form1')[0].reset();
+            $('#form2')[0].reset();
+            $('#form2')[0].reset();
         },
         btnAdd: function(){
             const $self = this.config;
@@ -386,10 +400,12 @@
             $self.$modal_3.attr('action', 'new');
             $self.$btn_submit.text("Save");
             $self.$btn_submit.attr('id', 'btn-submit');
+
+            $('#modalTitle').text('Add Tenant');
+            $('#modalTitle').text('Add Tenant');
+            $('#modalTitle').text('Add Tenant');
           
-            $('#form1')[0].reset();
-            $('#form2')[0].reset();
-            $('#form3')[0].reset();
+         
 
             $self.$lbl_password.hide();
             $self.$inpt_password.hide();
@@ -438,6 +454,7 @@
         getRoom: function() {
             const $self = this.config;
             const houseID = $self.$sel_houseLocation.val();
+            const action = $self.$tbody.data('action');
             if (!houseID) {
                 $self.$sel_roomNumber.empty().append('<option value="" style="font-size: 15px;">Select Room</option>');
                 return;
@@ -445,15 +462,16 @@
             $.ajax({
                 url: '../controller/tenantController.php',
                 type: 'POST',
-                data: { houseID: houseID },
+                data: { houseID: houseID, action: action },
                 dataType: 'json',
                 success: function(response) {
+                
                     const selectRoom = $self.$sel_roomNumber;
                     selectRoom.empty();
                     selectRoom.append('<option value="" style="font-size: 15px;">Select Room</option>');
 
                     $.each(response.data, function(index, item) {
-                        selectRoom.append('<option value="' + item.roomID + '">' + item.roomNumber + ', ' + item.roomType + '</option>');
+                        selectRoom.append('<option value="' + item.roomID + '" data-roomtype="' + item.roomType + '">' + item.roomNumber + ', ' + item.roomType + '</option>');
                     });
                 },
                 error: function(xhr, status, error) {
@@ -480,12 +498,14 @@
         },
         addTenant: function() {
             const $self = this.config;
-            const action = $self.$modal_3.attr('action');
+            const action = $self.$modal_3.attr('action'); // Get the action ('new' or 'edit')
+            const selectedOption = $self.$sel_roomNumber.find("option:selected");
+            
 
             if (action === "new") {
-                // Gather input values
+                // Gather form input values
                 const tenantName = $self.$inpt_name.val().trim();
-                const gender = $self.$inpt_gender.val().trim();
+                const gender = $self.$inpt_gender.val();
                 const number = $self.$inpt_number.val().trim();
                 const email = $self.$inpt_email.val().trim();
                 const address = $self.$inpt_address.val().trim();
@@ -497,27 +517,58 @@
                 const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
                 const dateStarted = $self.$inpt_dateStarted.val().trim();
                 const username = $self.$inpt_username.val().trim();
-                const password = $self.$inpt_password.val().trim();
                 const roomID = $self.$sel_roomNumber.val();
-                const tenantStatus = "active";
-                console.log(password);
-                // // Validation checks
-                // if (!tenantName || !gender || !number || !email || !address || 
-                //     !fatherName || !fatherNumber || !motherName || 
-                //     !motherNumber || !emergencyName || !emergencyNumber || 
-                //     !dateStarted || !username || !password || !roomID) {
-                //     alert('Please fill in all required fields.');
-                //     return;
-                // }
+                const roomType = selectedOption.data("roomtype");
+                const password = $self.$inpt_password.val().trim();
+                const tenantStatus = "active"; // Set initial tenant status
 
-                // // Email validation regex
-                // const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                // if (!emailRegex.test(email)) {
-                //     alert('Please enter a valid email address.');
-                //     return;
-                // }
+                // Validation
+                if (
+                    !tenantName ||!gender || gender === "" || !number || !email || !address ||
+                    !fatherName || !fatherNumber || !motherName || !motherNumber ||
+                    !emergencyName || !emergencyNumber || !dateStarted || 
+                    !username || !roomID || !password
+                    ) {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
 
-                // AJAX request
+                // Validate email format
+                const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                if (!emailPattern.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+
+                // Validate phone number format (example: must be numeric and 11 digits)
+                const phonePattern = /^[0-9]{11}$/;
+                if (number && !phonePattern.test(number)) {
+                    alert('Please enter a valid phone number (10 digits).');
+                    return;
+                }
+
+                if (fatherNumber && !phonePattern.test(fatherNumber)) {
+                    alert('Please enter a valid father\'s phone number (11 digits).');
+                    return;
+                }
+
+                if (motherNumber && !phonePattern.test(motherNumber)) {
+                    alert('Please enter a valid mother\'s phone number (11 digits).');
+                    return;
+                }
+
+                if (emergencyNumber && !phonePattern.test(emergencyNumber)) {
+                    alert('Please enter a valid emergency phone number (11 digits).');
+                    return;
+                }
+
+                // Password validation (minimum 6 characters)
+                if (password.length < 6) {
+                    alert('Password must be at least 6 characters long.');
+                    return;
+                }
+
+                // Send the data to the server via AJAX
                 $.ajax({
                     url: '../controller/tenantController.php',
                     type: 'POST',
@@ -537,51 +588,64 @@
                         username,
                         password,
                         tenantStatus,
-                        roomID
+                        roomID,
+                        roomType
                     },
                     dataType: 'json',
                     success: function(response) {
-                        $self.$tbody.empty();
-                        if (response.status === "error") {
+                        if (response.status === "success") {
                             alert(response.message);
-                            $.ajax({
-                                url: '../controller/tenantController.php',
-                                type: 'GET',
-                                data: { tenant: true },
-                                dataType: 'json',
-                                success: function(response) {
-                                    if (response.status === 'success') {
-                                        $self.$tbody.empty(); 
-                                        if (response.data.length > 0) { 
-                                            $.each(response.data, function(index, item) {
-                                                const row = `
-                                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}" >
-                                                        <td>${item.tenantName}</td>
-                                                        <td>${item.phoneNumber}</td>
-                                                        <td>${item.houselocation}</td>
-                                                        <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
-                                                        <td>${item.tenantStatus}</td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
-                                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Inactive</button>
-                                                        </td>
-                                                    </tr>`;
-                                                $self.$tbody.append(row);
-                                            });
-                                        } else { 
-                                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
-                                        }
-                                    } else { 
-                                        console.error('Error fetching data: ' + response.message);
-                                    }
-                                },
-                                error: function(xhr, status, error) {
-                                    console.error('AJAX Error: ' + status + ' ' + error);
-                                }
+                            $self.$tbody.empty(); // Clear the table before adding the new tenant
+                            // Add new tenant to the table
+                            response.data.forEach(function(item) {
+                                const row = `
+                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
+                                        <td>${item.tenantName}</td>
+                                        <td>${item.phoneNumber}</td>
+                                        <td>${item.houselocation}</td>
+                                        <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
+                                        <td>${item.tenantStatus}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-tenantID="${item.tenantID}">View</button>
+                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-tenantID="${item.tenantID}">Edit</button>
+                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-tenantID="${item.tenantID}">Inactive</button>
+                                        </td>
+                                    </tr>`;
+                                $self.$tbody.append(row); // Append new row
                             });
-                        } else if (response.status === "success") {
+
+                            // Reset the modal and form
+                            $self.$modal_3.modal('hide');
+                            $('#form1')[0].reset();
+                            $('#form2')[0].reset();
+                            $('#form2')[0].reset()
+                        } else {
+                            console.error(response.message);
                             alert(response.message);
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        alert('An error occurred while submitting tenant details.');
+                    }
+                });
+            }
+        },
+        activeTenant: function() {
+            const $self = this.config;
+            $self.$inpt_searchName.attr('data-status', 'active');
+            
+            $.ajax({
+                url: '../controller/tenantController.php',
+                type: 'GET',
+                data: { tenant: true },
+                dataType: 'json',
+                success: function(response) {
+                    $self.$tbody.empty(); // Clear the table body
+
+                    if (response.status === 'success') {
+                        if (response.data && response.data.length > 0) {
+                            // Populate active tenants
                             $.each(response.data, function(index, item) {
                                 const row = `
                                 <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
@@ -593,65 +657,18 @@
                                     <td>
                                         <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
                                         <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-active" data-roomID="${item.tenantID}">Inactive</button>
                                     </td>
                                 </tr>`;
                                 $self.$tbody.append(row);
                             });
-                            $self.$modal_3.modal('hide');
-                            $('#form1')[0].reset();
-                            $('#form2')[0].reset();
-                            $('#form3')[0].reset();
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        console.error('AJAX error:', textStatus, errorThrown); // Log the error
-                        alert('An error occurred while submitting tenant details.');
-                    }
-                });
-            }
-        },
-        activeTenant: function() {
-            const $self = this.config;
-
-            // Fetch active tenants
-            $.ajax({
-                url: '../controller/tenantController.php',
-                type: 'GET',
-                data: { tenant: true },
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        $self.$tbody.empty(); // Clear the table body
-                        // Update the inactive tenant button to show that users can deactivate tenants
-                            $self.$btn_inactiveTenant.text("Inactive Tenant");
-                            $self.$btn_inactiveTenant.attr('id', 'btn-inactiveTenant');
-                            $self.$btn_add.show();
-                        if (response.data.length > 0) {
-                            $.each(response.data, function(index, item) {
-                                const row = `
-                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
-                                        <td>${item.tenantName}</td>
-                                        <td>${item.phoneNumber}</td>
-                                        <td>${item.houselocation}</td>
-                                        <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
-                                        <td>${item.tenantStatus}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view-${item.tenantID}">View</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit-${item.tenantID}">Edit</button>
-                                            <button type="button" class="btn btn-danger" style="width: 80px; font-size: 12px;" id="btn-inactive-${item.tenantID}">Deactivate</button>
-                                        </td>
-                                    </tr>`;
-                                $self.$tbody.append(row);
-                            });
-                            
-                            
+                            $self.$btn_add.show(); // Show add button when tenants are found
+                            $self.$btn_inactiveTenant.text("Inactive Tenant").attr('id', 'btn-inactiveTenant');
                         } else {
+                            // No active tenants found
                             $self.$tbody.append('<tr><td colspan="6" class="text-center">No active tenants found</td></tr>');
                             $self.$btn_add.hide(); // Hide add button if no tenants
-                            $self.$btn_inactiveTenant.text("Inactive Tenant");
-                            $self.$btn_inactiveTenant.attr('id', 'btn-inactiveTenant');
-                            $self.$btn_add.show();
+                            $self.$btn_inactiveTenant.text("Inactive Tenant").attr('id', 'btn-inactiveTenant');
                         }
                     } else {
                         console.error('Error fetching data: ' + response.message);
@@ -666,49 +683,46 @@
         },
         inactiveTenant: function() {
             const $self = this.config;
+            $self.$inpt_searchName.attr('data-status', 'inactive');
 
-            // Fetch inactive tenants
             $.ajax({
                 url: '../controller/tenantController.php',
                 type: 'GET',
                 data: { inactiveTenant: true },
                 dataType: 'json',
                 success: function(response) {
+                    $self.$tbody.empty(); // Clear the table body
+
                     if (response.status === 'success') {
-                        $self.$tbody.empty(); // Clear the table body
-                            
-                        $self.$btn_inactiveTenant.text('Activate Tenant');
-                        $self.$btn_inactiveTenant.attr('id', 'btn-activeTenant');
-                        $self.$btn_add.hide(); 
-                        if (response.data.length > 0) {
+                        if (response.data && response.data.length > 0) {
+                            // Populate inactive tenants
                             $.each(response.data, function(index, item) {
                                 const row = `
-                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
-                                        <td>${item.tenantName}</td>
-                                        <td>${item.phoneNumber}</td>
-                                        <td>${item.houselocation}</td>
-                                        <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
-                                        <td>${item.tenantStatus}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view-${item.tenantID}">View</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit-${item.tenantID}">Edit</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-active-${item.tenantID}">Activate</button>
-                                        </td>
-                                    </tr>`;
+                                <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
+                                    <td>${item.tenantName}</td>
+                                    <td>${item.phoneNumber}</td>
+                                    <td>${item.houselocation}</td>
+                                    <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
+                                    <td>${item.tenantStatus}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-active" data-roomID="${item.tenantID}">Activate</button>
+                                    </td>
+                                </tr>`;
                                 $self.$tbody.append(row);
                             });
+                            $self.$btn_add.hide(); // Hide add button when inactive tenants are found
+                            $self.$btn_inactiveTenant.text("Active Tenant").attr('id', 'btn-activeTenant');
                         } else {
+                            // No inactive tenants found
                             $self.$tbody.append('<tr><td colspan="6" class="text-center">No inactive tenants found</td></tr>');
-                            $self.$btn_inactiveTenant.text("Inactive Tenant");
-                            $self.$btn_inactiveTenant.attr('id', 'btn-inactiveTenant');
-                            $self.$btn_add.show();
+                            $self.$btn_add.hide(); // Show add button if no inactive tenants are found
+                            $self.$btn_inactiveTenant.text("Active Tenant").attr('id', 'btn-activeTenant');
                         }
                     } else {
                         console.error('Error fetching data: ' + response.message);
                         $self.$tbody.append('<tr><td colspan="6" class="text-center">Error fetching data</td></tr>');
-                        $self.$btn_inactiveTenant.text('Activate Tenant');
-                        $self.$btn_inactiveTenant.attr('id', 'btn-activeTenant');
-                        $self.$btn_add.hide(); 
                     }
                 },
                 error: function(xhr, status, error) {
@@ -725,32 +739,33 @@
                     data: { tenant: true },
                     dataType: 'json',
                     success: function(response) {
-                        if (response.status === 'success') {
-                            $self.$tbody.empty(); 
-                            if (response.data.length > 0) { 
-                                $.each(response.data, function(index, item) {
-                                    const row = `
-                                        <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}" >
-                                            <td>${item.tenantName}</td>
-                                            <td>${item.phoneNumber}</td>
-                                            <td>${item.houselocation}</td>
-                                            <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
-                                             <td>${item.tenantStatus}</td>
-                                            <td>
-                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
-                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                                <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Inactive</button>
-                                            </td>
-                                        </tr>`;
-                                    $self.$tbody.append(row);
-                                });
-                            } else { 
-                                $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
-                            }
-                        } else { 
-                            console.error('Error fetching data: ' + response.message);
-                        }
-                    },
+                                        if (response.status === 'success') {
+                                            $self.$tbody.empty(); 
+                                            if (response.data.length > 0) { 
+                                                $.each(response.data, function(index, item) {
+                                                    const row = `
+                                                            <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
+                                                                <td>${item.tenantName}</td>
+                                                                <td>${item.phoneNumber}</td>
+                                                                <td>${item.houselocation}</td>
+                                                                <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
+                                                                 <td>${item.tenantStatus}</td>
+                                                                <td>
+                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-delete" data-roomID="${item.tenantID}">Inactive</button>
+                                                                </td>
+                                                            </tr>`;
+                                                            $self.$tbody.append(row);
+                                                    $self.$modal_3.modal('hide');   
+                                                });
+                                            } else { 
+                                                $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                                            }
+                                        } else { 
+                                            console.error('Error fetching data: ' + response.message);
+                                        }
+                                    },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error: ' + status + ' ' + error);
                     }
@@ -797,7 +812,7 @@
             const $row = $(event.currentTarget).closest('tr');
             const tenantID = $row.data('tenantid'); 
             const roomID = $row.data('roomid'); 
-            if(confirm("Are you sure you want to delete?")){
+            if(confirm("Are you sure you want to set this tenant as inactive?")){
                 $.ajax({
                     url: '../controller/tenantController.php',
                     type    : 'DELETE',
@@ -817,21 +832,24 @@
                     });
             }
         },
-        editButton: function(event) {
+        editButton: function(event) {   
             const $self = this.config;
             const $row = $(event.currentTarget).closest('tr');
             const tenantID = $row.data('tenantid');
-           
-            $self.$modal_1.attr('action', 'edit');
-            $self.$modal_2.attr('action', 'edit');
-            $self.$modal_3.attr('action', 'edit');
+            const action = 'edit';
+            $self.$tbody.data('action', 'edit');
+
+            $('.modalTitle').text('Edit Tenant');
+            $self.$modal_3.attr('action', action);
             $self.$btn_submit.text("Save Update");
             $self.$btn_submit.attr('id', 'btn-Update');
             $self.$modal_3.attr('data-tenantid', tenantID);
 
+            // Hide password fields when editing
             $self.$lbl_password.hide();
             $self.$inpt_password.hide();
-            
+
+            // Fetch tenant data
             $.ajax({
                 url: '../controller/tenantController.php',
                 type: 'GET',
@@ -839,38 +857,32 @@
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === "success") {
-                        $.each(response.data, function(index, item) {
-                            // Ensure that room options are loaded before setting the value
-                            $self.$sel_houseLocation.val(item.houseID).trigger('change'); // Trigger change to update room options
+                        const tenantData = response.data[0];
+                        // Display existing room and details for editing
+                        $self.$sel_houseLocation.val(tenantData.houseID).trigger('change');
+                        
+                        // Delay to ensure room options are loaded, then select the current room number
+                        setTimeout(function() {
+                            $self.$sel_roomNumber.val(tenantData.roomID);
+                            $self.$sel_roomNumber.attr('data-oldroomid', tenantData.roomID);
+                        }, 10);
 
-                            // Use a short delay to give time for room options to be populated
-                            setTimeout(function() {
-                                $self.$sel_roomNumber.val(item.roomID); // Set the roomID value
+                        $self.$inpt_name.val(tenantData.tenantName);
+                        $self.$inpt_gender.val(tenantData.gender);
+                        $self.$inpt_number.val(tenantData.phoneNumber);
+                        $self.$inpt_email.val(tenantData.emailAddress);
+                        $self.$inpt_address.val(tenantData.currentAddress);
+                        $self.$inpt_fatherName.val(tenantData.fatherName);
+                        $self.$inpt_fatherNumber.val(tenantData.fatherNumber);
+                        $self.$inpt_motherName.val(tenantData.motherName);
+                        $self.$inpt_motherNumber.val(tenantData.motherNumber);
+                        $self.$inpt_emergencyName.val(tenantData.emergencyName);
+                        $self.$inpt_emergencyNumber.val(tenantData.emergencyNumber);
+                        $self.$inpt_dateStarted.val(tenantData.dateStarted);
+                        $self.$inpt_username.val(tenantData.username);
 
-                            }, 10); // Adjust the delay if needed
-
-                            $self.$inpt_name.val(item.tenantName);
-                            $self.$inpt_gender.val(item.gender);
-                            $self.$inpt_number.val(item.phoneNumber);
-                            $self.$inpt_email.val(item.emailAddress);
-                            $self.$inpt_address.val(item.currentAddress);
-                            $self.$inpt_fatherName.val(item.fatherName);
-                            $self.$inpt_fatherNumber.val(item.fatherNumber);
-                            $self.$inpt_motherName.val(item.motherName);
-                            $self.$inpt_motherNumber.val(item.motherNumber);
-                            $self.$inpt_emergencyName.val(item.emergencyName);
-                            $self.$inpt_emergencyNumber.val(item.emergencyNumber);
-                            $self.$inpt_dateStarted.val(item.dateStarted);
-                            $self.$inpt_username.val(item.username);
-                            $self.$inpt_password.val(item.userPassword);
-
-                            const roomID = item.roomID;
-                            $self.$modal_3.attr('data-roomID', roomID);
-                            console.log(item);
-                            // Show the edit modal
-                            $self.$modal_1.modal('show');
-                        });
-                    }   
+                        $self.$modal_1.modal('show');
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error: ' + status + ' ' + error);
@@ -880,190 +892,192 @@
         update: function() {
             const $self = this.config;
             const tenantID = $self.$modal_3.data('tenantid');
-            const tenantName = $self.$inpt_name.val().trim();
-            const gender = $self.$inpt_gender.val().trim();
-            const phoneNumber = $self.$inpt_number.val().trim(); 
-            const emailAddress = $self.$inpt_email.val().trim();
-            const currentAddress = $self.$inpt_address.val().trim();
-            const fatherName = $self.$inpt_fatherName.val().trim();
-            const fatherNumber = $self.$inpt_fatherNumber.val().trim(); 
-            const motherName = $self.$inpt_motherName.val().trim();
-            const motherNumber = $self.$inpt_motherNumber.val().trim();
-            const emergencyName = $self.$inpt_emergencyName.val().trim();
-            const emergencyNumber = $self.$inpt_emergencyNumber.val().trim();
-            const dateStarted = $self.$inpt_dateStarted.val().trim();
-            const userPassword = $self.$inpt_password.val().trim();
-            const roomID = $self.$modal_3.data('roomid');
-            const action = $self.$modal_3.attr('action');
-            
-            // Restriction: Validate required fields
-            if (!tenantName || !gender || !phoneNumber || !emailAddress || !currentAddress || !fatherName
-            || !fatherNumber || !motherName || !motherNumber || !emergencyName || !emergencyNumber || !dateStarted
-            ) {
-                alert("Please fill in all required fields");
-                return; // Stop the function if validation fails
-            }
+            const action = $self.$modal_3.attr('action'); // Check if action is 'edit'
+            const oldRoomID = $self.$sel_roomNumber.data('oldroomid');
+            // Collect form values
+            const tenantData = {
+                tenant: true,
+                action: action,
+                tenantID,
+                oldRoomID : oldRoomID,
+                tenantName: $self.$inpt_name.val().trim(),
+                gender: $self.$inpt_gender.val().trim(),
+                phoneNumber: $self.$inpt_number.val().trim(),
+                emailAddress: $self.$inpt_email.val().trim(),
+                currentAddress: $self.$inpt_address.val().trim(),
+                fatherName: $self.$inpt_fatherName.val().trim(),
+                fatherNumber: $self.$inpt_fatherNumber.val().trim(),
+                motherName: $self.$inpt_motherName.val().trim(),
+                motherNumber: $self.$inpt_motherNumber.val().trim(),
+                emergencyName: $self.$inpt_emergencyName.val().trim(),
+                emergencyNumber: $self.$inpt_emergencyNumber.val().trim(),
+                dateStarted: $self.$inpt_dateStarted.val().trim(),
+                roomID: $self.$sel_roomNumber.val()
+            };
+            console.log(tenantData);
+            // Form validation here
 
-            // Restriction: Validate date (this is a simple check)
-            if (isNaN(Date.parse(dateStarted))) {
-                alert("Please enter a valid date.");
-                return; // Stop the function if validation fails
-            }
+            // Check if action is 'edit'
+            if (action === 'edit') {
+                // Modify the tenant data before sending the request for 'edit'
+                tenantData.tenantID = tenantID; // Ensure tenantID is included for 'edit'
 
-            if (action === "edit") {
+                // Send data to the server with PUT method for edit
                 $.ajax({
                     url: '../controller/tenantController.php',
-                    type: 'PUT',
+                    type: 'PUT',  // 'PUT' for edit action
                     contentType: 'application/json',
-                    data: JSON.stringify({
-                        tenantUpdate: true,
-                        tenantID: tenantID,
-                        tenantName: tenantName,
-                        gender: gender,
-                        phoneNumber: phoneNumber, 
-                        emailAddress: emailAddress,
-                        currentAddress: currentAddress,
-                        fatherName: fatherName,
-                        fatherNumber: fatherNumber, 
-                        motherName: motherName,
-                        motherNumber: motherNumber,
-                        emergencyName: emergencyName,
-                        emergencyNumber: emergencyNumber,
-                        dateStarted: dateStarted,
-                        userPassword: userPassword,
-                        roomID: roomID
-                    }),
+                    data: JSON.stringify(tenantData),
                     dataType: 'json',
                     success: function(response) {
-                        try {
-                            $self.$tbody.empty();
-                            if (response.status === "error") {
-                                alert(response.message);
-                            } else if (response.status === "success") {
-                                alert(response.message);
-                                // Additional AJAX call to refresh tenant data
-                                $.ajax({
-                                    url: '../controller/tenantController.php',
-                                    type: 'GET',
-                                    data: { tenant: true },
-                                    dataType: 'json',
-                                    success: function(response) {
-                                        if (response.status === 'success') {
-                                            $self.$tbody.empty(); 
-                                            if (response.data.length > 0) { 
-                                                $.each(response.data, function(index, item) {
-                                                    const row = `
-                                                            <tr class="text-capitalize" data-tenantid="${item.tenantID}">
-                                                                <td>${item.tenantName}</td>
-                                                                <td>${item.phoneNumber}</td>
-                                                                <td>${item.houselocation}</td>
-                                                                <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
-                                                                 <td>${item.tenantStatus}</td>
-                                                                <td>
-                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-view" data-roomID="${item.tenantID}">View</button>
-                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                                                    <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
-                                                                </td>
-                                                            </tr>`;
-                                                            $self.$tbody.append(row);
-                                                    $self.$modal_3.modal('hide');   
-                                                });
-                                            } else { 
-                                                $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
-                                            }
-                                        } else { 
-                                            console.error('Error fetching data: ' + response.message);
-                                        }
-                                    },
-                                    error: function(xhr, status, error) {
-                                        console.error('AJAX Error: ' + status + ' ' + error);
-                                    }
-                                });
-                            }
-                        } catch (e) {
-                            alert('Failed to parse response: ' + e.message);
+                        alert(response.message);
+                        if (response.status === "success") {
+                            location.reload();
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
-                        alert('An error occurred while submitting tenant details.');
+                        alert('An error occurred while updating tenant.');
                     }
                 });
-            }
+            } 
         },
         filterName: function() {
-            const $self = this.config;
-            let query = $self.$inpt_searchName.val().trim();
+                const $self = this.config;
+                let query = $self.$inpt_searchName.val().trim(); // Get trimmed search query
 
-            // Clear the table before appending new data
-            $self.$tbody.empty();
+                // Clear the table before appending new data
+                $self.$tbody.empty();
 
-            if (query !== '') {
-                $.ajax({
-                    url: '../controller/tenantController.php', // PHP script to process the request
-                    method: 'POST',
-                    dataType: 'json', // Expect JSON response
-                    data: { query: query },
-                    success: function(response) {
-                        if (response.length > 0) {
-                            $.each(response, function(index, item) {
-                                const row = `
-                                    <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
-                                        <td>${item.tenantName}</td>
-                                        <td>${item.phoneNumber}</td>
-                                        <td>${item.houselocation}</td>
-                                        <td>${item.roomNumber}</td>
-                                        <td>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
-                                        </td>
-                                    </tr>`;
-                                $self.$tbody.append(row);
-                            });
-                        } else {
-                            // If no results, display a message
-                            $self.$tbody.append('<tr><td colspan="5">No tenants found.</td></tr>');
-                        }
-                    }
-                });
-            } else {
-                $.ajax({
-                            url: '../controller/tenantController.php',
-                            type: 'GET',
-                            data: { tenant: true },
-                            dataType: 'json',
+                // If query is not empty, perform search
+                if (query !== '') {
+                    const action = $self.$inpt_searchName.attr('data-status');
+                    if(action === "active"){
+                        $.ajax({
+                            url: '../controller/tenantController.php', // PHP script to process the request
+                            method: 'POST',
+                            dataType: 'json', // Expect JSON response
+                            data: { query: query }, // Send the query as POST data for active tenants
                             success: function(response) {
-                                if (response.status === 'success') {
-                                    $self.$tbody.empty(); 
-                                    if (response.data.length > 0) { 
+                                    // Check if response.data is an array and has elements
+                                    if (Array.isArray(response.data) && response.data.length > 0) {
+                                        // Populate the table with filtered data
                                         $.each(response.data, function(index, item) {
                                             const row = `
-                                                <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}" >
+                                                <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
                                                     <td>${item.tenantName}</td>
                                                     <td>${item.phoneNumber}</td>
                                                     <td>${item.houselocation}</td>
-                                                    <td>${item.roomNumber}</td>
+                                                    <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
+                                                    <td>${item.tenantStatus}</td>
                                                     <td>
-                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-view" data-roomID="${item.tenantID}">View</button>
                                                         <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
-                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-delete" data-roomID="${item.tenantID}">Delete</button>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-delete" data-roomID="${item.tenantID}">Inactive</button>
                                                     </td>
                                                 </tr>`;
                                             $self.$tbody.append(row);
                                         });
-                                    } else { 
+                                    } else {
+                                        // Append message if no tenants are found
                                         $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
                                     }
-                                } else { 
-                                    console.error('Error fetching data: ' + response.message);
-                                }
-                            },
+                                },
+
                             error: function(xhr, status, error) {
                                 console.error('AJAX Error: ' + status + ' ' + error);
+                                $self.$tbody.append('<tr><td colspan="6">An error occurred while fetching tenants.</td></tr>');
                             }
                         });
+                    } else if (action === "inactive") {
+                        $.ajax({
+                            url: '../controller/tenantController.php', // PHP script to process the request
+                            method: 'POST',
+                            dataType: 'json', // Expect JSON response
+                            data: { queryInactive: query }, // Send the query as POST data for inactive tenants
+                            success: function(response) {
+                                    // Check if response.data is an array and has elements
+                                    if (Array.isArray(response.data) && response.data.length > 0) {
+                                        // Populate the table with filtered data
+                                        $.each(response.data, function(index, item) {
+                                            const row = `
+                                                <tr class="text-capitalize" data-tenantid="${item.tenantID}" data-roomid="${item.roomID}">
+                                                    <td>${item.tenantName}</td>
+                                                    <td>${item.phoneNumber}</td>
+                                                    <td>${item.houselocation}</td>
+                                                    <td>Room Number: ${item.roomNumber} <br/> Room Type: ${item.roomType}</td>
+                                                    <td>${item.tenantStatus}</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-edit" data-roomID="${item.tenantID}">Edit</button>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" flex-fill id="btn-delete" data-roomID="${item.tenantID}">Inactive</button>
+                                                    </td>
+                                                </tr>`;
+                                            $self.$tbody.append(row);
+                                        });
+                                    } else {
+                                        // Append message if no tenants are found
+                                        $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                                    }
+                                },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error: ' + status + ' ' + error);
+                                $self.$tbody.append('<tr><td colspan="6">An error occurred while fetching tenants.</td></tr>');
+                            }
+                        });
+                    }
+                } else {
+                    // When search input is empty, check the data-status attribute
+                    const action = $self.$inpt_searchName.attr('data-status');
+                    if (action === "inactive") {
+                        this.inactiveTenant(); // Fetch inactive tenants
+                    } else if (action === "active") {
+                        this.displayData(); // Fetch active tenants
+                    }
+                }
+        },
+        btnActiveTenant: function(event) {
+            const $self = this.config;
+            const $row = $(event.currentTarget).closest('tr');
+            const tenantID = $row.data('tenantid'); 
+            const roomID = $row.data('roomid');
+            const tenantStatus = 'active';  
+
+         
+
+            if (tenantID && roomID) {
+                if (confirm("Are you sure you want to activate this tenant")) {
+                    $.ajax({
+                        url: '../controller/tenantController.php',
+                        type: 'PUT',
+                        contentType: 'application/json',  // Set content type to JSON
+                        data: JSON.stringify({
+                            active: true,                  // Send active status as true
+                            tenantID: tenantID,            // Send tenant ID
+                            roomID: roomID,                // Send room ID
+                            tenantStatus: tenantStatus     // Send tenant status as "active"
+                        }),
+                        success: function(response) {
+                            console.log("Response:", response); // Log the response for debugging
+                            var result = JSON.parse(response);
+                            if (result.status === 'success') {
+                                alert(result.message);
+                                $row.remove();  // Remove the row if the tenant is successfully set to active
+                            } else {
+                                alert(result.message);
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error("AJAX error:", error);
+                            alert("An error occurred: " + error);
+                        }
+                    });
+                }
+            } else {
+                alert("Invalid tenant ID or room ID.");
             }
         }
+
+
 
 
     }
@@ -1100,6 +1114,7 @@
         $btn_delete                 : $('#btn-delete'),
         $btn_generatePass           : $('#generatePass'),
         $btn_inactiveTenant         : $('#btn-inactiveTenant'),
+        $btn_close                  : $('.btn-close'),
         $lbl_password               : $('#lbl-password'),
         $content_btn                : $('#content-btn')
     });

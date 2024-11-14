@@ -180,10 +180,12 @@
             const $row = $(e.currentTarget).closest('tr');
             const tenantID = $row.data('tenantid');
             const tenantName = $row.find('td').eq(0).text();
+            console.log("Setting tenantID:", tenantID);  // Debugging line
             localStorage.setItem("tenantID", tenantID);
             localStorage.setItem("tenantName", tenantName);
             window.location.href = "listTenantRequest.php";
         }
+
 
        
 

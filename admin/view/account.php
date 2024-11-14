@@ -388,8 +388,6 @@ $(document).ready(function() {
                 }
             });
         },  
-
-
         verificationCode: function() {
             const $self = this.config;
             const userEmail = $self.$lbl_adminEmail.text(); // Ideally, this should be fetched dynamically

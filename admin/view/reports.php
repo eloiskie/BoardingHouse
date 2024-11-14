@@ -83,46 +83,54 @@
                 </ul>
             </div>
         </nav>
-        <main class="content px-4 py-4">
-    <div class="container-fluid bg-white">
-            <div class="room-content p-2">
-                <div class="row">
-                    <div class="d-md-flex" id="deliquent-container"></div>
-                        <div class="d-flex align-items-center py-2" style="height: 50px;">
-                            <div class="d-flex">
-                                <label for="sel-roomType" >Search Name</label>
-                                <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
+        <main class="content px-2 py-2">
+        <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-12 col-md-4 d-flex p-3">
+                            <div class="card flex-fill border-0 illustration">
+                                <div class="card-body p-0 d-flex flex-fill">
+                                    <div class="card-content w-100">
+                                        <div class="pt-3  px-3 m-1">
+                                            <i class="bi bi-calendar-check" style="font-size:50px"></i>
+                                            <label for="text" style="font-size: 30px">Monthly Report</label>
+                                        </div>
+                                        <div class="ps-3 m-1">
+                                            <label for="text" class="text-capitalize" style="font-size:15px" id="lbl-numberOfhouses"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="monthlyReport.php" class="nav-link  text-end">View</a>
+                                </div>
                             </div>
-                           
-                </div>
-                    <div class="table-responsive">
-                        <div class="table-wrapper">
-                            <table class="table table-hover">
-                                <thead class="table-dark    ">
-                                    <tr>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">House Rented</th>
-                                        <th scope="col">No. of Delayed</th>
-                                        <th scope="col">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tbody" >
-                                    <!-- Table rows go here -->
-                                </tbody>
-                            </table>
+                        </div>
+                        <div class="col-12 col-md-4 d-flex p-3">
+                            <div class="card flex-fill border-0 illustration">
+                                <div class="card-body p-0 d-flex flex-fill">
+                                    <div class="card-content w-100">
+                                        <div class="pt-3  px-3 m-1">
+                                            <i class="bi bi-calendar-check" style="font-size: 50px"></i>
+                                            <label for="text" style="font-size: 30px">Yearly Report</label>
+                                        </div>
+                                        <div class="ps-3 m-1">
+                                            <label for="text" class="text-capitalize" style="font-size:15px" id="lbl-numberOfTenant"></label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="yearlyReport.php" class="nav-link text-end">View</a>
+                                 </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </main>
+        </main>
     </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $(document).ready(function() {
+        $(document).ready(function() {
     $("#sidebar-toggle").click(function() {
         $("#sidebar").toggleClass("collapsed");
     });
@@ -131,23 +139,22 @@
         Init: function(config) {
             this.config = config;
             this.BindEvents();
+            this.viewData();
          
         },
         BindEvents: function() {
             const $this = this.config;
            
         },
-     
-       
 
     }
 
     reportPage.Init({
-    
+     
+
     });
 });
-
-
-    </script>
+</script>
 </body>
 </html>
+

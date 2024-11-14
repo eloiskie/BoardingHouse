@@ -188,10 +188,8 @@
             $this.$btn_closeModal.on('click', this.closeModal.bind(this));
             $this.$tbody.on('click', '#btn-delete', this.deleteData.bind(this));
             $this.$tbody.on('click', '#btn-edit', this.btnEdit.bind(this));
-            $('#sel-roomType').on('change', function() 
-            {
-                housePage.filterRoomType();
-            });
+            $this.$sel_roomType.on('change', this.filterRoomType.bind(this));
+         
         },
         closeModal: function() {
             const $self = this.config;
@@ -262,14 +260,16 @@
                         const roomTypesSet = new Set(); // Create a set to store unique room types
                         
                         $.each(data, function(index, item) {
-                            // Add roomType to the set to keep it unique
-                            roomTypesSet.add(item.roomType);
+                            // Convert roomType to lowercase to ensure uniqueness regardless of case
+                            const formattedRoomType = item.roomType.toLowerCase();
+                            roomTypesSet.add(formattedRoomType);
 
+                            const capacityLabel = formattedRoomType === "regular" ? "Good for" : "Limit";
                             const row = `
-                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}" data-capacity="${item.capacity}">
                                     <td>${item.roomNumber}</td>
                                     <td>${item.roomType}</td>
-                                    <td>${item.capacity}</td>
+                                    <td>${capacityLabel}: ${item.capacity} <br /> Available Slot: ${item.availableCapacity}</td>
                                     <td>${item.roomFee}</td>
                                     <td>${item.houselocation}</td>
                                     <td>${item.availableStatus}</td>
@@ -287,10 +287,12 @@
                         selRoomType.empty();
                         selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
 
-                        // Loop through the Set and append unique room types to the dropdown
+                        // Loop through the Set and append unique room types to the dropdown in capitalized format
                         roomTypesSet.forEach(function(roomType) {
-                            selRoomType.append('<option value="' + roomType + '">' + roomType + '</option>');
+                            const displayRoomType = roomType.charAt(0).toUpperCase() + roomType.slice(1); // Capitalize for display
+                            selRoomType.append('<option value="' + roomType + '">' + displayRoomType + '</option>');
                         });
+
                     }
                 },
                 error: function(xhr, status, error) {
@@ -360,26 +362,27 @@
 
                         if (data.status === "error") {
                             alert(data.message); // Show error message from the server
-                            $self.$modal.modal('hide');
                         } else if (data.status === "success") {
                             alert(data.message); // Show success message
-
+                            $self.$tbody.empty();
                             const roomTypesSet = new Set(); // Collect unique room types
 
                             $.each(data.data, function(index, item) {
+                                const capacityLabel = item.roomType.toLowerCase() === "regular" ? "Good for" : "Limit";
                                 const row = `
-                                    <tr class="text-capitalize" data-roomID="${item.roomID}">
+                                    <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}" data-capacity="${item.capacity}">
                                         <td>${item.roomNumber}</td>
                                         <td>${item.roomType}</td>
-                                        <td>${item.capacity}</td>
+                                        <td>${capacityLabel}: ${item.capacity} <br /> Available Slot: ${item.availableCapacity}</td>
                                         <td>${item.roomFee}</td>
                                         <td>${item.houselocation}</td>
                                         <td>${item.availableStatus}</td>
                                         <td>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
-                                            <button type="button" class="btn btn-secondary" style="width: 80px" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                            <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                            <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
                                         </td>
-                                    </tr>`;
+                                    </tr>
+                                `;
                                 $self.$tbody.append(row);
                                 roomTypesSet.add(item.roomType); // Add room type to the set
                             });
@@ -388,8 +391,11 @@
                             const selRoomType = $self.$sel_roomType;
                             selRoomType.empty();
                             selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+
                             roomTypesSet.forEach(function(type) {
-                                selRoomType.append('<option value="' + type + '">' + type + '</option>');
+                                const formattedType = type.toLowerCase();
+                                const displayType = formattedType.charAt(0).toUpperCase() + formattedType.slice(1); // Capitalize for display
+                                selRoomType.append('<option value="' + formattedType + '">' + displayType + '</option>');
                             });
 
                             $self.$modal.modal('hide');
@@ -471,10 +477,10 @@
                                             roomTypesSet.add(item.roomType);
 
                                             const row = `
-                                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                                <tr class="text-capitalize" data-roomID="${item.roomID}"  data-roomNumber="${item.roomNumber}" data-capacity= "${item.capacity}">
                                                     <td>${item.roomNumber}</td>
                                                     <td>${item.roomType}</td>
-                                                    <td>${item.capacity}</td>
+                                                    <td>Limit: ${item.capacity} <br /> Available Capacity: ${item.availableCapacity}</td>
                                                     <td>${item.roomFee}</td>
                                                     <td>${item.houselocation}</td>
                                                     <td>${item.availableStatus}</td>
@@ -540,7 +546,7 @@
             const roomID = $row.data('roomid');
             const roomNumber = $row.find('td').eq(0).text();
             const roomType = $row.find('td').eq(1).text();
-            const capacity = $row.find('td').eq(2).text();
+            const capacity = $row.data('capacity');
             const roomFee = $row.find('td').eq(3).text();
             const availableStatus = $row.find('td').eq(5).text();
 
@@ -565,6 +571,11 @@
             const houseID = $("#house-locationName").data('houselocationid');
             const roomType = $("#sel-roomType").val(); // Get selected roomType
 
+            // Debugging logs to check the values of houseID and roomType
+            console.log('House ID:', houseID);
+            console.log('Room Type:', roomType);
+
+            // Check if both houseID and roomType are available before making the first AJAX call
             if (houseID && roomType) {
                 $.ajax({
                     url: "../controller/roomController.php",
@@ -572,16 +583,18 @@
                     data: { houseID: houseID, roomType: roomType }, // Pass houseID and roomType to the server
                     dataType: 'json',
                     success: function(data) {
+                        console.log('Filtered Data:', data);  // Log the filtered data
                         $self.$tbody.empty(); // Clear the existing table rows
+                        
                         if (data.length === 0) {
                             $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
                         } else {
                             $.each(data, function(index, item) {
                                 const row = `
-                                    <tr  class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                    <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
                                         <td>${item.roomNumber}</td>
                                         <td>${item.roomType}</td>
-                                        <td>${item.capacity}</td>
+                                        <td>Limit: ${item.capacity} <br /> Available Capacity: ${item.availableCapacity}</td>
                                         <td>${item.roomFee}</td>
                                         <td>${item.houselocation}</td>
                                         <td>${item.availableStatus}</td>
@@ -590,7 +603,7 @@
                                             <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
                                         </td>
                                     </tr>
-                                    `;
+                                `;
                                 $self.$tbody.append(row); // Append new filtered rows to the table
                             });
                         }
@@ -600,57 +613,60 @@
                     }
                 });
             } else {
+                // If roomType or houseID is missing, get all rooms for the house
                 $.ajax({
-                url: "../controller/roomController.php",
-                type: "GET",
-                data: { houseID: houseID },
-                dataType: 'json',
-                success: function(data) {
-                    $self.$tbody.empty(); // Clear the table body before appending new rows
+                    url: "../controller/roomController.php",
+                    type: "GET",
+                    data: { houseID: houseID },
+                    dataType: 'json',
+                    success: function(data) {
+                        console.log('All Data:', data);  // Log the data for all rooms
+                        $self.$tbody.empty(); // Clear the table body before appending new rows
 
-                    if (data.length === 0) {
-                        $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
-                    } else {
-                        const roomTypesSet = new Set(); // Create a set to store unique room types
-                        
-                        $.each(data, function(index, item) {
-                            // Add roomType to the set to keep it unique
-                            roomTypesSet.add(item.roomType);
+                        if (data.length === 0) {
+                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                        } else {
+                            const roomTypesSet = new Set(); // Create a set to store unique room types
 
-                            const row = `
-                                <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
-                                    <td>${item.roomNumber}</td>
-                                    <td>${item.roomType}</td>
-                                    <td>${item.capacity}</td>
-                                    <td>${item.roomFee}</td>
-                                    <td>${item.houselocation}</td>
-                                    <td>${item.availableStatus}</td>
-                                    <td>
-                                        <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
-                                        <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
-                                    </td>
-                                </tr>
-                            `;
-                            $self.$tbody.append(row);
-                        });
+                            $.each(data, function(index, item) {
+                                // Add roomType to the set to keep it unique
+                                roomTypesSet.add(item.roomType);
 
-                        // Populate room types dropdown (outside the loop)
-                        const selRoomType = $self.$sel_roomType;
-                        selRoomType.empty();
-                        selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+                                const row = `
+                                    <tr class="text-capitalize" data-roomID="${item.roomID}" data-roomNumber="${item.roomNumber}">
+                                        <td>${item.roomNumber}</td>
+                                        <td>${item.roomType}</td>
+                                        <td>Limit: ${item.capacity} <br /> Available Capacity: ${item.availableCapacity}</td>
+                                        <td>${item.roomFee}</td>
+                                        <td>${item.houselocation}</td>
+                                        <td>${item.availableStatus}</td>
+                                        <td>
+                                            <button type="button" style="width: 80px" class="btn btn-secondary edit-room" id="btn-edit" data-roomID="${item.roomID}">Edit</button>
+                                            <button type="button" style="width: 80px" class="btn btn-secondary delete-room" id="btn-delete" data-roomID="${item.roomID}">Delete</button>
+                                        </td>
+                                    </tr>
+                                `;
+                                $self.$tbody.append(row); // Append all rows to the table
+                            });
 
-                        // Loop through the Set and append unique room types to the dropdown
-                        roomTypesSet.forEach(function(roomType) {
-                            selRoomType.append('<option value="' + roomType + '">' + roomType + '</option>');
-                        });
+                            // Populate room types dropdown (outside the loop)
+                            const selRoomType = $self.$sel_roomType;
+                            selRoomType.empty();
+                            selRoomType.append('<option value="" style="font-size: 15px;">Select Room Type</option>');
+
+                            // Loop through the Set and append unique room types to the dropdown
+                            roomTypesSet.forEach(function(roomType) {
+                                selRoomType.append('<option value="' + roomType + '">' + roomType + '</option>');
+                            });
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
                     }
-                },
-                error: function(xhr, status, error) {
-                    console.error('AJAX Error: ' + status + ' ' + error);
-                }
-            });
+                });
             }
         }
+
 
         
     }

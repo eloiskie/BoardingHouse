@@ -1,13 +1,12 @@
 <?php
 include_once('../server/db.php');
 
-$requesMethod = $_SERVER['REQUEST_METHOD'];
+$requestMethod = $_SERVER['REQUEST_METHOD'];
 
-if($requesMethod === 'GET'){
-    if (isset($_GET['tenantID'])) {
+if ($requestMethod === 'GET') {
+    if (isset($_GET['tenantID']) && !isset($_GET['paymentList'])) {
         $tenantID = intval($_GET['tenantID']); // tenantID passed from AJAX
-    
-        // SQL query to select charges grouped by dueDate for the given tenant
+        
         $sql = "
         SELECT 
             cd.dueDate, 
@@ -36,42 +35,74 @@ if($requesMethod === 'GET'){
         GROUP BY 
             cd.dueDate;
         ";
-    
+
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
-            error_log("SQL prepare failed: " . $conn->error); // Log the error for debugging
             echo json_encode(["status" => "error", "message" => "SQL prepare failed: " . $conn->error]);
             exit;
         }
-    
-        // Bind the tenantID parameter
-        $stmt->bind_param("i", $tenantID); // only one tenantID
-    
+
+        $stmt->bind_param("i", $tenantID);
         if ($stmt->execute()) {
             $result = $stmt->get_result();
-            $data = array();
-    
-            if ($result->num_rows > 0) {
-                while ($row = $result->fetch_assoc()) {
-                    // Format the charge types
-                    $row['paymentTypes'] = '<ul><li>' . str_replace('<br>', '</li><li>', $row['paymentTypes']) . '</li></ul>';
-                    
-                    // Split paymentTypeIDs and paymentDetailsIDs into arrays
-                    $row['paymentTypeIDs'] = explode('<br>', $row['paymentTypeIDs']);
-                    $row['paymentDetailsIDs'] = explode('<br>', $row['paymentDetailsIDs']); // Split paymentDetailsIDs
-                    
-                    $data[] = $row;
-                }
-                echo json_encode(["status" => "success", "data" => $data]);
-            } else {
-                echo json_encode(["status" => "success", "data" => []]);
+            $data = [];
+
+            while ($row = $result->fetch_assoc()) {
+                $row['paymentTypes'] = '<ul><li>' . str_replace('<br>', '</li><li>', $row['paymentTypes']) . '</li></ul>';
+                $row['paymentTypeIDs'] = explode('<br>', $row['paymentTypeIDs']);
+                $row['paymentDetailsIDs'] = explode('<br>', $row['paymentDetailsIDs']);
+                $data[] = $row;
             }
+
+            echo json_encode(["status" => "success", "data" => $data]);
         } else {
-            error_log("Error executing query: " . $stmt->error); // Log the error
             echo json_encode(["status" => "error", "message" => "Error executing query: " . $stmt->error]);
         }
-    
+
         $stmt->close();
-    } 
+    } elseif (isset($_GET['tenantID'], $_GET['dueDate'], $_GET['paymentList'])) {
+        $tenantID = intval($_GET['tenantID']);
+        $dueDate = $_GET['dueDate'];
+
+        $sql = "
+        SELECT 
+            pt.paymentType AS PaymentType,
+            cd.amount AS Amount,
+            cd.dueDate AS DueDate,
+            IFNULL(p.paymentDate, 'N/A') AS PaymentDate,
+            IFNULL(p.paymentAmount, 0) AS PaymentAmount,
+            (cd.amount - IFNULL(p.paymentAmount, 0)) AS Balance
+        FROM 
+            tblchargesDetails cd
+        JOIN 
+            tblpaymentType pt ON cd.paymentTypeID = pt.paymentTypeID
+        LEFT JOIN 
+            tblPayments p ON cd.paymentDetailsID = p.paymentDetailsID
+        WHERE 
+            cd.tenantID = ? AND cd.dueDate = ?
+        ";
+
+        $stmt = $conn->prepare($sql);
+        if ($stmt === false) {
+            echo json_encode(["status" => "error", "message" => "SQL prepare failed: " . $conn->error]);
+            exit;
+        }
+
+        $stmt->bind_param("is", $tenantID, $dueDate);
+        if ($stmt->execute()) {
+            $result = $stmt->get_result();
+            $data = [];
+
+            while ($row = $result->fetch_assoc()) {
+                $data[] = $row;
+            }
+
+            echo json_encode(["status" => "success", "data" => $data]);
+        } else {
+            echo json_encode(["status" => "error", "message" => "Error executing query: " . $stmt->error]);
+        }
+
+        $stmt->close();
+    }
 }
 ?>

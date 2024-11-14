@@ -42,7 +42,7 @@ else if($requestMethod =='PUT'){
 
             // Execute statement
             if($stmt->execute()) {
-                echo json_encode(['status' => 'success', 'message' => "Successfully Updated House Details."]);
+                echo json_encode(['status' => 'success', 'message' => "House Successfully Updated."]);
             } else {
                 // If statement execution fails, return error
                 echo json_encode(['status' => 'error', 'message' => "Error: " . $conn->error]);

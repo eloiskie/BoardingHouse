@@ -80,17 +80,24 @@
                                 <select id="sel-tenantName" class="form-select" style="font-size: 15px; height: 40px">
                                                 <option>Select Tenant</option>
                                 </select>
-                            </div>
+                                </div>
                         </div>
                         <div class="mb-3">
                                 <div class="row align-items-start">
                                     <div class="col">
                                         <label for="inpt-number" class="form-label" style="font-size: 14px">Payment Type</label>
-                                        <input type="text" class="form-control" id="inpt-chargeType" style="font-size: 15px; height: 30px">
+                                        <select id="inpt-chargeType" class="form-select" style="font-size: 15px; height: 40px">
+                                            <option style="font-size: 15px;" disabled Selected>Select Payment Type</option>
+                                            <option style="font-size: 15px;" value="Rent">Rent</option>
+                                            <option style="font-size: 15px;" value="Water">Water</option>
+                                            <option style="font-size: 15px;" value="Electric">Electric</option>
+                                            <option style="font-size: 15px;" value="Others">Others</option>
+                                        </select>
+                                       
                                     </div>
                                     <div class="col">
                                         <label for="inpt-gender" class="form-label" style="font-size: 14px">Amount</label>
-                                        <input type="text" class="form-control" id="inpt-amount" style="font-size: 15px; height: 30px">
+                                        <input type="number" class="form-control inpt-amount"  style="font-size: 15px; height: 39px">
                                     </div>
                                 </div>
                         </div>
@@ -140,7 +147,7 @@
                             <div class="d-md-flex" id="house-location-container"></div>
                             <div class="d-flex align-items-center py-2" style="height: 50px;">
                                 <div class="d-flex align-items-center mb-2">
-                                    <label for="sel-roomType" class="form-label me-2">Search</label>
+                                    <label for="sel-name" class="form-label me-2">Search</label>
                                     <input type="text" id="inpt-searchName" class="form-control" placeholder="Enter Name" style="font-size: 15px; height: 40px">
                                 </div>
                                 <div class="ms-auto mb-2">
@@ -154,8 +161,6 @@
                                             <tr style="font-size: 15px">
                                                 <th scope="col">Name</th>
                                                 <th scope="col">House Rented</th>
-                                                <th scope="col">Room Number</th>
-                                                <th scope="col">Room Fee</th>
                                                 <th scope="col">Balance</th>
                                                 <th scope="col">Action</th>
                                             </tr>
@@ -194,6 +199,9 @@
             $this.$btn_add.on('click', this.modalShow.bind(this));
             $this.$btn_save.on('click', this.addPaymentDetails.bind(this));
             $this.$btn_addPaymentType.on('click', this.addPaymentType.bind(this));
+            $this.$inpt_searchName.on('keyup', this.filterName.bind(this));
+            $this.$sel_tenantName.on('change', this.displayRoomFee.bind(this));
+            $this.$inpt_chargeType.on('change', this.replaceSelType.bind(this));
         },
         passViewPayment: function(event) {
             const $row = $(event.currentTarget).closest('tr');
@@ -220,9 +228,7 @@
                                 const row = `
                                     <tr class="text-capitalize" data-tenantName="${item.tenantName}" data-tenantid="${item.tenantID}">
                                         <td>${item.tenantName}</td>
-                                        <td>${item.houselocation}</td> 
-                                        <td>${item.roomNumber}</td>
-                                        <td>${item.roomfee}</td>
+                                        <td>House Location:${item.houselocation}<br />Room Number:${item.roomNumber}</td>
                                         <td class="tblBalance" id="totalAmountCell">${item.remainingBalance}</td>
                                         <td>
                                             <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
@@ -242,7 +248,6 @@
                 }
             });
         },
-
         modalShow: function() {
             const $self = this.config;
             $self.$modal.modal('show');
@@ -252,6 +257,7 @@
             $.ajax({
                 url: '../controller/rentalPaymentController.php', // Ensure this path is correct
                 type: 'GET',
+                data: {tenantName : true},
                 dataType: 'json',
                 success: function(response) {
                     if (response.status === 'success') {
@@ -275,21 +281,70 @@
                 }
             });
         },
-
         addPaymentType: function() {
             const $self = this.config;
+            const roomFee = $self.$sel_tenantName.data('roomfee'); // Get room fee from data attribute
+
+            // Generate the row HTML with conditional rendering for "Rent" and a "Remove" button
             const row = `
                 <div class="row align-items-start payment-type-row">
                     <div class="col">
                         <label for="inpt-chargeType" class="form-label" style="font-size: 14px">Payment Type</label>
-                        <input type="text" class="form-control inpt-chargeType" style="font-size: 15px; height: 30px">
+                        <select class="form-select inpt-chargeType" style="font-size: 15px; height: 40px">
+                            <option style="font-size: 15px;" disabled selected>Select Payment Type</option>
+                            <option style="font-size: 15px;" value="Rent">Rent</option>
+                            <option style="font-size: 15px;" value="Water">Water</option>
+                            <option style="font-size: 15px;" value="Electric">Electric</option>
+                            <option style="font-size: 15px;" value="Others">Others</option>
+                        </select>
                     </div>
                     <div class="col">
                         <label for="inpt-amount" class="form-label" style="font-size: 14px">Amount</label>
-                        <input type="text" class="form-control inpt-amount" style="font-size: 15px; height: 30px">
+                        <input type="text" class="form-control inpt-amount" style="font-size: 15px; height: 39px">
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-danger btn-remove" style="font-size: 14px; height: 40px; margin-top: 27px;">Remove</button>
                     </div>
                 </div>`;
+
+            // Append the row to the container
             $self.$paymentType_container.append(row);
+
+            // Attach event listener to set amount when payment type changes
+            $self.$paymentType_container.find('.inpt-chargeType').last().on('change', function() {
+                const selectedType = $(this).val();
+                const amountInput = $(this).closest('.payment-type-row').find('.inpt-amount');
+
+                if (selectedType === 'Rent') {
+                    amountInput.val(roomFee); // Set amount to room fee if type is Rent
+                } else {
+                    amountInput.val(''); // Clear amount for other types
+                }
+
+                // Replace dropdown with input for 'Others' selection
+                if (selectedType === 'Others') {
+                    const inputField = `<input type="text" class="form-control inpt-chargeType" placeholder="Enter Payment Type" style="font-size: 15px; height: 40px">`;
+                    $(this).replaceWith(inputField);
+                }
+            });
+
+            // Attach event listener to remove row when "Remove" button is clicked
+            $self.$paymentType_container.find('.btn-remove').last().on('click', function() {
+                $(this).closest('.payment-type-row').remove();
+            });
+        },
+        replaceSelType: function() {
+            const $self = this.config;
+            const roomFee = $self.$sel_tenantName.data('roomfee');
+
+            if ($self.$inpt_chargeType.val() === 'Others') {
+                const inputField = `<input type="text" class="form-control inpt-chargeType" placeholder="Enter Payment Type" style="font-size: 15px; height: 40px">`;
+                $self.$inpt_chargeType.replaceWith(inputField);
+            } else if ($self.$inpt_chargeType.val() === 'Rent') {
+                // Set amount to room fee and remove "Rent" option from other select elements
+                $('.inpt-amount').val(roomFee);
+          
+            }
         },
         addPaymentDetails: function(e) {
             const $self = this.config;
@@ -300,22 +355,28 @@
             const dueDate = $self.$inpt_dueDate.val();
             const tenantID = $self.$sel_tenantName.val();
 
+            // Check if tenant is selected
             if (!tenantID) {
                 alert("Please select a tenant.");
                 return;
             }
 
+            // Check if due date is selected
             if (!dueDate) {
                 alert("Please select a due date.");
                 return;
             }
 
             const defaultPaymentType = $self.$inpt_chargeType.val();
-            const defaultAmount = parseFloat($self.$inpt_amount.val());
+            const defaultAmount = parseFloat($('.inpt-amount').val());
 
-            if (defaultPaymentType && !isNaN(defaultAmount)) {
+            // Check if default payment type and amount are valid
+            if (defaultPaymentType && !isNaN(defaultAmount) && defaultAmount > 0) {
                 paymentTypes.push(defaultPaymentType);
                 amounts.push(defaultAmount);
+            } else if (defaultPaymentType && (isNaN(defaultAmount) || defaultAmount <= 0)) {
+                alert("Please enter a valid amount for the default payment type.");
+                return;
             }
 
             // Loop through additional payments entered
@@ -323,28 +384,37 @@
                 const paymentType = $(this).find('.inpt-chargeType').val();
                 const amount = parseFloat($(this).find('.inpt-amount').val());
 
-                if (paymentType && !isNaN(amount)) {
+                // Check if additional payment type and amount are valid
+                if (paymentType && !isNaN(amount) && amount > 0) {
                     paymentTypes.push(paymentType);
                     amounts.push(amount);
+                } else if (paymentType && (isNaN(amount) || amount <= 0)) {
+                    alert("Please enter a valid amount for the payment type.");
+                    return;
                 }
             });
 
+            // Ensure at least one payment type has been entered
             if (paymentTypes.length === 0) {
-                alert("Please enter at least one payment.");
+                alert("Please enter at least one valid payment.");
                 return;
             }
 
+            // Prepare the form data to send
             const formData = {
+                payment: true,
                 paymentTypes: paymentTypes,
                 amounts: amounts,
                 dueDate: dueDate,
                 tenantID: tenantID
             };
 
+            // Disable the submit button while the request is being processed
             if ($self.$submitButton) {
                 $self.$submitButton.prop('disabled', true).text('Processing...');
             }
 
+            // Send the payment data via AJAX
             $.ajax({
                 type: 'POST',
                 url: '../controller/rentalPaymentController.php',
@@ -355,15 +425,38 @@
                     console.log("AJAX response:", response);
                     if (response.status === "success") {
                         alert(response.message);
-
-                        $('#chargesForm')[0].reset();
-
-                        const totalCharges = response.totalCharges || 0;
-                        const totalPayments = response.totalPayments || 0;
-                        const remainingBalance = response.remainingBalance || 0;
-                        console.log(remainingBalance);
-                        // Update total amount and balance in the UI
-                        $('#totalAmountCell').text(response.remainingBalance.toFixed(2));
+                        window.location.reload(); 
+                        // Reload the table with updated tenant data
+                        $self.$tbody.empty();
+                        $.ajax({
+                            url: '../controller/rentalPaymentController.php',
+                            type: 'GET',
+                            data: { tenant: true },
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    $self.$tbody.empty();
+                                    if (response.data.length > 0) {
+                                        $.each(response.data, function(index, item) {
+                                            const row = `
+                                                <tr class="text-capitalize" data-tenantName="${item.tenantName}" data-tenantid="${item.tenantID}">
+                                                    <td>${item.tenantName}</td>
+                                                    <td>House Location:${item.houselocation}<br />Room Number:${item.roomNumber}</td>
+                                                    <td class="tblBalance" id="totalAmountCell">${item.remainingBalance}</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                                    </td>
+                                                </tr>`;
+                                            $self.$tbody.append(row);
+                                        });
+                                        $('#chargesForm')[0].reset();
+                                    }
+                                }
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('AJAX Error: ' + status + ' ' + error);
+                            }
+                        });
 
                         // Hide modal after success
                         $self.$modal.modal('hide');
@@ -381,26 +474,104 @@
                     }
                 }
             });
+        },
+        displayRoomFee: function() {
+            const $self = this.config;
+            const tenantID = $self.$sel_tenantName.val();
+
+            // Check if tenant is selected
+            if (!tenantID) {
+                console.error('No tenant selected.');
+                return; // Exit if no tenant is selected
+            }
+
+            $.ajax({
+                url: '../controller/rentalPaymentController.php', // Ensure the correct path
+                type: 'GET',
+                data: { roomFee: true, tenantID: tenantID },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        if (response.data && response.data.length > 0) {
+                            const roomFee = response.data[0].roomFee;
+                            $self.$sel_tenantName.attr('data-roomfee', roomFee);
+                        } else {
+                            console.error('No room fee data found.');
+                        }
+                    } else {
+                        console.error('Error fetching room fee: ' + response.message || 'Unknown error');
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error: ' + status + ' ' + error);
+                }
+            });
+        },
+
+        filterName: function() {
+            const $self = this.config;
+            let query = $self.$inpt_searchName.val().trim(); // Get trimmed search query
+
+            // Clear the table before appending new data
+            $self.$tbody.empty();
+
+            // If query is not empty, perform search
+            if (query !== '') {
+                const action = $self.$inpt_searchName.attr('data-status');
+
+                $.ajax({
+                    url: '../controller/rentalPaymentController.php',
+                    method: 'POST',
+                    dataType: 'json', // Expect JSON response
+                    data: { query: query }, // Send the query as POST data for active tenants
+                    success: function(response) {
+                        // Check if response.data is an array and has elements
+                        if (Array.isArray(response.data) && response.data.length > 0) {
+                            // Populate the table with filtered data
+                            $.each(response.data, function(index, item) {
+                                const row = `
+                                    <tr class="text-capitalize" data-tenantName="${item.tenantName}" data-tenantid="${item.tenantID}">
+                                        <td>${item.tenantName}</td>
+                                        <td>House Location:${item.houselocation}<br />Room Number:${item.roomNumber}</td>
+                                        <td class="tblBalance" id="totalAmountCell">${item.remainingBalance}</td>
+                                        <td>
+                                            <button type="button" class="btn btn-secondary" style="width: 80px; font-size: 12px;" id="btn-view" data-roomID="${item.tenantID}">View</button>
+                                        </td>
+                                    </tr>`;
+                                $self.$tbody.append(row);
+                            });
+                        } else {
+                            // Append message if no tenants are found
+                            $self.$tbody.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error: ' + status + ' ' + error);
+                        $self.$tbody.append('<tr><td colspan="6">An error occurred while fetching tenants.</td></tr>');
+                    }
+                });
+            } else {
+                // If query is empty, show all tenants
+                this.viewTenants();
+            }
         }
 
     }
-
     rentalPaymentPage.Init({
-        $tbody: $('#tbody'),
-        $modal: $('#modal'),
-        $paymentType_container: $('#paymentType-container'),
-        $btn_add: $('#btn-add'),
-        $btn_addPaymentType: $('#btn-addPaymentType'),
-        $btn_save: $('#btnSave'),
-        $sel_tenantName: $('#sel-tenantName'),
-        $inpt_chargeType: $('#inpt-chargeType'),
-        $inpt_amount: $('#inpt-amount'),
-        $inpt_dueDate: $('#inpt-dueDate'),
-        $submitButton: $('#btnSave') // Ensure to define this variable
+        $tbody                      : $('#tbody'),
+        $modal                      : $('#modal'),
+        $paymentType_container      : $('#paymentType-container'),
+        $btn_add                    : $('#btn-add'),
+        $btn_addPaymentType         : $('#btn-addPaymentType'),
+        $btn_save                   : $('#btnSave'),
+        $sel_tenantName             : $('#sel-tenantName'),
+        $inpt_chargeType            : $('#inpt-chargeType'),
+        $inpt_amount                : $('#inpt-amount'),
+        $inpt_dueDate               : $('#inpt-dueDate'),
+        $submitButton               : $('#btnSave'),
+        $inpt_searchName            : $('#inpt-searchName')
     });
 });
-
-
-    </script>
-    </body>
-    </html>
+</script>
+</body>
+</html>

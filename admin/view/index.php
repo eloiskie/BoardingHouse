@@ -163,7 +163,6 @@
         },
         viewData: function(){
                 const $self = this.config;
-
                 $.ajax({
                     url         : '../controller/indexController.php',
                     type        : 'GET',
