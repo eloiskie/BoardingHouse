@@ -78,7 +78,7 @@ if ($requestMethod === "GET") {
         $tenantID = intval($_GET['tenantID']);
     
         // SQL query to get payment types for a specific due date and tenant, along with the balance
-            $sql = "SELECT 
+        $sql = "SELECT 
                     ct.paymentTypeID,
                     pt.paymentType,
                     ct.amount,
@@ -95,8 +95,9 @@ if ($requestMethod === "GET") {
                     ct.tenantID = ? 
                     AND ct.dueDate = ?
                 GROUP BY 
-                    ct.paymentDetailsID;";
-
+                    ct.paymentDetailsID
+                HAVING 
+                    balance > 0;";
         $stmt = $conn->prepare($sql);
         if ($stmt === false) {
             error_log("SQL prepare failed: " . $conn->error); // Log the error for debugging
@@ -125,43 +126,46 @@ if ($requestMethod === "GET") {
         }
     
         $stmt->close();
-    } elseif (isset($_GET['paymentList'])) {
+    } 
+    else if (isset($_GET['paymentList'])) {
         // Check if parameters are set
-        if (isset($_GET['tenantID']) && isset($_GET['dueDate'])) {
+      
             $tenantID = intval($_GET['tenantID']); // Ensure tenantID is an integer
             $dueDate = $_GET['dueDate']; // Get due date as a string
     
-            error_log("tenantID: $tenantID, dueDate: $dueDate"); // Debugging output
+           
     
             // SQL query to get the list of payments for the specified tenant and due date
             $sql = "
-                SELECT 
-                    cd.paymentDetailsID,  -- Add paymentDetailsID to the SELECT clause
-                    pt.paymentType AS PaymentType, 
-                    IFNULL(cd.amount, '-') AS Amount, 
-                    IFNULL(cd.dueDate, '-') AS DueDate, 
-                    IFNULL(p.paymentDate, '-') AS PaymentDate, 
-                    IFNULL(p.paymentAmount, '-') AS PaymentAmount, 
-                    IFNULL((cd.amount - COALESCE(totalPayments.totalPaymentAmount, 0)), '-') AS Balance 
-                FROM 
-                    tblchargesdetails cd 
-                JOIN 
-                    tblpaymenttype pt ON cd.paymentTypeID = pt.paymentTypeID 
-                LEFT JOIN 
-                    tblpayments p ON cd.paymentDetailsID = p.paymentDetailsID 
-                LEFT JOIN (
-                    SELECT 
-                        paymentDetailsID, 
-                        SUM(paymentAmount) AS totalPaymentAmount 
-                    FROM 
-                        tblpayments 
-                    GROUP BY 
-                        paymentDetailsID
-                ) AS totalPayments ON cd.paymentDetailsID = totalPayments.paymentDetailsID 
-                WHERE 
-                    cd.dueDate = ? 
-                    AND cd.tenantID = ?
-                ";
+            SELECT 
+                cd.paymentDetailsID,  
+                pt.paymentType AS PaymentType, 
+                cd.amount AS Amount, 
+                cd.dueDate AS DueDate, 
+                IFNULL(p.paymentDate, '-') AS PaymentDate, 
+                IFNULL(p.paymentAmount, '-') AS PaymentAmount,
+                (
+                    cd.amount - COALESCE((
+                        SELECT SUM(paymentAmount) 
+                        FROM tblpayments 
+                        WHERE paymentDetailsID = cd.paymentDetailsID 
+                        AND paymentDate <= p.paymentDate
+                    ), 0)
+                ) AS PreviousBalance
+            FROM 
+                tblchargesdetails cd
+            JOIN 
+                tblpaymenttype pt ON cd.paymentTypeID = pt.paymentTypeID
+            LEFT JOIN 
+                tblpayments p ON cd.paymentDetailsID = p.paymentDetailsID
+            WHERE 
+                cd.dueDate = ? 
+                AND cd.tenantID = ?
+            ORDER BY 
+                p.paymentDate ASC, cd.paymentDetailsID ASC;
+        ";
+        
+        
     
             $stmt = $conn->prepare($sql);
             if ($stmt === false) {
@@ -183,22 +187,18 @@ if ($requestMethod === "GET") {
                         $data[] = $row;
                     }
                     echo json_encode(["status" => "success", "data" => $data]);
-                } else {
+                    } else {
                     echo json_encode(["status" => "success", "data" => []]); // No data found
                 }
-            } else {
-                error_log("Error executing query: " . $stmt->error); // Log the error
-                echo json_encode(["status" => "error", "message" => "Error executing query: " . $stmt->error]);
-            }
     
             $stmt->close(); // Close statement
-        } else {
-            echo json_encode(["status" => "error", "message" => "Missing tenantID or dueDate parameters."]);
-        }
+            } 
+        else {
+        echo json_encode(["status" => "error", "message" => "Missing tenantID or dueDate parameters."]);
+    }
     }
     
 } 
-    
 elseif ($requestMethod === 'POST') {
     // Capture the POST variables
     $tenantID = $_POST['tenantID'] ?? null; // Use null coalescing operator
@@ -256,26 +256,17 @@ else if ($requestMethod === 'PUT') {
     $tenantID = $inputData['tenantID'] ?? null;
     $dueDate = $inputData['dueDate'] ?? null; // Ensure dueDate is provided
     
-    // Validate dueDate format if provided
-    if ($dueDate) {
-        // Check if the date format is correct (YYYY-MM-DD)
-        $date = DateTime::createFromFormat('Y-m-d', $dueDate);
-        if (!$date || $date->format('Y-m-d') !== $dueDate) {
-            echo json_encode(['status' => 'error', 'message' => 'Invalid date format for dueDate. Please use YYYY-MM-DD.']);
-            exit();
-        }
-    }
-
-    // If only year is provided, append '-01-01' to make it a full date
-    if ($dueDate && strlen($dueDate) === 4) {
-        $dueDate .= '-01-01';
+    // Validate required parameters
+    if (!$paymentDetailsID || !$paymentType || !$amount || !$tenantID || !$dueDate) {
+        echo json_encode(['status' => 'error', 'message' => 'Missing required parameters']);
+        exit;
     }
 
     // Prepare SQL update query
     $query = "
         UPDATE tblchargesdetails 
         SET 
-            paymentTypeID = (SELECT paymentTypeID FROM tblpaymenttype WHERE paymentType = ?), 
+            paymentTypeID = (SELECT paymentTypeID FROM tblpaymenttype WHERE paymentType = ? LIMIT 1), 
             amount = ?, 
             dueDate = ?
         WHERE 
@@ -283,8 +274,8 @@ else if ($requestMethod === 'PUT') {
     ";
 
     if ($stmt = $conn->prepare($query)) {
-        // Bind parameters
-        $stmt->bind_param('ssdis', $paymentType, $amount, $dueDate, $paymentDetailsID, $tenantID);
+        // Bind parameters: paymentType is a string, amount and dueDate are decimals and date, paymentDetailsID and tenantID are integers
+        $stmt->bind_param('sdssi', $paymentType, $amount, $dueDate, $paymentDetailsID, $tenantID);
     
         // Execute the query
         if ($stmt->execute()) {
@@ -300,8 +291,6 @@ else if ($requestMethod === 'PUT') {
     echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
 }
 
-// Close the database connection
-$conn->close();
-
+    
 
 ?>

@@ -152,6 +152,12 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+                    <a class="sidebar-link" href="agreement.php">
+                        <i class="bi bi-envelope-paper"></i>
+                        Agreement
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a class="sidebar-link" href="reports.php">
                         <i class="bi bi-file-earmark-text"></i>
                         Report
@@ -181,15 +187,12 @@
         </nav>
         <main class="content px-4 py-4">
     <div class="container-fluid bg-white">
+        <div class="text-end p-4" >
+            <button type="submit" class="btn btn-primary mt-2" id="btn-addUser"><i class="bi bi-plus-lg me-2"></i>Add  New User</button>
+        </div>
             <div class="room-content p-2">
-                <div class="row">
-                    <div class="d-md-flex" id="deliquent-container"></div>
-                        <div class="d-flex align-items-center py-2" style="height: 50px;">
-                           
-                </div>
-
-                <div class="container">
-    <h1>Admin Profile</h1>
+                <div class="container mt-2">
+    <h1 id="lbl-adminProfile">Admin Profile</h1>
 
     <ul class="profile-details">
         <li>
@@ -259,8 +262,47 @@
             </div>
         </div>
     <!-- end modal -->
+    <!-- start modal addAdmin -->
+        <div class="modal" id="addAdminModal" tabindex="-1">
+            <div class="modal-dialog" style="font-size: 13px">
+                <div class="modal-content">
+                    <h2>Add New Admin User</h2>
+                    <form id="addAdminForm">
+                        <div class="mb-1">
+                            <label for="inpt-newadminName" class="form-label">Name:</label>
+                            <input type="text" class="form-control" id="inpt-newadminName">
+                        </div>
+                        <div class="mb-1">
+                            <label for="inpt-newadminEmail" class="form-label">Email:</label>
+                            <input type="email" class="form-control" id="inpt-newadminEmail">
+                        </div>
+                        <div class="mb-1">
+                            <label for="inpt-newadminPhoneNumber" class="form-label">Phone Number:</label>
+                            <input type="text" class="form-control" id="inpt-newadminPhoneNumber">
+                        </div>
+                        <div class="mb-1">
+                            <label for="inpt-newUsername" class="form-label">Username:</label>
+                            <input type="text" class="form-control" id="inpt-newUsername">
+                        </div>
+                        <div class="row align-items-start">
+                            <div class="col">
+                                <label for="inpt-newadminPassword" class="form-label">New Password:</label>
+                                <input type="password" class="form-control" id="inpt-newadminPassword">
+                            </div>
+                            <div class="col">
+                                <label for="inpt-confirmNewadminPassword" class="form-label">Confirm New Password:</label>
+                                <input type="password" class="form-control" id="inpt-confirmNewadminPassword">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="btn-create">Create</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    <!-- end modal -->
     <!-- start modal change password -->
-     <div class="modal" id="changePassModal" tabindex="-1" data-houseid="">
+        <div class="modal" id="changePassModal" tabindex="-1" data-houseid="">
             <div class="modal-dialog ">
                 <div class="modal-content">
                     <h2>Reset Password</h2>
@@ -273,9 +315,9 @@
                             <input type="text"  class="form-control" id="inpt-confirmNewPassword">
                     </div>
                     <button type="submit" class="btn btn-primary" id="btn-reset">Reset</button>
-                </div>
+                    </div>
             </div>
-        </div>
+            </div>
     <!-- end modal -->
             </div>
         </div>
@@ -294,8 +336,9 @@ $(document).ready(function() {
         Init: function(config) {
             this.config = config;
             this.BindEvents();
-            this.adminData();
             this.getEmail();
+            this.getAccountID();
+            this.adminData();
          
         },
         BindEvents: function() {
@@ -305,6 +348,19 @@ $(document).ready(function() {
             $this.$btn_submit.on('click', this.updateData.bind(this));
             $this.$btn_requestCode.on('click', this.codeModalShow.bind(this));
             $this.$btn_reset.on('click', this.updatePassword.bind(this));
+            $this.$btn_addUser.on('click', this.btnAddNewAdmin.bind(this));
+            $this.$btn_create.on('click', this.AddAdmin.bind(this));
+        },
+        getAccountID: function() {
+            const $self = this.config;
+            
+            const adminID = localStorage.getItem("adminID");
+
+            if (adminID) {
+                $('#lbl-adminProfile').attr('data-adminid', adminID);
+            } else {
+                console.warn("No adminID found in localStorage.");
+            }
         },
         getEmail: function() {
             const $self = this.config;
@@ -328,14 +384,17 @@ $(document).ready(function() {
                 }
             });
         },
-
         adminData: function(){
             const $self = this.config;
+
+            const adminID = $('#lbl-adminProfile').data('adminid');;
                 $.ajax({
                     url: '../controller/accountController.php',
                     type: 'GET',
                     dataType: 'json',
-                    data: { adminName: true },
+                    data: { adminName: true,
+                            adminID : adminID
+                     },
                     success: function(data){
                         $.each(data, function(index, item){
                             $self.$lbl_adminName.attr('data-adminid', item.AdminID);
@@ -515,23 +574,72 @@ $(document).ready(function() {
                     alert('An error occurred while updating the password: ' + error);
                 }
             });
+        },
+        btnAddNewAdmin: function(){
+            const $self = this.config;
+            $self.$addAdminModal.modal('show');    
+        },
+        AddAdmin: function(e) {
+            e.preventDefault();
+            const $self = this.config;
+
+            const adminName = $self.$inpt_newadminName.val().trim();
+            const adminEmail = $self.$inpt_newadminEmail.val().trim();
+            const adminUsername = $self.$inpt_newUsername.val().trim();
+            const adminPassword = $self.$inpt_newadminPassord.val().trim();
+            const adminConfirmPassword = $self.$inpt_confirmNewadminPassword.val().trim();
+            const adminPhoneNumber = $self.$inpt_newadminPhoneNumber.val().trim();
+            const role = 'admin';
+
+            // Ensure password confirmation matches
+            if (adminPassword !== adminConfirmPassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            $.ajax({
+                url: '../controller/accountController.php',
+                type: 'POST',
+                data: {
+                    role: role,
+                    adminName: adminName,
+                    adminEmail: adminEmail,
+                    adminPhoneNumber: adminPhoneNumber,
+                    adminUsername: adminUsername,
+                    adminPassword: adminPassword
+                },
+                dataType: 'json',
+                success: function(response) {
+                    if (response.status === 'success') {
+                        alert(response.message);
+                        $('#addAdminForm')[0].reset();
+                        $self.$addAdminModal.modal('hide');
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('An error occurred: ' + xhr.responseText);
+                }
+            });
         }
 
 
 
-
-        
     }
 
     adminaccountPage.Init({
         $resetModal                 : $('#resetModal'),
         $updateModal                : $('#updateModal'),
+        $addAdminModal              : $('#addAdminModal'),
         $changePassModal            : $('#changePassModal'),
         $btn_manageAccount          : $('#btn-manageAccount'),
         $btn_verify                 : $('#btn-verify'),
         $btn_requestCode            : $('#btn-requestCode'),
         $btn_submit                 : $('#btn-submit'),
         $btn_reset                  : $('#btn-reset'),
+        $btn_addUser                : $('#btn-addUser'),
+        $btn_create                 : $('#btn-create'),
         $lbl_verificationDetails    : $('#lbl-verificationDetails'),
         $lbl_adminName              : $('#lbl-adminName'),
         $lbl_adminEmail             : $('#lbl-adminEmail'),
@@ -542,7 +650,13 @@ $(document).ready(function() {
         $inpt_adminEmail            : $('#inpt-adminEmail'),
         $inpt_adminNumber           : $('#inpt-adminNumber'),
         $inpt_newPassword           : $('#inpt-newPassword'),
-        $inpt_confirmNewPassword    : $('#inpt-confirmNewPassword')
+        $inpt_confirmNewPassword    : $('#inpt-confirmNewPassword'),
+        $inpt_newadminName          : $('#inpt-newadminName'),
+        $inpt_newadminEmail         : $('#inpt-newadminEmail'),
+        $inpt_newUsername           : $('#inpt-newUsername'),
+        $inpt_newadminPassord       : $('#inpt-newadminPassword'),
+        $inpt_confirmNewadminPassword    : $('#inpt-confirmNewadminPassword'),
+        $inpt_newadminPhoneNumber   : $('#inpt-newadminPhoneNumber')
     });
 });
 </script>

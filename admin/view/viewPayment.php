@@ -160,11 +160,12 @@
                 <div class="table-responsive">
                     <table class="table table-hover">
                         <thead class="table-dark">
-                            <tr>
+                            <tr style="font-size: 14px">
                                 <th scope="col">Payment Type</th>
                                 <th scope="col">Amount</th>
                                 <th scope="col">Due Date</th>
                                 <th scope="col">Date Payment</th>
+                                <th scope="col">Previous Balance</th>
                                 <th scope="col">Payment Amount</th>
                                 <th scope="col">Balance</th>
                             </tr>
@@ -192,7 +193,6 @@
                             <table class="table table-hover">
                                 <thead class="table-dark    ">
                                     <tr>
-                                        
                                         <th scope="col" style="font-size: 14px">Payment Type</th>
                                         <th scope="col" style="font-size: 14px">Total Amount</th>
                                         <th scope="col" style="font-size: 14px">Due Date</th>
@@ -307,12 +307,17 @@
                             if (response.data.length > 0) {
                                 $.each(response.data, function(index, item) {
                                     // Determine payment status
-                                    let status = (item.remainingBalance == 0) 
-                                        ? 'paid' 
-                                        : (item.remainingBalance > 0 && item.remainingBalance < item.totalAmount) 
-                                        ? 'partial' 
-                                        : 'pending';
+                                    let paymetstatus = '';
+                                        const remainingBalance = parseFloat(item.remainingBalance);
+                                        const totalAmount = parseFloat(item.totalAmount);
 
+                                        if (remainingBalance === 0) {
+                                            paymetstatus = 'paid';
+                                        } else if (remainingBalance > 0 && remainingBalance < totalAmount) {
+                                            paymetstatus = 'partial';
+                                        } else {
+                                            paymetstatus = 'pending';
+                                        }
                                     // Create row template
                                     const row = `
                                         <tr class="text-capitalize" data-paymentDetailsID="${item.paymentDetailsIDs.join(',')}">
@@ -320,7 +325,7 @@
                                             <td>${item.totalAmount}</td>
                                             <td>${item.dueDate}</td>
                                             <td id="remainingBalance">${item.remainingBalance}</td>
-                                            <td>${status}</td>
+                                            <td>${paymetstatus}</td>
                                             <td>
                                                 <button type="button" class="btn btn-secondary" id="btn-pay" data-tenantid="${item.tenantID}">Pay</button>
                                                 <button type="button" class="btn btn-secondary" id="btn-viewPayment" data-tenantid="${item.tenantID}">View</button>
@@ -368,27 +373,29 @@
                     data: { pay: true, dueDate: dueDate, tenantID: tenantID },
                     dataType: 'json',
                     success: function(response) {
-                        const paymentTypeSelections = $('#payment-type-selections'); // Reference to payment type selections container
-                        paymentTypeSelections.empty(); // Clear previous labels
+                            const paymentTypeSelections = $('#payment-type-selections'); // Reference to payment type selections container
+                            paymentTypeSelections.empty(); // Clear previous labels
 
-                        // Append labels for each payment type
-                        $.each(response.data, function(index, item) {
-                            const label = `
-                                <div>
-                                    <label style="font-size: 15px;">
-                                        ${item.paymentType} <br/>
-                                        Remaining balance: ${item.balance} <br/>
-                                        <input type="number" 
-                                            name="paymentType" 
-                                            data-paymentDetailsID="${item.paymentDetailsID}" 
-                                            class="form-control payment-input" 
-                                            style="margin-right: 5px;" 
-                                            placeholder="Enter amount">
-                                    </label>
-                                </div>`;
-                            paymentTypeSelections.append(label); // Append label to the container
-                        });
-                    },
+                            // Append labels for each payment type
+                            $.each(response.data, function(index, item) {
+                                if (item.balance > 0) { // Only display items with a balance greater than zero
+                                    const label = `
+                                        <div>
+                                            <label style="font-size: 15px;">
+                                                ${item.paymentType} <br/>
+                                                Remaining balance: ${item.balance} <br/>
+                                                <input type="number" 
+                                                    name="paymentType" 
+                                                    data-paymentDetailsID="${item.paymentDetailsID}" 
+                                                    class="form-control payment-input" 
+                                                    style="margin-right: 5px;" 
+                                                    placeholder="Enter amount">
+                                            </label>
+                                        </div>`;
+                                    paymentTypeSelections.append(label); // Append label to the container
+                                }
+                            });
+                        },
                     error: function(xhr, status, error) {
                         console.error('AJAX Error: ' + status + ' ' + error);
                     }
@@ -397,7 +404,6 @@
                 // Show the modal
                 $self.$modal.modal('show');
             },
-
             addPayment: function(e) {
                 const $self = this.config;
                 e.preventDefault();
@@ -460,50 +466,62 @@
                 });
             },
             viewPayment: function(event) {
-                const $self = this.config;
-                $self.$transactionModal.modal('show');
-                const $row = $(event.currentTarget).closest('tr'); // Get the closest row
-                const tenantID = $('#tenantName').data('tenantid');
-                const dueDate = $row.find('td').eq(2).text(); // Get due date from the third cell
+    const $self = this.config;
+    $self.$transactionModal.modal('show');
+    const $row = $(event.currentTarget).closest('tr');
+    const tenantID = $('#tenantName').data('tenantid');
+    const dueDate = $row.find('td').eq(2).text(); // Get due date from the third cell
 
-                $.ajax({
-                    url: '../controller/viewPaymentController.php',
-                    type: 'GET',
-                    data: { 
-                        paymentList: true,
-                        tenantID: tenantID,
-                        dueDate: dueDate 
-                    },
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.status === 'success') {
-                $self.$tbodyPaymentList.empty(); // Clear previous results
+    let cumulativePayment = 0; // To track cumulative payment amount
+
+    $.ajax({
+        url: '../controller/viewPaymentController.php',
+        type: 'GET',
+        data: { 
+            paymentList: true,
+            tenantID: tenantID,
+            dueDate: dueDate 
+        },
+        dataType: 'json',
+        success: function(response) {
+            if (response.status === 'success') {
+                $self.$tbodyPaymentList.empty(); 
                 if (response.data.length > 0) { 
                     $.each(response.data, function(index, item) {
+                        const amount = parseFloat(item.Amount) || 0;
+                        const paymentAmount = parseFloat(item.PaymentAmount) || 0;
+                        const previousBalance = parseFloat(item.PreviousBalance) || 0;
+
+                        // Update cumulative payment for previous balance reference
+                        cumulativePayment += paymentAmount;
+
                         const row = `
-                            <tr class="text-capitalize">
+                            <tr class="text-capitalize" style="font-size: 13px">
                                 <td>${item.PaymentType}</td>
-                                <td>${item.Amount}</td>
+                                <td>${amount.toFixed(2)}</td>
                                 <td>${item.DueDate}</td>
                                 <td>${item.PaymentDate}</td>
-                                <td>${item.PaymentAmount}</td>
-                                <td>${item.Balance}</td>
+                                <td>${previousBalance.toFixed(2)}</td> <!-- Corrected Previous Balance -->
+                                <td>${paymentAmount.toFixed(2)}</td>
+                                <td>${(amount - cumulativePayment).toFixed(2)}</td> <!-- Remaining Balance -->
                             </tr>`;
                         $self.$tbodyPaymentList.append(row);
                     });
                 } else { 
-                    $self.$tbodyPaymentList.append('<tr><td colspan="6" class="text-center">No records found</td></tr>');
+                    $self.$tbodyPaymentList.append('<tr><td colspan="7" class="text-center">No records found</td></tr>');
                 }
-                } else { 
+            } else { 
                 console.error('Error fetching data: ' + response.message);
-                $self.$tbodyPaymentList.append('<tr><td colspan="6" class="text-center">Error fetching data</td></tr>');
-                }
-                    },
-                    error: function(xhr, status, error) {
-                        console.error('AJAX Error: ' + status + ' ' + error);
-                    }
-                });
-            },
+                $self.$tbodyPaymentList.append('<tr><td colspan="7" class="text-center">Error fetching data</td></tr>');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error: ' + status + ' ' + error);
+        }
+    });
+},
+
+
             edit: function(event) {
                 const $self = this.config;
                 const $row = $(event.currentTarget).closest('tr'); // Get the closest row

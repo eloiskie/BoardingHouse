@@ -24,7 +24,7 @@ function login($username, $password) {
                 // User is an admin
                 $_SESSION['user_id'] = $admin['AdminID'];
                 $_SESSION['user_role'] = 'admin';
-                echo json_encode(['success' => true, 'redirect' => '../view/index.php?user_id=' . $admin['AdminID']]); 
+                echo json_encode(['success' => true, 'redirect' => '../view/index.php?user_id=' , 'adminID' => $admin['AdminID']]); 
                 exit;
             } else {
                 error_log("Failed to verify admin password. Input: $password, Hash: {$admin['PasswordHash']}");

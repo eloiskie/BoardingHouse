@@ -167,27 +167,12 @@
             const $this = this.config;
            
         },
-        viewData: function(){
-                const $self = this.config;
-                $.ajax({
-                    url         : '../controller/indexController.php',
-                    type        : 'GET',
-                    dataType    : 'json',
-                    success: function(data){
-                            $.each(data, function(index, item){
-                                $self.$lbl_numberOfhouses.text('Number Of Houses: ' + item.HouseCount);
-                                $self.$lbl_numberOfTenant.text('Number Of Tenant: ' + item.TenantCount);
-                            });
-                    }
-                });
-            }
        
 
     }
 
     indexPage.Init({
-            $lbl_numberOfhouses         : $('#lbl-numberOfhouses'),
-            $lbl_numberOfTenant         : $('#lbl-numberOfTenant') 
+     
 
     });
 });

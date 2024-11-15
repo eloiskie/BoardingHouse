@@ -56,6 +56,12 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+                    <a class="sidebar-link" href="agreement.php">
+                        <i class="bi bi-envelope-paper"></i>
+                        Agreement
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a class="sidebar-link" href="reports.php">
                         <i class="bi bi-file-earmark-text"></i>
                         Report

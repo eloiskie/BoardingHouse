@@ -56,6 +56,12 @@
                         </a>
                     </li>
                     <li class="sidebar-item">
+                        <a class="sidebar-link" href="agreement.php">
+                            <i class="bi bi-envelope-paper"></i>
+                            Agreement
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
                         <a class="sidebar-link" href="reports.php">
                             <i class="bi bi-file-earmark-text"></i>
                             Report
@@ -263,7 +269,7 @@
                     if (response.status === 'success') {
                         const selectTenant = $self.$sel_tenantName;
                         selectTenant.empty();
-                        selectTenant.append('<option value="" style="font-size: 15px;">Select Tenant</option>');
+                        selectTenant.append('<option value="" style="font-size: 15px;" disabled selected>Select Tenant</option>');
 
                         if (response.data.length > 0) {
                             $.each(response.data, function(index, item) {
@@ -507,7 +513,6 @@
                 }
             });
         },
-
         filterName: function() {
             const $self = this.config;
             let query = $self.$inpt_searchName.val().trim(); // Get trimmed search query

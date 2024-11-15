@@ -209,18 +209,18 @@
                 <div class="modal-content p-4">
                 <div class="mb-2">
                     <h4 class="mb-2">Create Tenant Account</h4>
-                    <div class="row align-items-start">
+                <div class="row align-items-start">
                     <div class="col">
-                    <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
-                    <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
-                                    <option>Select House</option>
-                    </select>
+                        <label for="houseLocation" class="form-label" style="font-size: 14px">House Location</label>
+                            <select id="sel-houseLocation" class="form-select" style="font-size: 15px; height: 40px">
+                                            <option>Select House</option>
+                            </select>
                     </div>
                     <div class="col">
-                    <label for="roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
-                    <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
-                                    <option style="font-size: 15px;">Select Room Number</option>
-                    </select>
+                        <label for="roomNumber" class="form-label" style="font-size: 14px">Room Number</label>
+                        <select id="sel-roomNumber" class="form-select" style="font-size: 15px; height: 40px">
+                                        <option style="font-size: 15px;">Select Room Number</option>
+                        </select>
                     </div>
                 </div>
                 </div>

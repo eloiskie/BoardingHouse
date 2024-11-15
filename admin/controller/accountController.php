@@ -44,9 +44,13 @@ if ($requestMethod == "GET") {
         echo json_encode($data);
         $stmt->close(); // Close prepared statement
     } else if (isset($_GET['adminName'])) {
-        $sql = "SELECT AdminID, adminName, Email, PhoneNumber FROM tbladminaccount";
-        $result = $conn->query($sql);
-        
+        $adminID = $_GET['adminID'];
+
+        $sql = "SELECT AdminID, adminName, Email, PhoneNumber FROM tbladminaccount WHERE AdminID = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param('i', $adminID);
+        $stmt->execute();
+        $result = $stmt->get_result();
         $data = array();
 
         if ($result) {
@@ -136,6 +140,57 @@ else if ($requestMethod == "PUT") {
             echo json_encode(["status" => "error", "message" => "Invalid input. Please check your data."]);
         }
 }
+else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['role'])) {
+        $role = trim($_POST['role']);
+        $adminName = trim($_POST['adminName']);
+        $adminEmail = trim($_POST['adminEmail']);
+        $adminPhoneNumber = trim($_POST['adminPhoneNumber']);
+        $adminUsername = trim($_POST['adminUsername']);
+        $adminPassword = trim($_POST['adminPassword']);
+
+        if (empty($adminName) || empty($adminEmail) || empty($adminUsername) || empty($adminPassword) || empty($adminPhoneNumber)) {
+            echo json_encode(["status" => "error", "message" => "All fields are required."]);
+            exit;
+        }
+
+        if (!filter_var($adminEmail, FILTER_VALIDATE_EMAIL)) {
+            echo json_encode(["status" => "error", "message" => "Invalid email format."]);
+            exit;
+        }
+
+        $sqlCheckUsername = "SELECT COUNT(*) FROM tbladminaccount WHERE Username = ?";
+        $checkStmt = $conn->prepare($sqlCheckUsername);
+        $checkStmt->bind_param('s', $adminUsername);
+        $checkStmt->execute();
+        $checkStmt->bind_result($usernameCount);
+        $checkStmt->fetch();
+        $checkStmt->close();
+
+        if ($usernameCount > 0) {
+            echo json_encode(["status" => "error", "message" => "Username already exists."]);
+            exit;
+        }
+
+        $passwordHash = password_hash($adminPassword, PASSWORD_DEFAULT);
+        $stmt = $conn->prepare("INSERT INTO tbladminaccount (Username, PasswordHash, adminName, Email, PhoneNumber, Role) VALUES (?, ?, ?, ?, ?, ?)");
+
+        if ($stmt) {
+            $stmt->bind_param('ssssss', $adminUsername, $passwordHash, $adminName, $adminEmail, $adminPhoneNumber, $role);
+            if ($stmt->execute()) {
+                echo json_encode(["status" => "success", "message" => "Admin account created successfully."]);
+            } else {
+                echo json_encode(["status" => "error", "message" => "Failed to create admin account."]);
+            }
+            $stmt->close();
+        } else {
+            echo json_encode(["status" => "error", "message" => "Database error"]);
+        }
+
+        $conn->close();
+    }
+}
+
 
 
 

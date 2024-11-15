@@ -86,17 +86,27 @@
                     },
                     dataType: 'json',
                     success: function(response) {
-                        if (response.success) {
-                            e.preventDefault();
-                            const tenantID = response.tenantID;
-                            
-                            localStorage.setItem("tenantID", tenantID);
-                            window.location.href = response.redirect;
-                        } else {
-                            // Display the error message from the server
-                            alert(response.message || 'Invalid username or password.');
-                        }
-                    },
+                            if (response.success) {
+                                e.preventDefault();
+                                const tenantID = response.tenantID;
+                                const adminID = response.adminID;
+                                
+                                // Ensure you are setting the adminID and tenantID correctly
+                                if (adminID) {
+                                    localStorage.setItem("adminID", adminID);
+                                }
+
+                                if (tenantID) {
+                                    localStorage.setItem("tenantID", tenantID);
+                                }
+                                
+                                // Redirect based on role
+                                window.location.href = response.redirect;
+                            } else {
+                                // Display the error message from the server
+                                alert(response.message || 'Invalid username or password.');
+                            }
+                        },
                     error: function() {
                         alert('An error occurred while processing your request. Please try again.');
                     }
